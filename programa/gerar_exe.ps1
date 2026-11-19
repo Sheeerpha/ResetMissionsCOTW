@@ -28,9 +28,9 @@ if (Test-Path $pasta) { Remove-Item $pasta -Recurse -Force }
 if (Test-Path $zip) { Remove-Item $zip -Force }
 New-Item -ItemType Directory $pasta | Out-Null
 Copy-Item 'dist\ResetMissionsCOTW.exe' $pasta
-Copy-Item 'LEIA-ME (distribuicao).txt' (Join-Path $pasta 'LEIA-ME.txt')
-Copy-Item 'README (distribuicao).txt' (Join-Path $pasta 'README.txt')
-Copy-Item 'LEEME (distribuicao).txt' (Join-Path $pasta 'LEEME.txt')
+Copy-Item 'LEIA-ME (distribuicao).txt' (Join-Path $pasta 'LEIA-ME_PRIMEIRO.txt')
+Copy-Item 'README (distribuicao).txt' (Join-Path $pasta 'README_FIRST.txt')
+Copy-Item 'LEEME (distribuicao).txt' (Join-Path $pasta 'LEEME_PRIMERO.txt')
 Compress-Archive -Path $pasta -DestinationPath $zip
 
 Write-Host ''

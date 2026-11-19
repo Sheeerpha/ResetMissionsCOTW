@@ -38,9 +38,9 @@ jobs:
           $nome = "ResetMissionsCOTW_$versao"
           New-Item -ItemType Directory $nome | Out-Null
           Copy-Item dist/ResetMissionsCOTW.exe $nome/
-          Copy-Item 'programa/LEIA-ME (distribuicao).txt' "$nome/LEIA-ME.txt"
-          Copy-Item 'programa/README (distribuicao).txt' "$nome/README.txt"
-          Copy-Item 'programa/LEEME (distribuicao).txt' "$nome/LEEME.txt"
+          Copy-Item 'programa/LEIA-ME (distribuicao).txt' "$nome/LEIA-ME_PRIMEIRO.txt"
+          Copy-Item 'programa/README (distribuicao).txt' "$nome/README_FIRST.txt"
+          Copy-Item 'programa/LEEME (distribuicao).txt' "$nome/LEEME_PRIMERO.txt"
           Copy-Item LICENSE "$nome/LICENSE.txt"
           Compress-Archive -Path $nome -DestinationPath "$nome.zip"
           "ZIP=$nome.zip" >> $env:GITHUB_ENV

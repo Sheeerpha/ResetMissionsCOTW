@@ -8,7 +8,17 @@
 
 ## ⬇️ Download
 
-Get the latest `.zip` from **[Releases](https://github.com/Sheeerpha/ResetMissionsCOTW/releases/latest)**, extract it and run `ResetMissionsCOTW.exe`. Nothing to install (Windows 10/11).
+Get the latest `.zip` from **[Releases](https://github.com/Sheeerpha/ResetMissionsCOTW/releases/latest)**, extract it and run `ResetMissionsCOTW.exe`. Nothing to install (Windows 10/11). Read `README_FIRST.txt` inside the zip.
+
+### 🛡️ "Windows protected your PC" — this is normal
+
+The first time you open the program, Windows will probably show a blue screen saying **"Windows protected your PC"**. This happens with every program that does not have a paid code-signing certificate (bought every year by big companies). This is a free program made by a player, so it does not have one, and Windows warns you as a precaution — it does not mean the program has a virus.
+
+1. Click **More info** (the small text below the message).
+2. Click **Run anyway**.
+3. Done. Usually it only shows up the first time.
+
+Want to check first? All the code is right here, and the `.exe` in Releases is built automatically by GitHub from this code. Always download from the official pages (GitHub or Nexus Mods).
 
 ## What it does
 
@@ -25,7 +35,7 @@ In the game, the only way to reset missions is to delete the missions file, whic
 ## How to use
 
 1. Close the game.
-2. Open `ResetMissionsCOTW.exe` (first time: a short warning and introduction, you can skip it).
+2. Open `ResetMissionsCOTW.exe`. A "Before you start" warning shows up every time; the first time, a short introduction too (you can skip it).
 3. Click **Back up the full save** (recommended).
 4. Select the map (hold Ctrl for several) → **Reset missions of the selected map(s)** → confirm.
 5. Open the game and enter the map: its missions start from scratch.
@@ -34,7 +44,6 @@ To undo: **Restore missions backup...** (only missions) or **Restore full save..
 
 ### Notes
 
-- **"Windows protected your PC"**: the program has no paid code-signing certificate. Click *More info* → *Run anyway*.
 - **Controlled folder access** (Windows Defender ransomware protection): if it is on, Windows blocks writing to Documents. The program shows a yellow bar with a step-by-step guide to allow it.
 - **Steam Cloud / Epic Cloud**: if a sync conflict shows up when opening the game, choose the **local** version.
 - Backups live in `Documents\.BKP_ResetMissions_Saves_COTW` (hidden folder), per account, in `Backups_MISSIONS` and `Backups_SAVE`.
@@ -85,7 +94,9 @@ Created by **Sheeerpha** · [MIT License](LICENSE)
 
 **Como usar:** feche o jogo → abra o programa → **Fazer backup do save completo** → escolha o mapa → **Resetar missões do(s) mapa(s) selecionado(s)** → entre no mapa no jogo.
 
-Se aparecer "O Windows protegeu o computador", clique em *Mais informações* → *Executar assim mesmo*. Problemas? Abra uma [Issue](https://github.com/Sheeerpha/ResetMissionsCOTW/issues).
+**"O Windows protegeu o computador" é normal.** Essa tela azul aparece com todo programa sem assinatura digital paga (um certificado caro, comprado todo ano por grandes empresas). Não quer dizer que tenha vírus: clique em **Mais informações** → **Executar assim mesmo**. O código está todo aqui, e o `.exe` das Releases é gerado pelo próprio GitHub a partir dele. Leia o `LEIA-ME_PRIMEIRO.txt` do zip.
+
+Problemas? Abra uma [Issue](https://github.com/Sheeerpha/ResetMissionsCOTW/issues).
 
 ## 🇪🇸 Español
 
@@ -102,4 +113,6 @@ Se aparecer "O Windows protegeu o computador", clique em *Mais informações* �
 
 **Cómo usarlo:** cierra el juego → abre el programa → **Copia de seguridad de la partida completa** → elige el mapa → **Reiniciar misiones de los mapas seleccionados** → entra en el mapa en el juego.
 
-Si aparece "Windows protegió su PC", haz clic en *Más información* → *Ejecutar de todas formas*. ¿Problemas? Abre una [Issue](https://github.com/Sheeerpha/ResetMissionsCOTW/issues).
+**"Windows protegió su PC" es normal.** Esa pantalla azul aparece con todo programa sin firma digital de pago (un certificado caro, que las grandes empresas compran cada año). No significa que tenga virus: haz clic en **Más información** → **Ejecutar de todas formas**. Todo el código está aquí, y el `.exe` de Releases lo genera el propio GitHub a partir de él. Lee el `LEEME_PRIMERO.txt` del zip.
+
+¿Problemas? Abre una [Issue](https://github.com/Sheeerpha/ResetMissionsCOTW/issues).

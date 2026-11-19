@@ -18,11 +18,38 @@ It only changes mission progress (the missions_missiondata_adf file). Profile,
 money, skills, weapons, animals, trophies and the rest of the save are not touched.
 
 
+BEFORE OPENING: THE BLUE "WINDOWS PROTECTED YOUR PC" SCREEN
+-----------------------------------------------------------
+The first time you open the program, Windows will probably show a blue
+screen saying "Windows protected your PC".
+
+THIS IS NORMAL. It happens with every program that does not have a
+"digital signature", a paid certificate, bought every year, that big
+companies use. Since this is a free program made by a player, it does
+not have that signature, and Windows warns you as a precaution. It does
+not mean the program has a virus.
+
+How to get past it:
+1. On the blue screen, click "More info" (the small text right below
+   the message).
+2. A "Run anyway" button will show up. Click it.
+3. Done: the program opens. Usually this screen only shows up the
+   first time.
+
+Want to check first? The program is open source: anyone can see exactly
+what it does at
+https://github.com/Sheeerpha/ResetMissionsCOTW
+and the program is built automatically by GitHub itself from that code.
+Always download it from the official page (GitHub or Nexus Mods).
+
+
 HOW TO USE
 ----------
 1. CLOSE the game (the program does not change anything while the game is open).
 2. Double-click "ResetMissionsCOTW.exe".
-   The first time, a warning and a quick introduction show up (you can skip it).
+   If the blue Windows screen shows up, see the section above.
+   Every time the program opens, the "Before you start" warning shows up.
+   The first time, a quick introduction shows up too (you can skip it).
 3. The program finds your save by itself and shows the list of maps with the
    completed missions, missions in progress and the total.
    (If it does not find it, click "Choose folder..." and select the save
@@ -60,12 +87,8 @@ Backups are kept in Documents\.BKP_ResetMissions_Saves_COTW (hidden folder),
 separated by account, in the Backups_MISSIONS and Backups_SAVE folders.
 
 
-WARNINGS YOU MAY SEE
---------------------
-* "Windows protected your PC" (blue screen when opening the program)
-  This happens with new programs that do not have a paid digital signature.
-  Click "More info" and then "Run anyway".
-
+OTHER WARNINGS YOU MAY SEE
+--------------------------
 * Yellow bar "Windows is blocking this program..."
   It only shows up if you turned on the "Controlled folder access" protection
   of Windows Defender. Use the buttons in the bar itself: "How to allow it

@@ -20,11 +20,38 @@ El perfil, el dinero, las habilidades, las armas, los animales, los trofeos y el
 resto de la partida no se tocan.
 
 
+ANTES DE ABRIR: LA PANTALLA AZUL "WINDOWS PROTEGIÓ SU PC"
+---------------------------------------------------------
+La primera vez que abras el programa, Windows probablemente mostrará una
+pantalla azul que dice "Windows protegió su PC".
+
+ES NORMAL. Pasa con todo programa que no tiene una "firma digital", un
+certificado de pago, que se compra cada año y que usan las grandes
+empresas. Como este es un programa gratuito, hecho por un jugador, no
+tiene esa firma, y Windows avisa por precaución. No significa que el
+programa tenga virus.
+
+Cómo pasarla:
+1. En la pantalla azul, haz clic en "Más información" (el texto pequeño,
+   justo debajo del mensaje).
+2. Aparecerá el botón "Ejecutar de todas formas". Haz clic en él.
+3. Listo: el programa se abre. Normalmente, esta pantalla solo aparece
+   la primera vez.
+
+¿Quieres comprobarlo antes? El código del programa es abierto: cualquiera
+puede ver exactamente lo que hace en
+https://github.com/Sheeerpha/ResetMissionsCOTW
+y el programa lo genera automáticamente el propio GitHub a partir de ese
+código. Descárgalo siempre de la página oficial (GitHub o Nexus Mods).
+
+
 CÓMO USARLO
 -----------
 1. CIERRA el juego (el programa no cambia nada con el juego abierto).
 2. Haz doble clic en "ResetMissionsCOTW.exe".
-   La primera vez aparecen un aviso y una introducción rápida (puedes omitirla).
+   Si aparece la pantalla azul de Windows, mira la sección de arriba.
+   Cada vez que el programa se abre, aparece el aviso "Antes de empezar".
+   La primera vez, aparece también una introducción rápida (puedes omitirla).
 3. El programa encuentra tu partida solo y muestra la lista de mapas con las
    misiones completadas, en curso y el total.
    (Si no la encuentra, haz clic en "Elegir carpeta..." y elige la carpeta de
@@ -63,12 +90,8 @@ Las copias están en Documentos\.BKP_ResetMissions_Saves_COTW (carpeta oculta),
 separadas por cuenta, en las carpetas Backups_MISSIONS y Backups_SAVE.
 
 
-AVISOS QUE PUEDEN APARECER
---------------------------
-* "Windows protegió su PC" (pantalla azul al abrir el programa)
-  Pasa con programas nuevos que no tienen firma digital de pago.
-  Haz clic en "Más información" y después en "Ejecutar de todas formas".
-
+OTROS AVISOS QUE PUEDEN APARECER
+--------------------------------
 * Barra amarilla "Windows está bloqueando que este programa..."
   Solo aparece si activaste la protección "Acceso controlado a carpetas" de
   Windows Defender. Usa los botones de la propia barra: "Cómo permitirlo (paso

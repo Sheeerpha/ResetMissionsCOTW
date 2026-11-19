@@ -18,11 +18,38 @@ Ele só altera o progresso das missões (arquivo missions_missiondata_adf). Perf
 dinheiro, habilidades, armas, animais, troféus e o resto do save não são tocados.
 
 
+ANTES DE ABRIR: A TELA AZUL "O WINDOWS PROTEGEU O COMPUTADOR"
+-------------------------------------------------------------
+Na primeira vez que você abrir o programa, o Windows provavelmente vai
+mostrar uma tela azul dizendo "O Windows protegeu o computador".
+
+ISSO É NORMAL. Acontece com todo programa que não tem uma "assinatura
+digital", um certificado pago, comprado todo ano, que grandes empresas
+usam. Como este é um programa gratuito, feito por um jogador, ele não
+tem essa assinatura, e o Windows avisa por precaução. Não quer dizer
+que o programa tenha vírus.
+
+Como passar por ela:
+1. Na tela azul, clique em "Mais informações" (o texto pequeno, logo
+   abaixo da mensagem).
+2. Vai aparecer o botão "Executar assim mesmo". Clique nele.
+3. Pronto: o programa abre. Normalmente, essa tela só aparece na
+   primeira vez.
+
+Quer conferir antes? O código do programa é aberto: qualquer pessoa pode
+ver exatamente o que ele faz em
+https://github.com/Sheeerpha/ResetMissionsCOTW
+e o programa é gerado automaticamente pelo próprio GitHub a partir desse
+código. Baixe sempre da página oficial (GitHub ou Nexus Mods).
+
+
 COMO USAR
 ---------
 1. FECHE o jogo (o programa não deixa alterar nada com o jogo aberto).
 2. Dê dois cliques em "ResetMissionsCOTW.exe".
-   Na primeira vez, aparecem um aviso e uma introdução rápida (dá para pular).
+   Se aparecer a tela azul do Windows, veja a seção acima.
+   Sempre que o programa abre, aparece o aviso "Antes de começar". Na
+   primeira vez, aparece também uma introdução rápida (dá para pular).
 3. O programa encontra o seu save sozinho e mostra a lista de mapas com as
    missões concluídas, em andamento e o total.
    (Se não encontrar, clique em "Escolher pasta..." e aponte a pasta do save,
@@ -60,12 +87,8 @@ Os backups ficam em Documentos\.BKP_ResetMissions_Saves_COTW (pasta oculta),
 separados por conta, nas pastas Backups_MISSIONS e Backups_SAVE.
 
 
-AVISOS QUE PODEM APARECER
--------------------------
-* "O Windows protegeu o computador" (tela azul ao abrir o programa)
-  Acontece com programas novos que não têm assinatura digital paga.
-  Clique em "Mais informações" e depois em "Executar assim mesmo".
-
+OUTROS AVISOS QUE PODEM APARECER
+--------------------------------
 * Faixa amarela "O Windows está bloqueando este programa..."
   Só aparece se você tiver ligado a proteção "Acesso Controlado a Pastas" do
   Windows Defender. Use os botões da própria faixa: "Como liberar (passo a

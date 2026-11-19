@@ -16,8 +16,10 @@ import idiomas
 # Os testes rodam em português e não mexem na preferência de idioma real.
 idiomas.definir('pt')
 idiomas.ARQUIVO_PREF = os.path.join(tempfile.mkdtemp(), 'config.json')
-# Nos testes da janela, o aviso e a introdução da primeira vez não aparecem (há testes próprios para eles)
+# Nos testes da janela, o aviso e a introdução não aparecem sozinhos (há um teste próprio para eles)
 idiomas.salvar_config(aviso_visto=True, intro_vista=True)
+import cotw_app as _app
+_app.App.mostrar_aviso_ao_abrir = False
 # A sugestão de backup completo antes do reset responde "Não" (continuar), salvo nos testes dela
 import tkinter.messagebox as _mb
 _mb.askyesnocancel = lambda *a, **k: False
@@ -839,10 +841,11 @@ def sugestao_de_backup_completo_antes_do_reset():
 
 
 @teste
-def aviso_e_introducao_aparecem_so_na_primeira_vez():
+def aviso_aparece_sempre_e_introducao_so_na_primeira_vez():
     import cotw_app
     from unittest import mock
-    idiomas.salvar_config(aviso_visto=False, intro_vista=False)
+    idiomas.salvar_config(intro_vista=False)
+    cotw_app.App.mostrar_aviso_ao_abrir = True
     try:
         with tempfile.TemporaryDirectory() as tmp:
             save = core.descrever_pasta(save_falso(tmp))
@@ -873,9 +876,14 @@ def aviso_e_introducao_aparecem_so_na_primeira_vez():
                                     intro.bt_proximo.cget('text'), intro.texto.cget('text')))
                     intro.proximo()
                 assert not intro.winfo_exists()
-                cfg = idiomas.ler_config()
-                assert cfg['aviso_visto'] and cfg['intro_vista'], cfg
-                app.mostrar_boas_vindas()   # já viu: não abre mais nada
+                assert idiomas.ler_config()['intro_vista'] is True
+                # abrir o programa de novo: o aviso aparece outra vez, a introdução não
+                app.mostrar_boas_vindas()
+                (aviso2,) = janelas(cotw_app.JanelaAviso)
+                aviso2.fechar()
+                app.update()
+                app.after(300)
+                app.update()
                 assert janelas(cotw_app.JanelaAviso) == [] and janelas(cotw_app.JanelaIntro) == []
                 app.mostrar_intro()         # mas o botão "Como usar" abre de novo
                 app.mostrar_intro()         # (e não abre duas)
@@ -887,7 +895,8 @@ def aviso_e_introducao_aparecem_so_na_primeira_vez():
         assert 'Fazer backup do save completo' in paginas[4][3] and '50' in paginas[4][3], paginas[4][3]
         assert not any('{' in p[3] for p in paginas), 'sobrou campo sem preencher'
     finally:
-        idiomas.salvar_config(aviso_visto=True, intro_vista=True)
+        idiomas.salvar_config(intro_vista=True)
+        cotw_app.App.mostrar_aviso_ao_abrir = False
 
 
 @teste

@@ -67,15 +67,22 @@ class App(tk.Tk):
         self.procurar_saves()
         self._agendados.append(self.after(300, self.mostrar_boas_vindas))
 
+    # O aviso "Antes de começar" aparece toda vez que o programa abre (os testes desligam isto).
+    mostrar_aviso_ao_abrir = True
+
     def mostrar_boas_vindas(self):
-        """Na primeira vez: aviso e depois a introdução. Cada um aparece só uma vez."""
+        """Ao abrir: o aviso "Antes de começar" (sempre) e, depois dele, a introdução
+        (só na primeira vez)."""
         if any(isinstance(w, (JanelaAviso, JanelaIntro)) for w in self.winfo_children()):
             return  # já está aberta
-        cfg = idiomas.ler_config()
-        if not cfg.get('aviso_visto'):
-            JanelaAviso(self, depois=self.mostrar_boas_vindas)
-        elif not cfg.get('intro_vista'):
-            JanelaIntro(self)
+        if self.mostrar_aviso_ao_abrir:
+            JanelaAviso(self, depois=self._intro_se_primeira_vez)
+        else:
+            self._intro_se_primeira_vez()
+
+    def _intro_se_primeira_vez(self):
+        if not idiomas.ler_config().get('intro_vista'):
+            self.mostrar_intro()
 
     def mostrar_intro(self):
         if not any(isinstance(w, JanelaIntro) for w in self.winfo_children()):
@@ -722,7 +729,6 @@ class JanelaAviso(tk.Toplevel):
         self.app.fazer_backup_save(parent=self)
 
     def fechar(self):
-        idiomas.salvar_config(aviso_visto=True)
         self.destroy()
         if self.depois:
             try:
