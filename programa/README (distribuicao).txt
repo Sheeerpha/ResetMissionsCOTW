@@ -1,4 +1,4 @@
-ResetMissionsCOTW - version 0.9.5 (Beta)
+ResetMissionsCOTW - version 0.9.6 (Beta)
 Per-map mission reset - theHunter: Call of the Wild
 Created by Sheeerpha
 =========================================================
@@ -87,6 +87,19 @@ Backups are kept in Documents\.BKP_ResetMissions_Saves_COTW (hidden folder),
 separated by account, in the Backups_MISSIONS and Backups_SAVE folders.
 
 
+CHECK BEFORE YOU START
+----------------------
+When it opens and before changing the save, the program checks what could get
+in the way: the game being open, programs using the save files (Steam, OneDrive,
+Google Drive, Dropbox...), the save being inside a cloud folder and files marked
+as "read-only". Everything happens only on your computer: nothing goes online.
+* If all is fine, it only shows "✔ Check: all set".
+* If something blocks, a screen opens with buttons: "Close Steam", "Close
+  OneDrive", "Fix" (read-only) and "Check again". The program NEVER closes
+  anything by itself or by force: only when you click.
+* The game is never closed by the program: close it normally, from its menu.
+
+
 OTHER WARNINGS YOU MAY SEE
 --------------------------
 * Yellow bar "Windows is blocking this program..."
@@ -119,7 +132,11 @@ FOUND A PROBLEM?
 ----------------
 Open an "Issue" on the project's GitHub page, with:
 - a screenshot with the error message;
-- what you did before the error happened.
+- what you did before the error happened;
+- the LOG: click the program's "📄 Logs" button and send the most recent file
+  (or use "Copy details" in the error window and paste it into your report).
+  The log is kept in %LOCALAPPDATA%\ResetMissionsCOTW\logs (the 5 most recent)
+  and does not contain your user name: personal data is masked.
 
 https://github.com/Sheeerpha/ResetMissionsCOTW/issues
 

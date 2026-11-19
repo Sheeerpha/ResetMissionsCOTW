@@ -1,4 +1,4 @@
-ResetMissionsCOTW - versión 0.9.5 (Beta)
+ResetMissionsCOTW - versión 0.9.6 (Beta)
 Reinicio de misiones por mapa - theHunter: Call of the Wild
 Creado por Sheeerpha
 =========================================================
@@ -90,6 +90,20 @@ Las copias están en Documentos\.BKP_ResetMissions_Saves_COTW (carpeta oculta),
 separadas por cuenta, en las carpetas Backups_MISSIONS y Backups_SAVE.
 
 
+COMPROBACIÓN ANTES DE EMPEZAR
+-----------------------------
+Al abrirse y antes de cambiar la partida, el programa comprueba qué puede
+estorbar: el juego abierto, programas usando los archivos de la partida (Steam,
+OneDrive, Google Drive, Dropbox...), la partida dentro de una carpeta en la nube y
+archivos marcados como "solo lectura". Todo ocurre solo en tu equipo: no se envía
+nada a internet.
+* Si todo está bien, solo aparece "✔ Comprobación: todo listo".
+* Si algo lo impide, se abre una pantalla con botones: "Cerrar Steam", "Cerrar
+  OneDrive", "Corregir" (solo lectura) y "Comprobar de nuevo". El programa NUNCA
+  cierra nada solo ni a la fuerza: solo cuando haces clic.
+* El programa nunca cierra el juego: ciérralo normalmente, desde su menú.
+
+
 OTROS AVISOS QUE PUEDEN APARECER
 --------------------------------
 * Barra amarilla "Windows está bloqueando que este programa..."
@@ -121,7 +135,12 @@ IMPORTANTE
 -------------------------
 Abre un aviso ("Issue") en la página del proyecto en GitHub, con:
 - una captura de pantalla con el mensaje de error;
-- lo que hiciste antes de que apareciera el error.
+- lo que hiciste antes de que apareciera el error;
+- el REGISTRO: haz clic en el botón "📄 Registros" del programa y envía el archivo
+  más reciente (o usa "Copiar detalles" en la ventana de error y pégalo en tu
+  informe). El registro está en %LOCALAPPDATA%\ResetMissionsCOTW\logs (se guardan
+  los 5 más recientes) y no contiene tu nombre de usuario: los datos personales
+  se enmascaran.
 
 https://github.com/Sheeerpha/ResetMissionsCOTW/issues
 

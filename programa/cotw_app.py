@@ -8,11 +8,13 @@ import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
 import cotw_core as core
+import diagnostico
 import idiomas
+import registro
 import temas
 from idiomas import t
 
-VERSAO = '0.9.5 (Beta)'
+VERSAO = '0.9.6 (Beta)'
 NOME_DO_PROGRAMA = 'ResetMissionsCOTW'
 TITULO = 'ResetMissionsCOTW (Beta)'
 AUTOR = 'Sheeerpha'
@@ -53,30 +55,70 @@ class App(tk.Tk):
         self.saves_visiveis = []
         self.mapas = {}
         self.bloqueado = False
+        self.verificacao = None          # último resultado da "Verificação antes de começar"
+        self.avisos_discretos = []       # avisos que não atrapalham (limpeza de backups, sobras...)
+        self.onedrive_fechado = None     # caminho do OneDrive, se a verificação o fechou (para reabrir)
         self._agendados = []
         self._montar()
         self._agendados.append(self.after(100, self.iniciar))
 
+    def report_callback_exception(self, tipo, erro, tb):
+        """Qualquer erro inesperado num botão vai para o log (e aparece na janela de erro)."""
+        registro.log_erro('Erro inesperado na janela', erro)
+        try:
+            self.mostrar_erro(erro, 'Erro inesperado')
+        except Exception:
+            super().report_callback_exception(tipo, erro, tb)
+
     def destroy(self):
         for a in self._agendados:
-            self.after_cancel(a)
+            try:
+                self.after_cancel(a)
+            except tk.TclError:
+                pass
         super().destroy()
 
     def iniciar(self):
         self.verificar_permissao()
         self.procurar_saves()
+        self.arrumar_ao_abrir()
+        self.verificar_agora()
         self._agendados.append(self.after(300, self.mostrar_boas_vindas))
+
+    def arrumar_ao_abrir(self):
+        """Guarda sobras de restaurações anteriores e aplica os limites de backups.
+        Nada disso bloqueia o programa: o que não der certo vira um aviso discreto."""
+        self.avisos_discretos = []
+        if self.save_atual is None or self.bloqueado:
+            self.mostrar_avisos_discretos()
+            return
+        for r in core.recolher_sobras(self.save_atual, self.raiz):
+            if r.situacao in ('guardada', 'copiada'):
+                self.avisos_discretos.append(t('aviso_sobra_guardada', titulo=core.titulo_do_backup_save('sobra')))
+            elif r.situacao == 'falhou':
+                self.avisos_discretos.append(t('aviso_sobra_falhou'))
+        falhas = core.limpar_excesso_de_backups(self.save_atual, self.raiz)
+        if falhas:
+            self.avisos_discretos.append(t('aviso_limpeza_falhou', n=len(falhas)))
+        self.mostrar_avisos_discretos()
+        self.recarregar()
 
     # O aviso "Antes de começar" aparece toda vez que o programa abre (os testes desligam isto).
     mostrar_aviso_ao_abrir = True
 
     def mostrar_boas_vindas(self):
-        """Ao abrir: o aviso "Antes de começar" (sempre) e, depois dele, a introdução
-        (só na primeira vez)."""
-        if any(isinstance(w, (JanelaAviso, JanelaIntro)) for w in self.winfo_children()):
+        """Ao abrir: o aviso "Antes de começar" (sempre), depois a verificação (só se algo
+        precisar ser resolvido) e por fim a introdução (só na primeira vez)."""
+        if any(isinstance(w, (JanelaAviso, JanelaIntro, JanelaVerificacao)) for w in self.winfo_children()):
             return  # já está aberta
         if self.mostrar_aviso_ao_abrir:
-            JanelaAviso(self, depois=self._intro_se_primeira_vez)
+            JanelaAviso(self, depois=self._depois_do_aviso)
+        else:
+            self._depois_do_aviso()
+
+    def _depois_do_aviso(self):
+        if self.verificacao is not None and self.verificacao.impedimentos:
+            JanelaVerificacao(self, 'info', self.verificacao, depois=self._intro_se_primeira_vez)
         else:
             self._intro_se_primeira_vez()
 
@@ -103,10 +145,13 @@ class App(tk.Tk):
         self.faixa_texto.pack(fill='x', padx=10, pady=(8, 4))
         bts = tk.Frame(self.faixa, bg=aviso)
         bts.pack(fill='x', padx=10, pady=(0, 8))
-        ttk.Button(bts, text=t('bt_como_liberar'), command=self.mostrar_passo_a_passo).pack(side='left')
-        ttk.Button(bts, text=t('bt_abrir_seguranca'), command=self.abrir_seguranca).pack(side='left', padx=6)
-        ttk.Button(bts, text=t('bt_copiar_caminho'), command=self.copiar_caminho).pack(side='left')
-        ttk.Button(bts, text=t('bt_testar_de_novo'), command=self.testar_de_novo).pack(side='left', padx=6)
+        self.botoes_cfa = [ttk.Button(bts, text=t('bt_como_liberar'), command=self.mostrar_passo_a_passo),
+                           ttk.Button(bts, text=t('bt_abrir_seguranca'), command=self.abrir_seguranca),
+                           ttk.Button(bts, text=t('bt_copiar_caminho'), command=self.copiar_caminho)]
+        for bt in self.botoes_cfa:
+            bt.pack(side='left', padx=(0, 6))
+        self.bt_testar_de_novo = ttk.Button(bts, text=t('bt_testar_de_novo'), command=self.testar_de_novo)
+        self.bt_testar_de_novo.pack(side='left')
 
         # Rodapé (empacotado primeiro, embaixo, para nunca sumir quando a janela encolhe)
         rodape = ttk.Frame(self)
@@ -156,6 +201,20 @@ class App(tk.Tk):
 
         self.info = ttk.Label(self, text='', style='Fraco.TLabel')
         self.info.pack(fill='x', **pad)
+
+        # Linha discreta da "Verificação antes de começar"
+        self.linha_verif = ttk.Frame(self)
+        self.linha_verif.pack(fill='x', padx=10, pady=(0, 2))
+        self.status_verif = temas.label_tk(self.linha_verif, text='', anchor='w', font=('Segoe UI', 9, 'bold'),
+                                           cursor='hand2')
+        self.status_verif.pack(side='left')
+        self.status_verif.bind('<Button-1>', lambda e: self.abrir_verificacao())
+        ttk.Button(self.linha_verif, text=t('bt_ver_verificacao'), command=self.abrir_verificacao).pack(
+            side='left', padx=8)
+        self.bt_logs = ttk.Button(self.linha_verif, text=t('bt_logs'), command=self.abrir_logs)
+        self.bt_logs.pack(side='left')
+        self.aviso_discreto = temas.label_tk(self, text='', fg=temas.cor('aviso_saves'), anchor='w', justify='left',
+                                             wraplength=860)
 
         meio = ttk.Frame(self)
         meio.pack(fill='both', expand=True, **pad)
@@ -220,6 +279,78 @@ class App(tk.Tk):
             self.mostrar_save(save)
         else:
             self.procurar_saves()
+        if self.verificacao is not None:
+            self.mostrar_status_verificacao(self.verificacao)
+        self.mostrar_avisos_discretos()
+
+    # --------------------------------------------------- verificação e avisos
+    def verificar_agora(self):
+        self.verificacao = diagnostico.verificar(self.save_atual, self.raiz)
+        self.mostrar_status_verificacao(self.verificacao)
+        return self.verificacao
+
+    def mostrar_status_verificacao(self, r):
+        if r.impedimentos:
+            texto, cor = t('status_impede', n=len(r.impedimentos)), temas.cor('erro_texto')
+        elif r.avisos:
+            texto, cor = t('status_avisos', n=len(r.avisos)), temas.cor('aviso_saves')
+        else:
+            texto, cor = t('status_ok'), temas.cor('ok_texto')
+        self.status_verif.config(text=texto, fg=cor)
+
+    def abrir_verificacao(self):
+        if not any(isinstance(w, JanelaVerificacao) for w in self.winfo_children()):
+            JanelaVerificacao(self, 'info', self.verificar_agora())
+
+    def checar_antes(self, parent=None):
+        """Antes de alterar o save: se algo impede, mostra a verificação; senão segue sem incomodar."""
+        r = self.verificar_agora()
+        if not r.impedimentos:
+            return True
+        janela = JanelaVerificacao(self, 'antes', r)
+        self.wait_window(janela)
+        return janela.continuar
+
+    def mostrar_avisos_discretos(self):
+        if self.avisos_discretos:
+            self.aviso_discreto.config(text='\n'.join(dict.fromkeys(self.avisos_discretos)))
+            self.aviso_discreto.pack(fill='x', padx=10, pady=(0, 2), after=self.linha_verif)
+        else:
+            self.aviso_discreto.pack_forget()
+
+    def avisar_resultado(self, resultado):
+        """Avisos discretos depois de uma operação que deu certo."""
+        falhas = getattr(resultado, 'falhas_limpeza', None)
+        if falhas:
+            self.avisos_discretos.append(t('aviso_limpeza_falhou', n=len(falhas)))
+        if getattr(resultado, 'sobra_nao_apagada', None):
+            self.avisos_discretos.append(t('aviso_sobra_falhou'))
+        self.mostrar_avisos_discretos()
+        if self.onedrive_fechado and not diagnostico.esta_aberto('onedrive.exe'):
+            if messagebox.askyesno(TITULO, t('perguntar_reabrir_onedrive')):
+                diagnostico.reabrir_onedrive(self.onedrive_fechado)
+            self.onedrive_fechado = None
+
+    def abrir_logs(self):
+        pasta = registro.pasta()
+        if os.path.isdir(pasta):
+            os.startfile(pasta)
+        else:
+            messagebox.showinfo(TITULO, t('sem_logs'))
+
+    def mostrar_erro(self, erro, contexto, prefixo=None, parent=None):
+        """Janela de erro com a causa encontrada (quando der) e o botão "Copiar detalhes"."""
+        registro.log_erro(contexto, erro)
+        if isinstance(erro, core.ErroSave):
+            mensagem = str(erro)
+        else:
+            mensagem = t('erro_ao_gravar', erro=erro)
+        if prefixo:
+            mensagem = t(prefixo, texto=mensagem)
+        causa = None
+        if isinstance(erro, OSError) or isinstance(getattr(erro, 'original', None), OSError):
+            causa = diagnostico.descobrir_causa(erro, getattr(erro, 'caminho', None), caminho_do_programa())
+        return JanelaErro(self, mensagem, causa, erro, contexto, parent=parent)
 
     # --------------------------------------------- Acesso Controlado a Pastas
     def verificar_permissao(self):
@@ -229,10 +360,19 @@ class App(tk.Tk):
             self.faixa.pack_forget()
             core.migrar_pasta_antiga(self.raiz)
         else:
-            if core.parece_bloqueio_do_windows(erro):
+            registro.log_erro('Não foi possível gravar na pasta do programa', erro)
+            causa = diagnostico.descobrir_causa(erro, self.raiz, caminho_do_programa())
+            if causa.cfa_confirmado:
                 texto = t('faixa_bloqueio')
             else:
-                texto = t('faixa_erro', erro=erro)
+                texto = t('faixa_erro_causa', causa=' '.join(causa.textos))
+            # os botões de "como liberar" só fazem sentido se o Acesso Controlado está ligado
+            cfa = causa.cfa_confirmado or core.acesso_controlado_ligado() is True
+            for bt in self.botoes_cfa:
+                if cfa:
+                    bt.pack(side='left', padx=(0, 6), before=self.bt_testar_de_novo)
+                else:
+                    bt.pack_forget()
             self.faixa_texto.config(text=texto)
             self.faixa.pack(fill='x', padx=10, pady=(10, 0), before=self.topo)
         estado = ['disabled'] if self.bloqueado else ['!disabled']
@@ -391,10 +531,7 @@ class App(tk.Tk):
         if not self.verificar_permissao():
             messagebox.showwarning(TITULO, t('aviso_usar_faixa'), parent=parent)
             return False
-        if core.jogo_aberto():
-            messagebox.showwarning(TITULO, t('jogo_aberto'), parent=parent)
-            return False
-        return True
+        return self.checar_antes(parent)
 
     def resetar(self):
         if self.save_atual is None:
@@ -420,21 +557,21 @@ class App(tk.Tk):
             resposta = messagebox.askyesnocancel(TITULO, t('sugerir_backup_save'), icon='warning')
             if resposta is None:
                 return
-            if resposta and not self.fazer_backup_save(perguntar_ok=False):
+            if resposta and not self.fazer_backup_save(perguntar_ok=False, ja_verificado=True):
                 return
         if not messagebox.askyesno(TITULO, t('confirmar_reset', save=self.save_atual.nome_curto(),
                                              detalhes=detalhes), icon='warning'):
             return
+        registro.log(f'Reset pedido: {", ".join(core.nome_do_mapa(k) for k in sel)}')
         try:
-            core.resetar_mapas(self.save_atual, sel, self.raiz)
+            b = core.resetar_mapas(self.save_atual, sel, self.raiz)
         except (OSError, core.ErroSave) as e:
-            texto = core.texto_do_erro(e, caminho_do_programa())
-            if isinstance(e, core.ErroSave):
-                texto = t('nao_foi_possivel_resetar', texto=texto)
-            messagebox.showerror(TITULO, texto)
+            self.mostrar_erro(e, 'Reset de missões', prefixo='nao_foi_possivel_resetar')
             self.recarregar()
             return
+        registro.log('Reset concluído.')
         self.recarregar()
+        self.avisar_resultado(b)
         self.lista.selection_set(())  # sem seleção, para o destaque verde aparecer
         for k in sel:
             if self.lista.exists(str(k)):
@@ -460,24 +597,25 @@ class App(tk.Tk):
         JanelaRestaurar(self, backups)
 
     # ------------------------------------------------------- save completo
-    def fazer_backup_save(self, perguntar_ok=True, parent=None):
+    def fazer_backup_save(self, perguntar_ok=True, parent=None, ja_verificado=False):
         """Copia a pasta inteira do save. Devolve True se deu certo."""
         if self.save_atual is None:
             messagebox.showinfo(TITULO, t('nenhum_save_escolhido'), parent=parent)
             return False
-        if not self._pode_alterar(parent=parent):
+        if not ja_verificado and not self._pode_alterar(parent=parent):
             return False
         self.config(cursor='watch')
         self.update_idletasks()
         try:
             b = core.fazer_backup_save_completo(self.save_atual, self.raiz)
         except (OSError, core.ErroSave) as e:
-            messagebox.showerror(TITULO, t('nao_foi_possivel_backup_save',
-                                           texto=core.texto_do_erro(e, caminho_do_programa())), parent=parent)
+            self.config(cursor='')
+            self.mostrar_erro(e, 'Backup do save completo', prefixo='nao_foi_possivel_backup_save', parent=parent)
             return False
         finally:
             self.config(cursor='')
         self.recarregar()
+        self.avisar_resultado(b)
         if perguntar_ok:
             messagebox.showinfo(TITULO, t('backup_save_ok', arquivos=b.arquivos, tamanho=idiomas.tamanho(b.tamanho),
                                           pasta=b.pasta), parent=parent)
@@ -616,14 +754,16 @@ class JanelaRestaurar(tk.Toplevel):
                                              quando=idiomas.data_hora(b.quando, segundos=True), titulo=b.titulo),
                                    parent=self):
             return
+        registro.log(f'Restaurar backup de missões: {b.pasta}')
         try:
-            core.restaurar_backup(self.app.save_atual, b, self.app.raiz)
+            novo = core.restaurar_backup(self.app.save_atual, b, self.app.raiz)
         except (OSError, core.ErroSave) as e:
-            messagebox.showerror(TITULO, t('nao_foi_possivel_restaurar',
-                                           texto=core.texto_do_erro(e, caminho_do_programa())), parent=self)
+            self.app.mostrar_erro(e, 'Restaurar backup de missões', prefixo='nao_foi_possivel_restaurar', parent=self)
             return
+        registro.log('Backup de missões restaurado.')
         self.destroy()
         self.app.recarregar()
+        self.app.avisar_resultado(novo)
         messagebox.showinfo(TITULO, t('backup_restaurado'))
 
 
@@ -685,14 +825,14 @@ class JanelaRestaurarSave(tk.Toplevel):
         self.config(cursor='watch')
         self.update_idletasks()
         try:
-            core.restaurar_save_completo(self.app.save_atual, b, self.app.raiz)
+            antes = core.restaurar_save_completo(self.app.save_atual, b, self.app.raiz)
         except (OSError, core.ErroSave) as e:
             self.config(cursor='')
-            messagebox.showerror(TITULO, t('nao_foi_possivel_restaurar',
-                                           texto=core.texto_do_erro(e, caminho_do_programa())), parent=self)
+            self.app.mostrar_erro(e, 'Restaurar save completo', prefixo='nao_foi_possivel_restaurar', parent=self)
             return
         self.destroy()
         self.app.recarregar()
+        self.app.avisar_resultado(antes)
         messagebox.showinfo(TITULO, t('save_restaurado'))
 
 
@@ -816,6 +956,228 @@ class JanelaIntro(tk.Toplevel):
         self.destroy()
 
 
+class JanelaVerificacao(tk.Toplevel):
+    """Tela "Verificação antes de começar".
+
+    modo 'info'  : só mostra (ao abrir o programa ou pelo botão "Ver verificação");
+    modo 'antes' : aparece antes de alterar o save quando algo impede; termina com
+                   self.continuar = True (seguir) ou False (cancelar).
+    Regras: nada é fechado sem o clique do usuário, nada é fechado à força, e depois
+    de cada botão a verificação é feita de novo."""
+
+    BOTOES_FECHAR = {'steam': 'bt_fechar_steam', 'onedrive': 'bt_fechar_onedrive', 'epic': 'bt_fechar_epic',
+                     'googledrive': 'bt_fechar_googledrive', 'dropbox': 'bt_fechar_dropbox'}
+
+    def __init__(self, app, modo, resultado, depois=None):
+        super().__init__(app)
+        self.app, self.modo, self.resultado, self.depois = app, modo, resultado, depois
+        self.continuar = False
+        self._espera = None
+        self.title(t('verif_titulo'))
+        self.geometry('720x520')
+        self.minsize(620, 420)
+        temas.preparar_janela(self)
+        self.transient(app)
+        _modal(self)
+        self.protocol('WM_DELETE_WINDOW', self.cancelar)
+
+        corpo = ttk.Frame(self, padding=16)
+        corpo.pack(fill='both', expand=True)
+        ttk.Label(corpo, text=t('verif_titulo'), style='Titulo.TLabel').pack(anchor='w')
+        ttk.Label(corpo, text=t('verif_explicacao'), wraplength=680, justify='left', style='Fraco.TLabel').pack(
+            anchor='w', fill='x', pady=(6, 10))
+        self.area = ttk.Frame(corpo)
+        self.area.pack(fill='both', expand=True)
+        self.mensagem = temas.label_tk(corpo, text='', anchor='w', justify='left', wraplength=680,
+                                       fg=temas.cor('aviso_saves'))
+        self.mensagem.pack(fill='x', pady=(6, 0))
+        self.barra = ttk.Frame(corpo)
+        self.barra.pack(fill='x', pady=(10, 0))
+        self.desenhar()
+        _centralizar(self, app)
+
+    # -------------------------------------------------------------- desenho
+    def desenhar(self):
+        for w in self.area.winfo_children() + self.barra.winfo_children():
+            w.destroy()
+        r = self.resultado
+        if not r.itens:
+            temas.label_tk(self.area, text=t('verif_tudo_pronto'), fg=temas.cor('ok_texto'),
+                           font=('Segoe UI', 11, 'bold')).pack(anchor='w', pady=10)
+        for titulo, itens, cor in ((t('verif_impede'), r.impedimentos, temas.cor('erro_texto')),
+                                   (t('verif_atencao'), r.avisos, temas.cor('aviso_saves'))):
+            if not itens:
+                continue
+            temas.label_tk(self.area, text=titulo, fg=cor, font=('Segoe UI', 9, 'bold')).pack(
+                anchor='w', pady=(6, 2))
+            for item in itens:
+                self._linha(item)
+        if self.app.onedrive_fechado and not diagnostico.esta_aberto('onedrive.exe'):
+            linha = ttk.Frame(self.area)
+            linha.pack(fill='x', pady=(8, 0))
+            ttk.Button(linha, text=t('bt_reabrir_onedrive'), command=self.reabrir_onedrive).pack(side='right')
+        ttk.Button(self.barra, text=t('bt_verificar_de_novo'), command=self.verificar_de_novo).pack(side='left')
+        if self.modo == 'antes':
+            ttk.Button(self.barra, text=t('bt_cancelar'), command=self.cancelar).pack(side='right')
+            if r.impedimentos:
+                bt = ttk.Button(self.barra, text=t('bt_continuar_mesmo_assim'), command=self.continuar_mesmo_assim)
+                if r.jogo_aberto:
+                    bt.state(['disabled'])   # com o jogo aberto, a alteração seria recusada de qualquer jeito
+            else:
+                bt = ttk.Button(self.barra, text=t('bt_continuar'), command=self.seguir)
+            bt.pack(side='right', padx=6)
+            self.bt_seguir = bt
+        else:
+            ttk.Button(self.barra, text=t('bt_fechar'), command=self.cancelar).pack(side='right')
+
+    def _linha(self, item):
+        linha = ttk.Frame(self.area)
+        linha.pack(fill='x', pady=3)
+        botoes = ttk.Frame(linha)
+        botoes.pack(side='right', anchor='n')
+        ttk.Label(linha, text='•  ' + item.texto, wraplength=500, justify='left').pack(side='left', fill='x')
+        chave = item.tipo
+        if item.tipo == 'em_uso':
+            chave = item.dados['programa'].chave
+        if chave in self.BOTOES_FECHAR:
+            ttk.Button(botoes, text=t(self.BOTOES_FECHAR[chave]),
+                       command=lambda c=chave: self.fechar_programa(c)).pack()
+        elif item.tipo == 'somente_leitura':
+            ttk.Button(botoes, text=t('bt_corrigir'),
+                       command=lambda i=item: self.corrigir(i)).pack()
+
+    # --------------------------------------------------------------- botões
+    def verificar_de_novo(self, mensagem=''):
+        self.resultado = self.app.verificar_agora()
+        self.mensagem.config(text=mensagem)
+        self.desenhar()
+
+    def corrigir(self, item):
+        n = diagnostico.corrigir_somente_leitura(item.dados['itens'])
+        self.verificar_de_novo(t('corrigidos', n=n))
+
+    def fechar_programa(self, chave):
+        exe, nome = diagnostico.PROGRAMAS[chave]
+        if chave == 'steam':
+            pediu = diagnostico.fechar_steam()
+        elif chave == 'onedrive':
+            caminho = diagnostico.fechar_onedrive()
+            if caminho:
+                self.app.onedrive_fechado = caminho
+            pediu = bool(caminho)
+        else:
+            pediu = diagnostico.fechar_normalmente(exe)
+            if not pediu:
+                self.verificar_de_novo(t('nao_fechou', programa=nome))
+                return
+        if not pediu:
+            self.verificar_de_novo(t('nao_achei_programa', programa=nome))
+            return
+        self.mensagem.config(text=t('fechando', programa=nome))
+        self._aguardar_fechar(exe, nome, tentativas=20)
+
+    def _aguardar_fechar(self, exe, nome, tentativas):
+        if not self.winfo_exists():
+            return
+        if not diagnostico.esta_aberto(exe):
+            self.verificar_de_novo()
+        elif tentativas <= 0:
+            self.verificar_de_novo(t('nao_fechou', programa=nome))
+        else:
+            self._espera = self.after(1000, lambda: self._aguardar_fechar(exe, nome, tentativas - 1))
+
+    def reabrir_onedrive(self):
+        diagnostico.reabrir_onedrive(self.app.onedrive_fechado)
+        self.app.onedrive_fechado = None
+        self.after(1500, self.verificar_de_novo)
+
+    def continuar_mesmo_assim(self):
+        if messagebox.askyesno(TITULO, t('confirmar_continuar_risco'), icon='warning', parent=self):
+            registro.log('Verificação: o usuário escolheu "Continuar mesmo assim".', 'AVISO')
+            self.seguir()
+
+    def seguir(self):
+        self.continuar = True
+        self._fechar()
+
+    def cancelar(self):
+        self.continuar = False
+        self._fechar()
+
+    def _fechar(self):
+        if self._espera:
+            try:
+                self.after_cancel(self._espera)
+            except tk.TclError:
+                pass
+        self.destroy()
+        if self.depois:
+            try:
+                self.app._agendados.append(self.app.after(150, self.depois))
+            except tk.TclError:
+                pass
+
+
+class JanelaErro(tk.Toplevel):
+    """Janela de erro: o que aconteceu, a causa encontrada (quando der) e "Copiar detalhes"."""
+
+    def __init__(self, app, mensagem, causa, erro, contexto, parent=None):
+        super().__init__(parent or app)
+        self.app = app
+        self.title(t('erro_titulo'))
+        self.resizable(True, True)
+        self.minsize(560, 300)
+        temas.preparar_janela(self)
+        self.transient(parent or app)
+        _modal(self)
+
+        corpo = ttk.Frame(self, padding=18)
+        corpo.pack(fill='both', expand=True)
+        temas.label_tk(corpo, text='⛔  ' + t('erro_titulo'), fg=temas.cor('erro_texto'),
+                       font=('Segoe UI', 12, 'bold')).pack(anchor='w')
+        texto = mensagem
+        if causa and causa.textos:
+            titulo = t('erro_causa_encontrada') if causa.encontrada else t('erro_causas_possiveis')
+            texto += '\n\n' + titulo + '\n' + '\n'.join('•  ' + c for c in causa.textos)
+            if causa.cfa_confirmado:
+                texto += '\n\n' + core.mensagem_acesso_controlado(caminho_do_programa())
+        self.texto = texto
+        caixa = tk.Text(corpo, wrap='word', height=14, width=78, relief='flat', borderwidth=0,
+                        font=('Segoe UI', 9), bg=temas.cor('campo') if temas.atual() == 'escuro' else 'SystemButtonFace',
+                        fg=temas.cor('texto') or 'SystemButtonText')
+        caixa.insert('1.0', texto)
+        caixa.config(state='disabled')
+        caixa.pack(fill='both', expand=True, pady=(10, 10))
+        self.aviso = ttk.Label(corpo, text='', style='Fraco.TLabel')
+        self.aviso.pack(anchor='w')
+        bts = ttk.Frame(corpo)
+        bts.pack(fill='x', pady=(8, 0))
+        ttk.Button(bts, text=t('bt_copiar_detalhes'), command=self.copiar).pack(side='left')
+        ttk.Button(bts, text=t('bt_abrir_pasta_logs'), command=app.abrir_logs).pack(side='left', padx=6)
+        ttk.Button(bts, text=t('bt_fechar'), command=self.destroy).pack(side='right')
+        self.detalhes = self._montar_detalhes(erro, contexto)
+        _centralizar(self, app)
+
+    def _montar_detalhes(self, erro, contexto):
+        import traceback
+        linhas = [f'ResetMissionsCOTW {VERSAO}', f'Operação: {contexto}', '', self.texto, '',
+                  'Erro técnico: ' + repr(erro)]
+        original = getattr(erro, 'original', None)
+        if original is not None:
+            linhas.append('Erro original: ' + repr(original))
+        if isinstance(erro, BaseException) and erro.__traceback__:
+            linhas.append(''.join(traceback.format_exception(type(erro), erro, erro.__traceback__)).rstrip())
+        log = registro.conteudo_atual(limite=8000)
+        if log:
+            linhas += ['', '----- log -----', log]
+        return registro.mascarar('\n'.join(linhas))
+
+    def copiar(self):
+        self.clipboard_clear()
+        self.clipboard_append(self.detalhes)
+        self.aviso.config(text=t('detalhes_copiados'))
+
+
 def _modal(janela):
     """Prende o foco nesta janela (se outra janela já tiver o foco preso, segue sem prender)."""
     try:
@@ -874,7 +1236,13 @@ def main():
         pass
     idiomas.iniciar()  # idioma salvo pelo usuário, ou o idioma do Windows
     temas.iniciar()    # tema salvo pelo usuário, ou o tema do Windows
-    App().mainloop()
+    registro.iniciar(VERSAO)   # um log por abertura (guarda os 5 mais recentes)
+    registro.log(f'Idioma: {idiomas.atual()} | Tema: {temas.atual()} | Programa: {caminho_do_programa()}')
+    try:
+        App().mainloop()
+    except Exception as e:
+        registro.log_erro('Erro inesperado', e)
+        raise
 
 
 if __name__ == '__main__':

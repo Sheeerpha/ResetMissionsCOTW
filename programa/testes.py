@@ -97,6 +97,10 @@ if SINTETICO:
     print('(usando saves sintéticos: os saves de exemplo não estão disponíveis)\n')
 
 core.jogo_aberto = lambda: False  # nos testes, fingimos que o jogo está fechado
+core.ESPERA = 0.05                # nas "novas tentativas", espera pouco (no programa real: 1 s)
+
+import registro
+registro.iniciar('testes', base=tempfile.mkdtemp())   # log dos testes numa pasta temporária
 
 falhas = 0
 pulados = 0
@@ -375,10 +379,14 @@ def faixa_de_aviso_aparece_quando_o_windows_bloqueia():
     with tempfile.TemporaryDirectory() as tmp:
         save = core.descrever_pasta(save_falso(tmp))
         bloqueio = {'ativo': True}
+        import diagnostico
+        cfa = {'ligado': True, 'evento': True}
         with mock.patch.object(core, 'encontrar_saves', lambda: [save]), \
              mock.patch.object(core, 'pasta_do_programa_padrao', lambda: os.path.join(tmp, 'b')), \
              mock.patch.object(core, 'testar_gravacao', lambda raiz: erro if bloqueio['ativo'] else None), \
              mock.patch.object(core, 'migrar_pasta_antiga', lambda raiz: None), \
+             mock.patch.object(core, 'acesso_controlado_ligado', lambda: cfa['ligado']), \
+             mock.patch.object(diagnostico, 'cfa_bloqueou_recentemente', lambda exe: cfa['evento']), \
              mock.patch.object(cotw_app.messagebox, 'showinfo', lambda *a, **k: None), \
              mock.patch.object(cotw_app.messagebox, 'showwarning', lambda *a, **k: None):
             app = cotw_app.App()
@@ -388,12 +396,19 @@ def faixa_de_aviso_aparece_quando_o_windows_bloqueia():
             visivel = app.faixa.winfo_manager() == 'pack'
             texto = app.faixa_texto.cget('text')
             desativado = app.bt_reset.instate(['disabled'])
+            # Acesso Controlado DESLIGADO: a faixa não pode culpá-lo nem mostrar os botões dele
+            cfa.update(ligado=False, evento=False)
+            app.verificar_permissao()
+            app.update()
+            texto_sem_cfa = app.faixa_texto.cget('text')
+            botoes_cfa = [b.winfo_manager() for b in app.botoes_cfa]
             bloqueio['ativo'] = False
             app.testar_de_novo()
             some = app.faixa.winfo_manager() == ''
             ativado = app.bt_reset.instate(['!disabled'])
             app.destroy()
         assert visivel and 'Acesso Controlado a Pastas' in texto and desativado
+        assert 'Acesso Controlado' not in texto_sem_cfa and botoes_cfa == ['', '', ''], (texto_sem_cfa, botoes_cfa)
         assert some and ativado
 
 
@@ -732,7 +747,7 @@ def backup_e_restauracao_do_save_completo():
         assert antes_restaurar.tipo == 'antes_restaurar'
         assert 'novo_arquivo' in core._arquivos_da_pasta(antes_restaurar.pasta_arquivos)
         assert len(core.listar_backups_save(save, raiz)) == 2
-        assert not any(n.endswith('_tmp') for n in os.listdir(os.path.dirname(pasta))), os.listdir(os.path.dirname(pasta))
+        assert not any('_tmp' in n for n in os.listdir(os.path.dirname(pasta))), os.listdir(os.path.dirname(pasta))
 
 
 @teste
@@ -751,7 +766,8 @@ def restauracao_completa_que_falha_volta_como_estava():
 
         def rename_que_falha(a, d):
             chamadas.append((a, d))
-            if len(chamadas) == 2:   # 1ª: save -> .anterior_tmp (ok); 2ª: cópia -> save (falha)
+            # colocar a cópia no lugar do save falha SEMPRE (mesmo tentando de novo)
+            if '.restaurando_tmp' in a and os.path.normcase(d) == os.path.normcase(os.path.normpath(pasta)):
                 raise PermissionError(13, 'em uso')
             return original_rename(a, d)
         with mock.patch.object(core.os, 'rename', rename_que_falha):
@@ -760,8 +776,11 @@ def restauracao_completa_que_falha_volta_como_estava():
                 raise AssertionError('deveria ter dado erro')
             except core.ErroSave as e:
                 assert 'save continua como estava' in str(e), e
+                assert isinstance(e.original, PermissionError)
+        tentativas = [c for c in chamadas if '.restaurando_tmp' in c[0] and 'anterior' not in c[0]]
+        assert len(tentativas) == core.TENTATIVAS, (len(tentativas), chamadas)   # tentou de novo antes de desistir
         assert {rel: md5(c) for rel, c in core._arquivos_da_pasta(pasta).items()} == antes
-        assert not any(n.endswith('_tmp') for n in os.listdir(os.path.dirname(pasta)))
+        assert not any('_tmp' in n for n in os.listdir(os.path.dirname(pasta)))
 
 
 @teste
@@ -948,6 +967,461 @@ def link_do_github_no_rodape_abre_a_pagina():
             app.destroy()
     assert texto == 'GitHub' and cursor == 'hand2', (texto, cursor)
     assert abertos == ['https://github.com/Sheeerpha/ResetMissionsCOTW'], abertos
+
+
+# ---------------------------------------------------------------------------
+# v0.9.6: somente leitura, arquivo travado, sobras de restauração, limpeza e log
+# ---------------------------------------------------------------------------
+
+def marcar_somente_leitura(pasta):
+    """Igual a 'attrib +r' em tudo: arquivos E pastas."""
+    import subprocess
+    subprocess.run(['attrib', '+r', os.path.join(pasta, '*'), '/s', '/d'], capture_output=True)
+    subprocess.run(['attrib', '+r', pasta], capture_output=True)
+
+
+def segurar_arquivo(caminho, segundos):
+    """Outro programa (um 2º processo) abre o arquivo e o segura aberto por 'segundos'."""
+    import subprocess
+    codigo = ('import sys, time\nf = open(sys.argv[1], "rb")\nprint("ok", flush=True)\n'
+              'time.sleep(float(sys.argv[2]))\n')
+    p = subprocess.Popen([sys.executable, '-c', codigo, caminho, str(segundos)],
+                         stdout=subprocess.PIPE, text=True)
+    assert p.stdout.readline().strip() == 'ok'
+    return p
+
+
+def hashes(pasta):
+    return {rel: md5(c) for rel, c in core._arquivos_da_pasta(pasta).items()}
+
+
+@teste
+def somente_leitura_nao_impede_backup_restauracao_nem_limpeza():
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        raiz = os.path.join(tmp, 'b')
+        marcar_somente_leitura(pasta)
+        assert core.eh_somente_leitura(os.path.join(pasta, core.NOME_ARQUIVO))
+        assert core.eh_somente_leitura(os.path.join(pasta, 'slots', '0'))
+        original = hashes(pasta)
+        b = core.fazer_backup_save_completo(save, raiz)
+        copia = [c for c in core._arquivos_da_pasta(b.pasta_arquivos).values()]
+        assert copia and not any(core.eh_somente_leitura(c) for c in copia), 'a cópia herdou o somente leitura'
+        open(os.path.join(pasta, 'novo'), 'wb').write(b'x')
+        marcar_somente_leitura(pasta)
+        core.restaurar_save_completo(save, b, raiz)     # antes: WinError 5
+        assert hashes(pasta) == original
+        assert not any('_tmp' in n for n in os.listdir(os.path.dirname(pasta)))
+        # reset de missões com o arquivo de missões somente leitura também funciona
+        marcar_somente_leitura(pasta)
+        core.resetar_mapas(save, [10], raiz)
+        assert 10 not in core.Save.abrir(save.arquivo).chaves
+
+
+@teste
+def limpeza_de_15_backups_com_somente_leitura_volta_para_5():
+    import datetime
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        raiz = os.path.join(tmp, 'b')
+        base = core.pasta_backups_save_completo(save, raiz)
+        inicio = datetime.datetime(2026, 1, 1, 10, 0)
+        pastas = [_backup_falso(base, f's{i:02d}', inicio + datetime.timedelta(hours=i), pasta, completo=True)
+                  for i in range(15)]
+        marcar_somente_leitura(base)                      # como no PC do usuário que relatou o erro
+        assert len(core.listar_backups_save(save, raiz)) == 15
+        falhas = core.limpar_excesso_de_backups(save, raiz)
+        restantes = [b.pasta for b in core.listar_backups_save(save, raiz)]
+        assert falhas == [] and len(restantes) == core.LIMITE_SAVE, (falhas, restantes)
+        assert pastas[0] in restantes, 'o mais antigo (protegido) não pode sair'
+        assert set(restantes) == {pastas[0]} | set(pastas[11:]), restantes
+
+
+@teste
+def limpeza_que_falha_avisa_e_registra_no_log():
+    import datetime
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        raiz = os.path.join(tmp, 'b')
+        base = core.pasta_backups_save_completo(save, raiz)
+        inicio = datetime.datetime(2026, 1, 1, 10, 0)
+        pastas = [_backup_falso(base, f's{i}', inicio + datetime.timedelta(hours=i), pasta, completo=True)
+                  for i in range(7)]
+        travado = segurar_arquivo(os.path.join(pastas[1], 'save', core.NOME_ARQUIVO), 30)
+        try:
+            falhas = core.limpar_excesso_de_backups(save, raiz)
+        finally:
+            travado.kill()
+            travado.wait()
+        assert [p for p, _ in falhas] == [pastas[1]], falhas
+        assert 'Não foi possível apagar o backup antigo' in registro.conteudo_atual()
+
+
+@teste
+def arquivo_travado_por_outro_programa_nao_estraga_o_save():
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        raiz = os.path.join(tmp, 'b')
+        b = core.fazer_backup_save_completo(save, raiz)
+        open(os.path.join(pasta, 'progresso_novo'), 'wb').write(b'importante')
+        antes = hashes(pasta)
+        # um programa segura um arquivo do save o tempo todo: a restauração precisa
+        # desistir de forma limpa, com o save exatamente como estava
+        travado = segurar_arquivo(os.path.join(pasta, 'slots', '0', core.NOME_ARQUIVO), 30)
+        try:
+            try:
+                core.restaurar_save_completo(save, b, raiz)
+                raise AssertionError('deveria ter dado erro')
+            except core.ErroSave as e:
+                assert 'save continua como estava' in str(e) and e.caminho, e
+        finally:
+            travado.kill()
+            travado.wait()
+        assert hashes(pasta) == antes
+        assert not any('_tmp' in n for n in os.listdir(os.path.dirname(pasta)))
+        # o programa solta o arquivo logo depois: as novas tentativas resolvem sozinhas
+        core.ESPERA = 0.3
+        travado = segurar_arquivo(os.path.join(pasta, 'slots', '0', core.NOME_ARQUIVO), 0.5)
+        try:
+            core.restaurar_save_completo(save, b, raiz)
+        finally:
+            core.ESPERA = 0.05
+            travado.kill()
+            travado.wait()
+        assert 'progresso_novo' not in hashes(pasta)
+
+
+@teste
+def sobra_anterior_tmp_nao_trava_e_vira_backup():
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        raiz = os.path.join(tmp, 'b')
+        b = core.fazer_backup_save_completo(save, raiz)
+        # sobras de versões antigas: nome fixo, com arquivos somente leitura
+        sobra = pasta + '.anterior_tmp'
+        shutil.copytree(pasta, sobra)
+        open(os.path.join(sobra, 'unico_lugar_deste_progresso'), 'wb').write(b'nao perder')
+        marcar_somente_leitura(sobra)
+        sobra2 = pasta + '.restaurando_tmp'
+        shutil.copytree(pasta, sobra2)
+        marcar_somente_leitura(sobra2)
+        assert [s.pasta for s in core.encontrar_saves([os.path.join(tmp, 'Documentos')])] == [pasta]
+        core.restaurar_save_completo(save, b, raiz)     # antes: WinError 5 em toda tentativa
+        assert not any('_tmp' in n for n in os.listdir(os.path.dirname(pasta))), os.listdir(os.path.dirname(pasta))
+        guardadas = [x for x in core.listar_backups_save(save, raiz) if x.tipo == 'sobra']
+        assert len(guardadas) == 1, guardadas
+        assert os.path.isfile(os.path.join(guardadas[0].pasta_arquivos, 'unico_lugar_deste_progresso'))
+        assert guardadas[0].titulo == 'Save anterior guardado de uma restauração interrompida'
+
+
+@teste
+def sobra_que_nao_da_para_mover_nao_bloqueia():
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        raiz = os.path.join(tmp, 'b')
+        b = core.fazer_backup_save_completo(save, raiz)
+        sobra = pasta + '.anterior_tmp'
+        shutil.copytree(pasta, sobra)
+        with mock.patch.object(core, '_guardar_sobra_como_backup', side_effect=PermissionError(13, 'negado')):
+            resultados = core.recolher_sobras(save, raiz)
+            assert [r.situacao for r in resultados] == ['falhou'], resultados
+            core.restaurar_save_completo(save, b, raiz)      # mesmo assim restaura
+        assert os.path.isdir(sobra), 'a sobra não pode ser apagada às cegas'
+
+
+@teste
+def log_um_por_abertura_guarda_5_e_mascara_dados_pessoais():
+    with tempfile.TemporaryDirectory() as tmp:
+        anterior = registro.arquivo_atual(), registro.PASTA
+        try:
+            for _ in range(7):
+                registro.iniciar('0.0-teste', base=tmp)
+            logs = sorted(os.listdir(tmp))
+            assert len(logs) == registro.MAXIMO == 5, logs
+            perfil = os.environ['USERPROFILE']
+            registro.log(f'Save em {perfil}\\Documents\\Avalanche Studios\\COTW\\Saves\\76561198000004881')
+            try:
+                raise PermissionError(5, 'Acesso negado', perfil + '\\x')
+            except PermissionError as e:
+                registro.log_erro('Falhou', e)
+            texto = registro.conteudo_atual()
+        finally:
+            registro._arquivo, registro.PASTA = anterior
+        assert '%USERPROFILE%\\Documents' in texto and '7656…4881' in texto, texto
+        assert perfil.lower() not in texto.lower() and '76561198000004881' not in texto
+        assert os.environ['USERNAME'].lower() not in texto.lower(), texto
+        assert 'Traceback' in texto and 'PermissionError' in texto
+
+
+@teste
+def verificacao_descobre_quem_usa_o_arquivo_e_somente_leitura():
+    import diagnostico
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        raiz = os.path.join(tmp, 'b')
+        with mock.patch.object(diagnostico, 'processos_abertos', lambda: {}):
+            r = diagnostico.verificar(save, raiz)
+            assert r.itens == [], r.itens                                   # tudo pronto
+            travado = segurar_arquivo(os.path.join(pasta, 'slots', '0', core.NOME_ARQUIVO), 30)
+            try:
+                usando = diagnostico.quem_usa(diagnostico.arquivos_em(pasta))
+                r = diagnostico.verificar(save, raiz)
+            finally:
+                travado.kill()
+                travado.wait()
+            # (no ambiente de testes o python.exe é um "lançador" que abre um processo filho,
+            #  por isso o número do processo pode ser outro; o nome do programa é o que importa)
+            assert len(usando) == 1 and usando[0].exe == 'python.exe', usando
+            assert [(i.tipo, i.nivel) for i in r.itens] == [('em_uso', 'impede')], r.itens
+            assert 'python.exe' in r.itens[0].texto
+            marcar_somente_leitura(pasta)
+            r = diagnostico.verificar(save, raiz)
+            (item,) = r.itens
+            assert item.tipo == 'somente_leitura' and len(item.dados['itens']) >= 4, item
+            assert diagnostico.corrigir_somente_leitura(item.dados['itens']) == len(item.dados['itens'])
+            assert diagnostico.verificar(save, raiz).itens == []
+
+
+@teste
+def verificacao_programas_abertos_jogo_e_nuvem():
+    import diagnostico
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        abertos = {'steam.exe': [11], 'onedrive.exe': [12], 'googledrivefs.exe': [13], 'explorer.exe': [1]}
+        with mock.patch.object(diagnostico, 'processos_abertos', lambda: abertos), \
+             mock.patch.object(core, 'jogo_aberto', lambda: True):
+            r = diagnostico.verificar(save, os.path.join(tmp, 'b'))
+        assert [(i.tipo, i.nivel) for i in r.itens] == [('jogo', 'impede'), ('steam', 'atencao'),
+                                                        ('onedrive', 'atencao'), ('googledrive', 'atencao')], r.itens
+        assert r.jogo_aberto and len(r.impedimentos) == 1 and len(r.avisos) == 3
+    with mock.patch.dict(os.environ, {'OneDrive': r'C:\Users\Fulano\OneDrive'}):
+        assert diagnostico.pasta_de_nuvem(r'C:\Users\Fulano\OneDrive\Documentos\Avalanche Studios') == 'OneDrive'
+    assert diagnostico.pasta_de_nuvem(r'D:\OneDrive - Empresa\Documentos\x') == 'OneDrive'
+    assert diagnostico.pasta_de_nuvem(r'G:\Meu Drive\Saves') == 'Google Drive'
+    assert diagnostico.pasta_de_nuvem(r'C:\Users\X\Dropbox\Saves') == 'Dropbox'
+    assert diagnostico.pasta_de_nuvem(tempfile.gettempdir()) is None
+    assert diagnostico.JOGO == 'thehuntercotw_f.exe'
+
+
+@teste
+def botoes_de_fechar_nunca_usam_forca():
+    import diagnostico
+    from unittest import mock
+    chamados = []
+    popen = lambda args, **k: chamados.append(list(args))
+    with mock.patch.object(diagnostico.subprocess, 'Popen', popen), \
+         mock.patch.object(diagnostico, 'caminho_do_steam', lambda: r'C:\Steam\steam.exe'), \
+         mock.patch.object(diagnostico, 'caminho_do_onedrive', lambda: r'C:\OD\OneDrive.exe'):
+        assert diagnostico.fechar_steam()
+        exe = diagnostico.fechar_onedrive()
+        diagnostico.reabrir_onedrive(exe)
+    assert chamados == [[r'C:\Steam\steam.exe', '-shutdown'], [r'C:\OD\OneDrive.exe', '/shutdown'],
+                        [r'C:\OD\OneDrive.exe', '/background']], chamados
+    rodados = []
+
+    class R:
+        returncode = 128
+    with mock.patch.object(diagnostico.subprocess, 'run', lambda args, **k: rodados.append(list(args)) or R()):
+        assert diagnostico.fechar_normalmente('EpicGamesLauncher.exe') is False
+    assert rodados == [['taskkill', '/im', 'EpicGamesLauncher.exe']] and '/f' not in rodados[0], rodados
+
+
+@teste
+def causa_do_erro_somente_leitura_em_uso_e_acesso_controlado():
+    import diagnostico
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        arq = os.path.join(tmp, 'arquivo')
+        open(arq, 'wb').write(b'x')
+        marcar_somente_leitura(tmp)
+        erro = PermissionError(13, 'Acesso negado', arq)
+        with mock.patch.object(core, 'acesso_controlado_ligado', lambda: False):
+            c = diagnostico.descobrir_causa(erro, None, 'app.exe')
+        assert c.encontrada and 'somente leitura' in c.textos[0] and 'Acesso Controlado' not in ' '.join(c.textos)
+        core.tirar_somente_leitura_de_tudo(tmp)
+        travado = segurar_arquivo(arq, 30)
+        try:
+            with mock.patch.object(core, 'acesso_controlado_ligado', lambda: False):
+                c = diagnostico.descobrir_causa(core.ErroSave('x', original=erro, caminho=tmp), tmp, 'app.exe')
+        finally:
+            travado.kill()
+            travado.wait()
+        assert c.encontrada and any('python.exe' in x for x in c.textos), c.textos
+        # Acesso Controlado só é "a causa" se estiver ligado E o Windows registrou bloqueio
+        with mock.patch.object(core, 'acesso_controlado_ligado', lambda: True), \
+             mock.patch.object(diagnostico, 'cfa_bloqueou_recentemente', lambda exe: True):
+            c = diagnostico.descobrir_causa(PermissionError(13, 'x', arq), None, 'app.exe')
+        assert c.cfa_confirmado and 'registrou um bloqueio' in c.textos[0], c.textos
+        with mock.patch.object(core, 'acesso_controlado_ligado', lambda: True), \
+             mock.patch.object(diagnostico, 'cfa_bloqueou_recentemente', lambda exe: False):
+            c = diagnostico.descobrir_causa(PermissionError(13, 'x', arq), None, 'app.exe')
+        assert not c.cfa_confirmado and any('pode ter bloqueado' in x for x in c.textos), c.textos
+        with mock.patch.object(core, 'acesso_controlado_ligado', lambda: False):
+            c = diagnostico.descobrir_causa(PermissionError(13, 'x', arq), None, 'app.exe')
+        assert not any('Acesso Controlado' in x for x in c.textos), c.textos
+    assert diagnostico.cfa_bloqueou_recentemente(r'C:\nao\existe.exe') in (False, None)
+
+
+def _app_de_teste(tmp, save, extra=()):
+    """Abre a janela com um save falso; 'extra' = outros mock.patch."""
+    import contextlib
+    import cotw_app
+    from unittest import mock
+    pilha = contextlib.ExitStack()
+    for p in [mock.patch.object(core, 'encontrar_saves', lambda: [save]),
+              mock.patch.object(core, 'pasta_do_programa_padrao', lambda: os.path.join(tmp, 'b')),
+              mock.patch.object(core, 'migrar_pasta_antiga', lambda raiz: None),
+              mock.patch.object(cotw_app.messagebox, 'askyesno', lambda *a, **k: True),
+              mock.patch.object(cotw_app.messagebox, 'showinfo', lambda *a, **k: None),
+              *extra]:
+        pilha.enter_context(p)
+    app = cotw_app.App()
+    app.withdraw()
+    app.iniciar()
+    app.update()
+    return app, pilha
+
+
+@teste
+def linha_de_status_da_verificacao():
+    import diagnostico
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        res = {'r': diagnostico.Resultado()}
+        app, pilha = _app_de_teste(tmp, save, [mock.patch.object(diagnostico, 'verificar', lambda s, r: res['r'])])
+        with pilha:
+            textos = [app.status_verif.cget('text')]
+            res['r'] = diagnostico.Resultado([diagnostico.Item('steam', 'atencao', 'x')])
+            app.verificar_agora()
+            textos.append(app.status_verif.cget('text'))
+            res['r'] = diagnostico.Resultado([diagnostico.Item('jogo', 'impede', 'x')])
+            app.verificar_agora()
+            textos.append(app.status_verif.cget('text'))
+            app.destroy()
+    assert textos == ['✔ Verificação: tudo pronto', '⚠ Verificação: 1 aviso(s)',
+                      '⛔ Verificação: 1 problema(s) impede(m) alterações'], textos
+
+
+@teste
+def verificacao_antes_do_reset_com_jogo_aberto_cancela_sem_alterar():
+    import cotw_app, diagnostico
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        jogo = diagnostico.Resultado([diagnostico.Item('jogo', 'impede', 'O jogo está aberto.')])
+        app, pilha = _app_de_teste(tmp, save, [mock.patch.object(diagnostico, 'verificar', lambda s, r: jogo)])
+        vistos = {}
+
+        def clicar():
+            (j,) = [w for w in app.winfo_children() if isinstance(w, cotw_app.JanelaVerificacao)]
+            vistos['seguir_desativado'] = j.bt_seguir.instate(['disabled'])
+            vistos['textos'] = [w.cget('text') for w in j.barra.winfo_children()]
+            j.cancelar()
+        with pilha:
+            antes = md5(save.arquivo)
+            app.lista.selection_set('21')
+            app.after(300, clicar)
+            app.resetar()
+            depois = md5(save.arquivo)
+            app.destroy()
+    assert vistos['seguir_desativado'] and 'Continuar mesmo assim' in vistos['textos'], vistos
+    assert antes == depois, 'cancelar na verificação não pode alterar o save'
+
+
+@teste
+def verificacao_continuar_mesmo_assim_e_fechar_steam():
+    import cotw_app, diagnostico
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        prog = diagnostico.ProgramaUsando(1, 'Steam', 'steam.exe')
+        estado = {'r': diagnostico.Resultado([diagnostico.Item('em_uso', 'impede', 'usado pelo Steam',
+                                                                {'programa': prog})])}
+        pedidos = []
+
+        def fechar_steam():
+            pedidos.append('steam')
+            estado['r'] = diagnostico.Resultado()     # depois de fechar, nada mais impede
+            return True
+        app, pilha = _app_de_teste(tmp, save, [
+            mock.patch.object(diagnostico, 'verificar', lambda s, r: estado['r']),
+            mock.patch.object(diagnostico, 'fechar_steam', fechar_steam),
+            mock.patch.object(diagnostico, 'esta_aberto', lambda exe: False)])
+        vistos = {}
+
+        def clicar():
+            (j,) = [w for w in app.winfo_children() if isinstance(w, cotw_app.JanelaVerificacao)]
+            botoes = [b for linha in j.area.winfo_children() for f in linha.winfo_children()
+                      if isinstance(f, cotw_app.ttk.Frame) for b in f.winfo_children()]
+            vistos['botoes'] = [b.cget('text') for b in botoes]
+            botoes[0].invoke()                                # "Fechar Steam"
+            app.update()
+            vistos['depois'] = j.bt_seguir.cget('text')        # agora: "Continuar"
+            j.bt_seguir.invoke()
+        with pilha:
+            app.lista.selection_set('21')
+            app.after(300, clicar)
+            app.resetar()
+            resetado = app.mapas[21].resetado
+            app.destroy()
+    assert vistos['botoes'] == ['Fechar Steam'] and pedidos == ['steam'], (vistos, pedidos)
+    assert vistos['depois'] == 'Continuar' and resetado, vistos
+
+
+@teste
+def janela_de_erro_mostra_a_causa_e_copia_detalhes():
+    import cotw_app
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        app, pilha = _app_de_teste(tmp, save, [mock.patch.object(core, 'acesso_controlado_ligado', lambda: False)])
+        with pilha:
+            alvo = os.path.join(tmp, 'Documentos', 'pasta_teimosa')
+            os.makedirs(alvo)
+            marcar_somente_leitura(alvo)
+            erro = core.ErroSave('Não consegui trocar a pasta do save.', original=PermissionError(13, 'negado', alvo),
+                                 caminho=alvo)
+            j = app.mostrar_erro(erro, 'Teste', prefixo='nao_foi_possivel_restaurar')
+            j.copiar()
+            copiado = app.clipboard_get()
+            texto, aviso = j.texto, j.aviso.cget('text')
+            app.destroy()
+            core.tirar_somente_leitura_de_tudo(alvo)
+    assert 'Causa encontrada:' in texto and 'somente leitura' in texto, texto
+    assert 'Acesso Controlado' not in texto, texto
+    assert aviso.startswith('Detalhes copiados') and 'ResetMissionsCOTW 0.9.6' in copiado, aviso
+    assert os.environ['USERPROFILE'].lower() not in copiado.lower() and '%USERPROFILE%' in copiado
+
+
+@teste
+def botao_logs_abre_a_pasta_e_sobra_vira_aviso_ao_abrir():
+    import cotw_app
+    from unittest import mock
+    abertos = []
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        shutil.copytree(pasta, pasta + '.anterior_tmp')            # sobra de uma versão antiga
+        app, pilha = _app_de_teste(tmp, save, [mock.patch.object(cotw_app.os, 'startfile', abertos.append)])
+        with pilha:
+            aviso = app.aviso_discreto.cget('text')
+            app.bt_logs.invoke()
+            app.destroy()
+        assert not os.path.exists(pasta + '.anterior_tmp')
+    assert abertos == [registro.pasta()], abertos
+    assert 'restauração anterior' in aviso and 'guardada' in aviso, aviso
 
 
 print()

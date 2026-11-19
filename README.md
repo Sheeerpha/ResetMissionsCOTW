@@ -30,6 +30,8 @@ In the game, the only way to reset missions is to delete the missions file, whic
 - **Automatic backup** of the missions file before every change (up to 50; the oldest one is never deleted).
 - **Full save backup** button: copies the whole save folder (up to 5; the oldest one is never deleted), with one-click restore and a text file explaining how to restore by hand.
 - Writes to a temporary file, re-reads and verifies everything before replacing the real file. Refuses to run while the game is open.
+- **Check before you start**: finds what could get in the way (the game open, programs holding the save files via the Windows Restart Manager, Steam/Epic/OneDrive/Google Drive/Dropbox, cloud folders, read-only files) and offers buttons such as *Close Steam*, *Close OneDrive* and *Fix* — never closing anything by force. Everything runs locally.
+- **Logs**: one log per session (the 5 most recent, personal data masked) in `%LOCALAPPDATA%\ResetMissionsCOTW\logs`, plus *Copy details* in error windows.
 - Portuguese, English and Spanish · light and dark theme.
 
 ## How to use

@@ -10,12 +10,16 @@ import errno
 import json
 import os
 import shutil
+import stat
 import struct
 import subprocess
+import sys
+import time
 import zlib
 from dataclasses import dataclass, field
 
 import idiomas
+import registro
 from idiomas import t
 
 NOME_ARQUIVO = 'missions_missiondata_adf'
@@ -63,7 +67,15 @@ PROCESSOS_DO_JOGO = ('thehuntercotw_f.exe',)
 
 
 class ErroSave(Exception):
-    """Erro com mensagem já pronta para mostrar ao usuário."""
+    """Erro com mensagem já pronta para mostrar ao usuário.
+
+    'original' e 'caminho' (opcionais) guardam o erro do Windows e o arquivo/pasta
+    envolvidos, para o programa tentar descobrir a causa (somente leitura, em uso...)."""
+
+    def __init__(self, mensagem, original=None, caminho=None):
+        super().__init__(mensagem)
+        self.original = original
+        self.caminho = caminho
 
 
 def nome_do_mapa(chave):
@@ -344,7 +356,7 @@ def encontrar_saves(documentos=None):
             continue
         for pasta, subpastas, arquivos in os.walk(raiz):
             subpastas[:] = [s for s in subpastas if s.lower() != 'slots'
-                            and not s.endswith(('.restaurando_tmp', '.anterior_tmp'))]
+                            and not any(suf in s for suf in ('.restaurando_tmp', '.anterior_tmp'))]
             if NOME_ARQUIVO in arquivos:
                 chave = os.path.normcase(os.path.realpath(pasta))
                 if chave not in vistos:
@@ -437,24 +449,128 @@ def pasta_backups_save_completo(save, raiz):
     return os.path.join(pasta_do_save_no_programa(save, raiz), BACKUPS_SAVE)
 
 
+# ---------------------------------------------------------------------------
+# Operações de arquivo "resistentes"
+#
+# No Windows, apagar ou renomear pode falhar com "Acesso negado" (WinError 5) por
+# dois motivos comuns: (1) arquivo ou pasta marcado como SOMENTE LEITURA (a cópia
+# copia essa marcação); (2) outro programa (OneDrive, Steam, antivírus, Explorer)
+# segurando o arquivo por alguns instantes. Por isso: tirar o somente leitura e
+# tentar de novo algumas vezes antes de desistir.
+# ---------------------------------------------------------------------------
+
+TENTATIVAS = 5        # quantas vezes tentar de novo em caso de "Acesso negado"
+ESPERA = 1.0          # segundos entre as tentativas (~5 s no total)
+
+
+class FalhasNaLimpeza(list):
+    """Lista de (pasta, erro) que não puderam ser apagadas."""
+
+
+def tirar_somente_leitura(caminho):
+    """Tira a marcação "somente leitura" de um arquivo ou pasta (o conteúdo não muda)."""
+    try:
+        atual = os.stat(caminho, follow_symlinks=False).st_mode
+        os.chmod(caminho, atual | stat.S_IWRITE)
+        return True
+    except OSError:
+        return False
+
+
+def tirar_somente_leitura_de_tudo(pasta):
+    """Tira o somente leitura da pasta e de tudo o que há dentro dela. Devolve quantos itens mudaram."""
+    mudou = 0
+    if not os.path.exists(pasta):
+        return 0
+    for atual, subpastas, arquivos in os.walk(pasta):
+        for nome in [atual] + [os.path.join(atual, a) for a in arquivos + subpastas]:
+            if eh_somente_leitura(nome) and tirar_somente_leitura(nome):
+                mudou += 1
+    return mudou
+
+
+def eh_somente_leitura(caminho):
+    try:
+        st = os.stat(caminho, follow_symlinks=False)
+    except OSError:
+        return False
+    atributos = getattr(st, 'st_file_attributes', 0)
+    if atributos:
+        return bool(atributos & stat.FILE_ATTRIBUTE_READONLY)
+    return not st.st_mode & stat.S_IWRITE
+
+
+def _eh_acesso_negado(erro):
+    # WinError 5 (acesso negado) e 32 (arquivo em uso) viram PermissionError no Python
+    return isinstance(erro, PermissionError) or getattr(erro, 'winerror', None) in (5, 32)
+
+
+def com_tentativas(funcao, *args, **kwargs):
+    """Executa 'funcao'; em "Acesso negado", espera um pouco e tenta de novo (TENTATIVAS vezes)."""
+    for n in range(TENTATIVAS):
+        try:
+            return funcao(*args, **kwargs)
+        except OSError as e:
+            if not _eh_acesso_negado(e) or n == TENTATIVAS - 1:
+                raise
+            registro.log(f'Acesso negado em {funcao.__name__} (tentativa {n + 1}/{TENTATIVAS}): {e}', 'AVISO')
+            time.sleep(ESPERA)
+
+
+def _ao_falhar_remocao(funcao, caminho, erro):
+    """Usado pelo shutil.rmtree: se não deu para apagar, tira o somente leitura
+    (do item e da pasta onde ele está) e tenta de novo."""
+    if isinstance(erro, tuple):           # formato do 'onerror' (Python antigo)
+        erro = erro[1]
+    if not _eh_acesso_negado(erro):
+        raise erro
+    tirar_somente_leitura(caminho)
+    tirar_somente_leitura(os.path.dirname(caminho))
+    funcao(caminho)
+
+
+def _rmtree(pasta):
+    if sys.version_info >= (3, 12):
+        shutil.rmtree(pasta, onexc=_ao_falhar_remocao)
+    else:
+        shutil.rmtree(pasta, onerror=_ao_falhar_remocao)
+
+
+def apagar_pasta(pasta):
+    """Apaga uma pasta inteira, mesmo com itens somente leitura, tentando de novo se algo a segurar."""
+    if not os.path.exists(pasta):
+        return
+    tirar_somente_leitura_de_tudo(pasta)
+    com_tentativas(_rmtree, pasta)
+
+
+def renomear(origem, destino):
+    """Renomeia (ou move, no mesmo disco), tentando de novo se algo estiver segurando."""
+    com_tentativas(os.rename, origem, destino)
+
+
 def _limpar_backups(lista, limite, manter=()):
     """Apaga os backups mais antigos além do limite. O mais antigo de todos nunca é
-    apagado (é o único com o estado de antes de tudo). 'manter': pastas que não podem sair."""
+    apagado (é o único com o estado de antes de tudo). 'manter': pastas que não podem sair.
+
+    Devolve as falhas (pasta, erro): elas são registradas no log e o programa avisa,
+    em vez de falhar em silêncio."""
+    falhas = FalhasNaLimpeza()
     if len(lista) <= limite:
-        return []
+        return falhas
     do_mais_antigo = sorted(lista, key=lambda b: b.quando)
     candidatos = [b for b in do_mais_antigo[1:] if b.pasta not in manter]
-    apagados = []
     sobra = len(lista)
     while sobra > limite and candidatos:
         b = candidatos.pop(0)
         try:
-            shutil.rmtree(b.pasta)
-            apagados.append(b)
+            apagar_pasta(b.pasta)
+            registro.log(f'Backup antigo apagado (limite {limite}): {b.pasta}')
             sobra -= 1
-        except OSError:
-            pass  # se não der para apagar agora, tenta na próxima vez
-    return apagados
+        except OSError as e:
+            falhas.append((b.pasta, e))
+            registro.log(f'Não foi possível apagar o backup antigo {b.pasta}: {e!r}', 'ERRO')
+    return falhas
 
 
 def _nome_de_pasta_seguro(texto, limite=70):
@@ -482,6 +598,7 @@ class Backup:
     chaves: tuple = field(default_factory=tuple)
     origem: datetime.datetime = None  # para 'restauracao': de quando era o backup restaurado
     protegido: bool = False           # o mais antigo: nunca é apagado pela limpeza automática
+    falhas_limpeza: list = field(default_factory=list)  # backups antigos que não puderam ser apagados
 
     @property
     def titulo(self):
@@ -513,6 +630,7 @@ def fazer_backup(save, raiz, tipo, chaves=(), origem=None, manter=()):
     with open(save.arquivo, 'rb') as f:
         original = f.read()
     shutil.copy2(save.arquivo, os.path.join(destino, NOME_ARQUIVO))
+    tirar_somente_leitura(os.path.join(destino, NOME_ARQUIVO))  # a cópia herda a marcação
     with open(os.path.join(destino, NOME_ARQUIVO), 'rb') as f:
         if f.read() != original:
             raise ErroSave(t('erro_backup_diferente'))
@@ -525,8 +643,9 @@ def fazer_backup(save, raiz, tipo, chaves=(), origem=None, manter=()):
             'pasta_do_save': save.pasta, 'mapas': mapas}
     with open(os.path.join(destino, 'info.json'), 'w', encoding='utf-8') as f:
         json.dump(info, f, ensure_ascii=False, indent=2)
-    _limpar_backups(listar_backups(save, raiz), LIMITE_MISSOES, manter=manter)
-    return Backup(destino, agora, titulo, mapas, tipo, tuple(chaves), origem)
+    registro.log(f'Backup de missões criado: {destino}')
+    falhas = _limpar_backups(listar_backups(save, raiz), LIMITE_MISSOES, manter=manter)
+    return Backup(destino, agora, titulo, mapas, tipo, tuple(chaves), origem, falhas_limpeza=falhas)
 
 
 def listar_backups(save, raiz):
@@ -686,6 +805,8 @@ NOMES_INSTRUCOES = ('COMO RESTAURAR MANUALMENTE.txt', 'HOW TO RESTORE MANUALLY.t
 def titulo_do_backup_save(tipo, origem=None):
     if tipo == 'antes_restaurar' and origem is not None:
         return t('titulo_save_antes_restaurar', quando=idiomas.data_hora(origem))
+    if tipo == 'sobra':
+        return t('titulo_save_sobra')
     return t('titulo_save_manual')
 
 
@@ -693,11 +814,13 @@ def titulo_do_backup_save(tipo, origem=None):
 class BackupSave:
     pasta: str
     quando: datetime.datetime
-    tipo: str = 'manual'              # 'manual' (botão) ou 'antes_restaurar'
+    tipo: str = 'manual'              # 'manual' (botão), 'antes_restaurar' ou 'sobra'
     origem: datetime.datetime = None  # para 'antes_restaurar': de quando era o backup restaurado
     tamanho: int = 0                  # bytes
     arquivos: int = 0
     protegido: bool = False
+    falhas_limpeza: list = field(default_factory=list)  # backups antigos que não puderam ser apagados
+    sobra_nao_apagada: str = None     # pasta temporária que ficou para trás (é guardada na próxima vez)
 
     @property
     def titulo(self):
@@ -733,7 +856,19 @@ def _conferir_copia(origem, destino):
 
 def _copiar_pasta(origem, destino):
     shutil.copytree(origem, destino, ignore=shutil.ignore_patterns('*.tmp_reset_missoes'))
+    # a cópia herda o "somente leitura"; sem tirar, essa pasta não poderia ser apagada depois
+    tirar_somente_leitura_de_tudo(destino)
     _conferir_copia(origem, destino)
+
+
+def _apagar_sem_erro(pasta):
+    """Tenta apagar; se não der, só registra no log (usado em limpezas que não podem atrapalhar)."""
+    try:
+        apagar_pasta(pasta)
+        return True
+    except OSError as e:
+        registro.log(f'Não foi possível apagar {pasta}: {e!r}', 'AVISO')
+        return False
 
 
 def _escrever_instrucoes(base, save):
@@ -760,8 +895,9 @@ def fazer_backup_save_completo(save, raiz, tipo='manual', origem=None, manter=()
     os.makedirs(destino)
     try:
         _copiar_pasta(save.pasta, os.path.join(destino, PASTA_ARQUIVOS_SAVE))
-    except Exception:
-        shutil.rmtree(destino, ignore_errors=True)  # não deixa backup pela metade
+    except Exception as e:
+        registro.log_erro(f'Falha ao copiar o save para o backup {destino}', e)
+        _apagar_sem_erro(destino)  # não deixa backup pela metade
         raise
     arquivos = _arquivos_da_pasta(os.path.join(destino, PASTA_ARQUIVOS_SAVE))
     tamanho = sum(os.path.getsize(c) for c in arquivos.values())
@@ -770,8 +906,9 @@ def fazer_backup_save_completo(save, raiz, tipo='manual', origem=None, manter=()
             'pasta_do_save': save.pasta, 'tamanho': tamanho, 'arquivos': len(arquivos)}
     with open(os.path.join(destino, 'info.json'), 'w', encoding='utf-8') as f:
         json.dump(info, f, ensure_ascii=False, indent=2)
-    _limpar_backups(listar_backups_save(save, raiz), LIMITE_SAVE, manter=manter)
-    return BackupSave(destino, agora, tipo, origem, tamanho, len(arquivos))
+    registro.log(f'Backup do save completo criado: {destino} ({len(arquivos)} arquivos)')
+    falhas = _limpar_backups(listar_backups_save(save, raiz), LIMITE_SAVE, manter=manter)
+    return BackupSave(destino, agora, tipo, origem, tamanho, len(arquivos), falhas_limpeza=falhas)
 
 
 def listar_backups_save(save, raiz):
@@ -808,13 +945,102 @@ def tem_backup_save(save, raiz):
     return bool(listar_backups_save(save, raiz))
 
 
+SUFIXOS_TMP = ('.restaurando_tmp', '.anterior_tmp')
+
+
+def sobras_de_restauracao(save):
+    """Pastas temporárias de restaurações anteriores que ficaram ao lado do save
+    (ex.: '7656...anterior_tmp' ou '7656...anterior_tmp_20261120-153012')."""
+    alvo = os.path.normpath(save.pasta)
+    pai, nome = os.path.dirname(alvo), os.path.basename(alvo)
+    try:
+        itens = os.listdir(pai)
+    except OSError:
+        return []
+    return sorted(os.path.join(pai, n) for n in itens
+                  if any(n.startswith(nome + suf) for suf in SUFIXOS_TMP) and os.path.isdir(os.path.join(pai, n)))
+
+
+def _guardar_sobra_como_backup(save, raiz, sobra):
+    """Uma sobra '.anterior_tmp' pode ser o único lugar com o save antigo do usuário:
+    em vez de apagar, ela vira um backup completo em Backups_SAVE."""
+    base = pasta_backups_save_completo(save, raiz)
+    os.makedirs(base, exist_ok=True)
+    quando = datetime.datetime.fromtimestamp(os.path.getmtime(sobra))
+    nome = _nome_de_pasta_seguro(f'{quando:%Y-%m-%d %H-%M-%S} - {titulo_do_backup_save("sobra")}')
+    destino = os.path.join(base, nome)
+    n = 2
+    while os.path.exists(destino):
+        destino = os.path.join(base, f'{nome} ({n})')
+        n += 1
+    os.makedirs(destino)
+    copiada_sem_apagar = False
+    try:
+        renomear(sobra, os.path.join(destino, PASTA_ARQUIVOS_SAVE))   # mesmo disco: só muda de lugar
+    except OSError as e:
+        registro.log(f'Não deu para mover a sobra {sobra} ({e!r}); copiando.', 'AVISO')
+        try:
+            _copiar_pasta(sobra, os.path.join(destino, PASTA_ARQUIVOS_SAVE))
+        except Exception:
+            _apagar_sem_erro(destino)
+            raise
+        copiada_sem_apagar = not _apagar_sem_erro(sobra)
+    arquivos = _arquivos_da_pasta(os.path.join(destino, PASTA_ARQUIVOS_SAVE))
+    info = {'criado_em': quando.isoformat(timespec='seconds'), 'tipo': 'sobra', 'origem': None,
+            'pasta_do_save': save.pasta, 'sobra_original': sobra,
+            'tamanho': sum(os.path.getsize(c) for c in arquivos.values()), 'arquivos': len(arquivos)}
+    with open(os.path.join(destino, 'info.json'), 'w', encoding='utf-8') as f:
+        json.dump(info, f, ensure_ascii=False, indent=2)
+    return destino, copiada_sem_apagar
+
+
+@dataclass
+class ResultadoSobra:
+    caminho: str
+    situacao: str          # 'guardada' (virou backup), 'apagada', 'copiada' (guardada, mas não apagada), 'falhou'
+    detalhe: object = None
+
+
+def recolher_sobras(save, raiz):
+    """Resolve as sobras de restaurações anteriores sem nunca perder dados:
+    - '.restaurando_tmp': é só uma cópia de um backup que continua existindo -> pode apagar;
+    - '.anterior_tmp': pode conter o save antigo -> é guardada como backup em Backups_SAVE.
+    Nada aqui bloqueia o programa: o que não der certo vira aviso e fica no log."""
+    resultados = []
+    for sobra in sobras_de_restauracao(save):
+        try:
+            if '.restaurando_tmp' in os.path.basename(sobra):
+                apagar_pasta(sobra)
+                resultados.append(ResultadoSobra(sobra, 'apagada'))
+            else:
+                destino, copiada = _guardar_sobra_como_backup(save, raiz, sobra)
+                resultados.append(ResultadoSobra(sobra, 'copiada' if copiada else 'guardada', destino))
+        except Exception as e:
+            resultados.append(ResultadoSobra(sobra, 'falhou', e))
+        r = resultados[-1]
+        detalhe = repr(r.detalhe) if r.detalhe else ''
+        registro.log(f'Sobra de restauração {r.caminho}: {r.situacao} {detalhe}',
+                     'ERRO' if r.situacao == 'falhou' else 'INFO')
+    return resultados
+
+
+def limpar_excesso_de_backups(save, raiz):
+    """Aplica os limites de backups (útil ao abrir o programa). Devolve as falhas."""
+    falhas = FalhasNaLimpeza()
+    falhas += _limpar_backups(listar_backups(save, raiz), LIMITE_MISSOES)
+    falhas += _limpar_backups(listar_backups_save(save, raiz), LIMITE_SAVE)
+    return falhas
+
+
 def restaurar_save_completo(save, backup, raiz):
     """Devolve a pasta inteira do save a partir de um backup completo.
 
     Antes, guarda o save atual num backup completo novo. A troca é feita assim:
     1) copia o backup para uma pasta temporária ao lado do save e confere;
-    2) renomeia o save atual para '.anterior_tmp' e a cópia para o nome do save;
-    3) confere de novo e só então apaga o '.anterior_tmp'. Se algo falhar, volta como estava."""
+    2) renomeia o save atual para '.anterior_tmp_<data>' e a cópia para o nome do save;
+    3) confere de novo e só então apaga o '.anterior_tmp_<data>'.
+    Se algo falhar no meio, o save volta exatamente como estava.
+    Os nomes temporários são únicos (data e hora), para que uma sobra nunca trave a próxima vez."""
     if jogo_aberto():
         raise ErroSave(t('erro_jogo_aberto'))
     if not os.path.isdir(backup.pasta_arquivos):
@@ -822,33 +1048,45 @@ def restaurar_save_completo(save, backup, raiz):
     arquivo_missoes = os.path.join(backup.pasta_arquivos, NOME_ARQUIVO)
     if os.path.isfile(arquivo_missoes):
         Save.abrir(arquivo_missoes)  # garante que o arquivo de missões do backup é válido
+    registro.log(f'Restaurar save completo: {save.pasta} <- {backup.pasta}')
+    recolher_sobras(save, raiz)      # não bloqueia: só arruma o que der
     antes = fazer_backup_save_completo(save, raiz, 'antes_restaurar', origem=backup.quando,
                                        manter=(backup.pasta,))
     alvo = os.path.normpath(save.pasta)
-    novo = alvo + '.restaurando_tmp'
-    anterior = alvo + '.anterior_tmp'
-    for sobra in (novo, anterior):
-        if os.path.exists(sobra):
-            shutil.rmtree(sobra)
-    _copiar_pasta(backup.pasta_arquivos, novo)
+    marca = datetime.datetime.now().strftime('%Y%m%d-%H%M%S-%f')
+    novo = f'{alvo}.restaurando_tmp_{marca}'
+    anterior = f'{alvo}.anterior_tmp_{marca}'
     try:
-        os.rename(alvo, anterior)
+        _copiar_pasta(backup.pasta_arquivos, novo)
+    except Exception:
+        _apagar_sem_erro(novo)
+        raise
+    try:
+        renomear(alvo, anterior)
     except OSError as e:
-        shutil.rmtree(novo, ignore_errors=True)
-        raise ErroSave(t('erro_pasta_em_uso', erro=e))
+        _apagar_sem_erro(novo)
+        registro.log_erro(f'Não foi possível renomear o save {alvo}', e)
+        raise ErroSave(t('erro_pasta_em_uso', erro=e), original=e, caminho=alvo)
     try:
-        os.rename(novo, alvo)
+        renomear(novo, alvo)
         _conferir_copia(backup.pasta_arquivos, alvo)
     except Exception as e:
-        # desfaz: volta a pasta original para o lugar
-        if os.path.exists(alvo):
-            shutil.rmtree(alvo, ignore_errors=True)
-        os.rename(anterior, alvo)
-        shutil.rmtree(novo, ignore_errors=True)
+        registro.log_erro('Falha no meio da restauração; desfazendo', e)
+        try:
+            if os.path.exists(alvo):
+                renomear(alvo, novo)      # tira a cópia do lugar (sem apagar nada)
+            renomear(anterior, alvo)      # e devolve o save original
+        except OSError as e2:
+            registro.log_erro(f'NÃO FOI POSSÍVEL DESFAZER. O save original está em {anterior}', e2)
+            raise ErroSave(t('erro_desfazer_falhou', pasta=anterior, erro=e2), original=e2, caminho=anterior)
+        _apagar_sem_erro(novo)
+        registro.log('Restauração desfeita: o save voltou a ficar como estava.')
         if isinstance(e, ErroSave):
             raise
-        raise ErroSave(t('erro_pasta_em_uso', erro=e))
-    shutil.rmtree(anterior, ignore_errors=True)
+        raise ErroSave(t('erro_pasta_em_uso', erro=e), original=e, caminho=alvo)
+    if not _apagar_sem_erro(anterior):
+        antes.sobra_nao_apagada = anterior   # fica guardada como backup na próxima vez
+    registro.log('Save completo restaurado com sucesso.')
     return antes
 
 
@@ -864,10 +1102,16 @@ def _gravar_com_seguranca(destino, conteudo, conferir):
             if f.read() != conteudo:
                 raise ErroSave(t('erro_conferencia', codigo='G1'))
         conferir(conteudo)
-        os.replace(tmp, destino)
+        if eh_somente_leitura(destino):
+            registro.log(f'O arquivo {destino} estava marcado como somente leitura; marcação retirada.', 'AVISO')
+            tirar_somente_leitura(destino)
+        com_tentativas(os.replace, tmp, destino)
     finally:
         if os.path.exists(tmp):
-            os.remove(tmp)
+            try:
+                os.remove(tmp)
+            except OSError as e:
+                registro.log(f'Não foi possível apagar o temporário {tmp}: {e!r}', 'AVISO')
     with open(destino, 'rb') as f:
         if f.read() != conteudo:
             raise ErroSave(t('erro_pos_gravacao'))

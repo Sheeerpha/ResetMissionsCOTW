@@ -281,6 +281,12 @@ TEXTOS = {
                              '\n\nDetalhe técnico: {erro}',
         'titulo_save_manual': 'Backup feito por você',
         'titulo_save_antes_restaurar': 'Antes de restaurar o save de {quando}',
+        'titulo_save_sobra': 'Save anterior guardado de uma restauração interrompida',
+        'erro_desfazer_falhou': 'A restauração falhou no meio e o programa não conseguiu desfazê-la sozinho.\n\n'
+                                'O seu save anterior NÃO foi perdido: ele está guardado nesta pasta:\n{pasta}\n\n'
+                                'Não apague essa pasta. Feche Steam, OneDrive e o Explorador de Arquivos e abra '
+                                'o programa de novo: ele guarda essa pasta como backup automaticamente.\n\n'
+                                'Detalhe técnico: {erro}',
         'backup_protegido': '🔒 o mais antigo, nunca é apagado',
         'limite_backups': 'São guardados até {n} backups. Passando disso, o mais antigo é apagado sozinho, menos '
                           'o primeiro (🔒), que é sempre mantido.',
@@ -383,6 +389,84 @@ TEXTOS = {
                          '•  {apoiar}: se quiser ajudar o desenvolvimento.\n'
                          '•  {ajuda}: mostra esta introdução de novo quando quiser.\n\n'
                          'Boa caçada!',
+
+        # verificação antes de começar
+        'verif_titulo': 'Verificação antes de começar',
+        'verif_explicacao': 'Para evitar erros e perda de progresso, o programa confere se algum programa pode '
+                            'atrapalhar a edição do save. Programas como Steam, Epic, OneDrive e Google Drive podem '
+                            'estar usando ou sincronizando os arquivos ao mesmo tempo. Isso pode bloquear a alteração '
+                            'ou sobrescrever o save com uma versão antiga da nuvem.\n'
+                            'Esta verificação acontece só no seu computador: nada é enviado para a internet.',
+        'verif_tudo_pronto': '✔  Tudo pronto: nada deve atrapalhar.',
+        'verif_impede': '⛔  Precisa resolver',
+        'verif_atencao': '⚠  Atenção',
+        'status_ok': '✔ Verificação: tudo pronto',
+        'status_avisos': '⚠ Verificação: {n} aviso(s)',
+        'status_impede': '⛔ Verificação: {n} problema(s) impede(m) alterações',
+        'bt_ver_verificacao': 'Ver verificação',
+        'bt_verificar_de_novo': 'Verificar de novo',
+        'bt_continuar': 'Continuar',
+        'bt_continuar_mesmo_assim': 'Continuar mesmo assim',
+        'bt_cancelar': 'Cancelar',
+        'confirmar_continuar_risco': 'Continuar mesmo assim pode fazer a alteração falhar ou ser desfeita pela '
+                                     'nuvem.\n\nO programa sempre faz backup antes e desfaz tudo se algo der errado '
+                                     'no meio, mas o risco existe.\n\nContinuar?',
+        'item_jogo': 'O jogo está aberto. Feche o jogo normalmente (pelo menu do jogo) e clique em "Verificar de '
+                     'novo".',
+        'item_em_uso': 'Arquivos do save estão sendo usados por: {programa}. Feche esse programa e clique em '
+                       '"Verificar de novo".',
+        'item_somente_leitura': '{n} arquivo(s)/pasta(s) do save ou dos backups estão marcados como "somente '
+                                'leitura". Isso pode impedir a troca ou a limpeza dos arquivos.',
+        'item_nuvem': 'A pasta do save fica dentro do {servico}. Ele pode bloquear arquivos enquanto sincroniza ou '
+                      'trazer de volta uma versão antiga.',
+        'item_steam': 'O Steam está aberto. Normalmente não atrapalha, mas o Steam Cloud pode sincronizar o save '
+                      'quando o jogo abre ou fecha.',
+        'item_epic': 'O Epic Games Launcher está aberto. A Epic Cloud pode sincronizar o save.',
+        'item_onedrive': 'O OneDrive está aberto e pode estar sincronizando os arquivos.',
+        'item_googledrive': 'O Google Drive está aberto e pode estar sincronizando os arquivos.',
+        'item_dropbox': 'O Dropbox está aberto e pode estar sincronizando os arquivos.',
+        'bt_fechar_steam': 'Fechar Steam',
+        'bt_fechar_epic': 'Fechar Epic',
+        'bt_fechar_onedrive': 'Fechar OneDrive',
+        'bt_reabrir_onedrive': 'Reabrir OneDrive',
+        'bt_fechar_googledrive': 'Fechar Google Drive',
+        'bt_fechar_dropbox': 'Fechar Dropbox',
+        'bt_corrigir': 'Corrigir',
+        'fechando': 'Fechando {programa}… aguarde.',
+        'nao_fechou': '{programa} não fechou sozinho. Clique no ícone dele perto do relógio do Windows (canto '
+                      'inferior direito) e escolha "Sair".',
+        'nao_achei_programa': 'Não encontrei o {programa} para fechá-lo. Feche-o pelo ícone perto do relógio do '
+                              'Windows.',
+        'corrigidos': 'Marcação "somente leitura" retirada de {n} item(ns). O conteúdo dos arquivos não mudou.',
+        'perguntar_reabrir_onedrive': 'O OneDrive foi fechado pela verificação. Quer abri-lo de novo agora, para a '
+                                      'sincronização continuar?',
+        'aviso_limpeza_falhou': '⚠ {n} backup(s) antigo(s) não puderam ser apagados agora. Isso não atrapalha o '
+                                'uso; o programa tenta de novo depois (detalhes no log).',
+        'aviso_sobra_guardada': 'Foi encontrada uma pasta temporária de uma restauração anterior. Ela foi guardada '
+                                'como backup completo ("{titulo}").',
+        'aviso_sobra_falhou': '⚠ Uma pasta temporária de uma restauração anterior não pôde ser guardada agora '
+                              '(detalhes no log). Isso não impede o uso.',
+
+        # erros e log
+        'erro_titulo': 'Algo deu errado',
+        'erro_causa_encontrada': 'Causa encontrada:',
+        'erro_causas_possiveis': 'Causas possíveis:',
+        'bt_copiar_detalhes': 'Copiar detalhes',
+        'detalhes_copiados': 'Detalhes copiados. Cole (Ctrl+V) no seu relato ou na "Issue" do GitHub.',
+        'bt_logs': '📄  Logs',
+        'bt_abrir_pasta_logs': 'Abrir pasta de logs',
+        'sem_logs': 'Ainda não há logs.',
+        'causa_somente_leitura': 'O arquivo ou pasta está marcado como "somente leitura": {caminho}',
+        'causa_em_uso': 'O arquivo ou pasta está sendo usado por: {programas}',
+        'causa_nuvem': 'A pasta fica dentro do {servico}, que pode estar sincronizando ou bloqueando os arquivos.',
+        'causa_cfa_confirmado': 'O Windows Defender registrou um bloqueio deste programa ("Acesso Controlado a '
+                                'Pastas").',
+        'causa_cfa_possivel': 'O "Acesso Controlado a Pastas" do Windows Defender está ligado e pode ter bloqueado '
+                              'a gravação.',
+        'causa_desconhecida': 'Outro programa pode ter segurado os arquivos por alguns instantes (OneDrive, Steam, '
+                              'antivírus ou o Explorador de Arquivos). Feche-os e tente de novo.',
+        'faixa_erro_causa': '⚠  Não consegui gravar na pasta Documentos. {causa}\n'
+                            'Enquanto isso não for resolvido, o programa não altera nada.',
 
         'nome_leia_me': 'LEIA-ME.txt',
         'leia_me_pasta': 'Pasta do programa "ResetMissionsCOTW - Reset de Missões por Mapa".\n\n'
@@ -560,6 +644,12 @@ TEXTOS = {
                              '\n\nTechnical detail: {erro}',
         'titulo_save_manual': 'Backup made by you',
         'titulo_save_antes_restaurar': 'Before restoring the save from {quando}',
+        'titulo_save_sobra': 'Previous save kept from an interrupted restore',
+        'erro_desfazer_falhou': 'The restore failed halfway and the program could not undo it by itself.\n\n'
+                                'Your previous save was NOT lost: it is kept in this folder:\n{pasta}\n\n'
+                                'Do not delete that folder. Close Steam, OneDrive and File Explorer and open the '
+                                'program again: it keeps that folder as a backup automatically.\n\n'
+                                'Technical detail: {erro}',
         'backup_protegido': '🔒 the oldest, never deleted',
         'limite_backups': 'Up to {n} backups are kept. Beyond that, the oldest one is deleted automatically, except '
                           'the first one (🔒), which is always kept.',
@@ -657,6 +747,77 @@ TEXTOS = {
                          '•  {apoiar}: if you would like to help the development.\n'
                          '•  {ajuda}: shows this introduction again whenever you want.\n\n'
                          'Happy hunting!',
+
+        'verif_titulo': 'Check before you start',
+        'verif_explicacao': 'To avoid errors and lost progress, the program checks whether another program could '
+                            'interfere with editing the save. Programs such as Steam, Epic, OneDrive and Google Drive '
+                            'may be using or syncing the files at the same time. This can block the change or '
+                            'overwrite the save with an old version from the cloud.\n'
+                            'This check happens only on your computer: nothing is sent to the internet.',
+        'verif_tudo_pronto': '✔  All set: nothing should get in the way.',
+        'verif_impede': '⛔  Needs fixing',
+        'verif_atencao': '⚠  Heads-up',
+        'status_ok': '✔ Check: all set',
+        'status_avisos': '⚠ Check: {n} warning(s)',
+        'status_impede': '⛔ Check: {n} problem(s) blocking changes',
+        'bt_ver_verificacao': 'View check',
+        'bt_verificar_de_novo': 'Check again',
+        'bt_continuar': 'Continue',
+        'bt_continuar_mesmo_assim': 'Continue anyway',
+        'bt_cancelar': 'Cancel',
+        'confirmar_continuar_risco': 'Continuing anyway may make the change fail or be undone by the cloud.\n\n'
+                                     'The program always makes a backup first and undoes everything if something '
+                                     'goes wrong halfway, but the risk exists.\n\nContinue?',
+        'item_jogo': 'The game is open. Close the game normally (from the game menu) and click "Check again".',
+        'item_em_uso': 'Save files are being used by: {programa}. Close that program and click "Check again".',
+        'item_somente_leitura': '{n} file(s)/folder(s) of the save or of the backups are marked as "read-only". '
+                                'This can prevent swapping or cleaning up the files.',
+        'item_nuvem': 'The save folder is inside {servico}. It may lock files while syncing or bring back an old '
+                      'version.',
+        'item_steam': 'Steam is open. It usually does not interfere, but Steam Cloud may sync the save when the game '
+                      'opens or closes.',
+        'item_epic': 'Epic Games Launcher is open. Epic Cloud may sync the save.',
+        'item_onedrive': 'OneDrive is open and may be syncing the files.',
+        'item_googledrive': 'Google Drive is open and may be syncing the files.',
+        'item_dropbox': 'Dropbox is open and may be syncing the files.',
+        'bt_fechar_steam': 'Close Steam',
+        'bt_fechar_epic': 'Close Epic',
+        'bt_fechar_onedrive': 'Close OneDrive',
+        'bt_reabrir_onedrive': 'Reopen OneDrive',
+        'bt_fechar_googledrive': 'Close Google Drive',
+        'bt_fechar_dropbox': 'Close Dropbox',
+        'bt_corrigir': 'Fix',
+        'fechando': 'Closing {programa}… please wait.',
+        'nao_fechou': '{programa} did not close by itself. Click its icon near the Windows clock (bottom right '
+                      'corner) and choose "Quit"/"Exit".',
+        'nao_achei_programa': 'Could not find {programa} to close it. Close it from its icon near the Windows clock.',
+        'corrigidos': '"Read-only" mark removed from {n} item(s). The file contents did not change.',
+        'perguntar_reabrir_onedrive': 'OneDrive was closed by the check. Do you want to open it again now, so '
+                                      'syncing continues?',
+        'aviso_limpeza_falhou': '⚠ {n} old backup(s) could not be deleted right now. This does not affect use; the '
+                                'program tries again later (details in the log).',
+        'aviso_sobra_guardada': 'A temporary folder from a previous restore was found. It was kept as a full backup '
+                                '("{titulo}").',
+        'aviso_sobra_falhou': '⚠ A temporary folder from a previous restore could not be kept right now (details in '
+                              'the log). This does not prevent use.',
+
+        'erro_titulo': 'Something went wrong',
+        'erro_causa_encontrada': 'Cause found:',
+        'erro_causas_possiveis': 'Possible causes:',
+        'bt_copiar_detalhes': 'Copy details',
+        'detalhes_copiados': 'Details copied. Paste them (Ctrl+V) into your report or GitHub "Issue".',
+        'bt_logs': '📄  Logs',
+        'bt_abrir_pasta_logs': 'Open logs folder',
+        'sem_logs': 'There are no logs yet.',
+        'causa_somente_leitura': 'The file or folder is marked as "read-only": {caminho}',
+        'causa_em_uso': 'The file or folder is being used by: {programas}',
+        'causa_nuvem': 'The folder is inside {servico}, which may be syncing or locking the files.',
+        'causa_cfa_confirmado': 'Windows Defender recorded a block of this program ("Controlled folder access").',
+        'causa_cfa_possivel': 'Windows Defender "Controlled folder access" is on and may have blocked writing.',
+        'causa_desconhecida': 'Another program may have held the files for a few moments (OneDrive, Steam, '
+                              'antivirus or File Explorer). Close them and try again.',
+        'faixa_erro_causa': '⚠  Could not write to the Documents folder. {causa}\n'
+                            'Until this is solved, the program does not change anything.',
 
         'nome_leia_me': 'README.txt',
         'leia_me_pasta': 'Folder of the program "ResetMissionsCOTW - Per-Map Mission Reset".\n\n'
@@ -838,6 +999,12 @@ TEXTOS = {
                              'estaba.\n\nDetalle técnico: {erro}',
         'titulo_save_manual': 'Copia hecha por ti',
         'titulo_save_antes_restaurar': 'Antes de restaurar la partida del {quando}',
+        'titulo_save_sobra': 'Partida anterior guardada de una restauración interrumpida',
+        'erro_desfazer_falhou': 'La restauración falló a medias y el programa no pudo deshacerla solo.\n\n'
+                                'Tu partida anterior NO se perdió: está guardada en esta carpeta:\n{pasta}\n\n'
+                                'No borres esa carpeta. Cierra Steam, OneDrive y el Explorador de archivos y vuelve '
+                                'a abrir el programa: guardará esa carpeta como copia de seguridad automáticamente.'
+                                '\n\nDetalle técnico: {erro}',
         'backup_protegido': '🔒 la más antigua, nunca se borra',
         'limite_backups': 'Se guardan hasta {n} copias. A partir de ahí, la más antigua se borra sola, excepto la '
                           'primera (🔒), que siempre se conserva.',
@@ -939,6 +1106,82 @@ TEXTOS = {
                          '•  {apoiar}: si quieres ayudar al desarrollo.\n'
                          '•  {ajuda}: muestra esta introducción de nuevo cuando quieras.\n\n'
                          '¡Buena caza!',
+
+        'verif_titulo': 'Comprobación antes de empezar',
+        'verif_explicacao': 'Para evitar errores y pérdida de progreso, el programa comprueba si algún programa puede '
+                            'estorbar la edición de la partida. Programas como Steam, Epic, OneDrive y Google Drive '
+                            'pueden estar usando o sincronizando los archivos al mismo tiempo. Eso puede bloquear el '
+                            'cambio o sobrescribir la partida con una versión antigua de la nube.\n'
+                            'Esta comprobación ocurre solo en tu equipo: no se envía nada a internet.',
+        'verif_tudo_pronto': '✔  Todo listo: nada debería estorbar.',
+        'verif_impede': '⛔  Hay que resolverlo',
+        'verif_atencao': '⚠  Atención',
+        'status_ok': '✔ Comprobación: todo listo',
+        'status_avisos': '⚠ Comprobación: {n} aviso(s)',
+        'status_impede': '⛔ Comprobación: {n} problema(s) impide(n) cambios',
+        'bt_ver_verificacao': 'Ver comprobación',
+        'bt_verificar_de_novo': 'Comprobar de nuevo',
+        'bt_continuar': 'Continuar',
+        'bt_continuar_mesmo_assim': 'Continuar de todas formas',
+        'bt_cancelar': 'Cancelar',
+        'confirmar_continuar_risco': 'Continuar de todas formas puede hacer que el cambio falle o que la nube lo '
+                                     'deshaga.\n\nEl programa siempre hace una copia antes y lo deshace todo si algo '
+                                     'sale mal a medias, pero el riesgo existe.\n\n¿Continuar?',
+        'item_jogo': 'El juego está abierto. Ciérralo normalmente (desde el menú del juego) y haz clic en "Comprobar '
+                     'de nuevo".',
+        'item_em_uso': 'Archivos de la partida están siendo usados por: {programa}. Cierra ese programa y haz clic '
+                       'en "Comprobar de nuevo".',
+        'item_somente_leitura': '{n} archivo(s)/carpeta(s) de la partida o de las copias están marcados como "solo '
+                                'lectura". Eso puede impedir cambiar o limpiar los archivos.',
+        'item_nuvem': 'La carpeta de la partida está dentro de {servico}. Puede bloquear archivos mientras sincroniza '
+                      'o traer de vuelta una versión antigua.',
+        'item_steam': 'Steam está abierto. Normalmente no estorba, pero Steam Cloud puede sincronizar la partida al '
+                      'abrir o cerrar el juego.',
+        'item_epic': 'Epic Games Launcher está abierto. Epic Cloud puede sincronizar la partida.',
+        'item_onedrive': 'OneDrive está abierto y puede estar sincronizando los archivos.',
+        'item_googledrive': 'Google Drive está abierto y puede estar sincronizando los archivos.',
+        'item_dropbox': 'Dropbox está abierto y puede estar sincronizando los archivos.',
+        'bt_fechar_steam': 'Cerrar Steam',
+        'bt_fechar_epic': 'Cerrar Epic',
+        'bt_fechar_onedrive': 'Cerrar OneDrive',
+        'bt_reabrir_onedrive': 'Reabrir OneDrive',
+        'bt_fechar_googledrive': 'Cerrar Google Drive',
+        'bt_fechar_dropbox': 'Cerrar Dropbox',
+        'bt_corrigir': 'Corregir',
+        'fechando': 'Cerrando {programa}… espera.',
+        'nao_fechou': '{programa} no se cerró solo. Haz clic en su icono cerca del reloj de Windows (esquina inferior '
+                      'derecha) y elige "Salir".',
+        'nao_achei_programa': 'No se encontró {programa} para cerrarlo. Ciérralo desde su icono cerca del reloj de '
+                              'Windows.',
+        'corrigidos': 'Se quitó la marca "solo lectura" de {n} elemento(s). El contenido de los archivos no cambió.',
+        'perguntar_reabrir_onedrive': 'La comprobación cerró OneDrive. ¿Quieres abrirlo de nuevo ahora para que siga '
+                                      'sincronizando?',
+        'aviso_limpeza_falhou': '⚠ {n} copia(s) antigua(s) no se pudieron borrar ahora. No afecta el uso; el programa '
+                                'lo intenta de nuevo después (detalles en el registro).',
+        'aviso_sobra_guardada': 'Se encontró una carpeta temporal de una restauración anterior. Se guardó como copia '
+                                'completa ("{titulo}").',
+        'aviso_sobra_falhou': '⚠ Una carpeta temporal de una restauración anterior no se pudo guardar ahora (detalles '
+                              'en el registro). No impide el uso.',
+
+        'erro_titulo': 'Algo salió mal',
+        'erro_causa_encontrada': 'Causa encontrada:',
+        'erro_causas_possiveis': 'Causas posibles:',
+        'bt_copiar_detalhes': 'Copiar detalles',
+        'detalhes_copiados': 'Detalles copiados. Pégalos (Ctrl+V) en tu informe o en la "Issue" de GitHub.',
+        'bt_logs': '📄  Registros',
+        'bt_abrir_pasta_logs': 'Abrir carpeta de registros',
+        'sem_logs': 'Todavía no hay registros.',
+        'causa_somente_leitura': 'El archivo o la carpeta está marcado como "solo lectura": {caminho}',
+        'causa_em_uso': 'El archivo o la carpeta está siendo usado por: {programas}',
+        'causa_nuvem': 'La carpeta está dentro de {servico}, que puede estar sincronizando o bloqueando los archivos.',
+        'causa_cfa_confirmado': 'Windows Defender registró un bloqueo de este programa ("Acceso controlado a '
+                                'carpetas").',
+        'causa_cfa_possivel': 'El "Acceso controlado a carpetas" de Windows Defender está activado y puede haber '
+                              'bloqueado la escritura.',
+        'causa_desconhecida': 'Otro programa puede haber retenido los archivos unos instantes (OneDrive, Steam, '
+                              'antivirus o el Explorador de archivos). Ciérralos e inténtalo de nuevo.',
+        'faixa_erro_causa': '⚠  No se pudo escribir en la carpeta Documentos. {causa}\n'
+                            'Hasta que se resuelva, el programa no cambia nada.',
 
         'nome_leia_me': 'LEEME.txt',
         'leia_me_pasta': 'Carpeta del programa "ResetMissionsCOTW - Reinicio de Misiones por Mapa".\n\n'
