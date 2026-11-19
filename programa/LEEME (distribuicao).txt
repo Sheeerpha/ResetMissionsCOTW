@@ -1,0 +1,108 @@
+ResetMissionsCOTW - versión 0.9.5 (Beta)
+Reinicio de misiones por mapa - theHunter: Call of the Wild
+Creado por Sheeerpha
+=========================================================
+
+ESTA ES UNA VERSIÓN DE PRUEBA (BETA).
+El programa fue creado por un jugador, no es oficial y puede tener fallos.
+Úsalo con cuidado y, si algo sale mal, avisa en la página del proyecto (enlace
+al final).
+
+
+QUÉ HACE EL PROGRAMA
+--------------------
+En el juego, la única forma de reiniciar las misiones es borrar el archivo de
+misiones, y eso reinicia las misiones de TODOS los mapas. Este programa reinicia
+las misiones de UN mapa elegido (o de varios) y deja los demás mapas como están.
+
+Solo modifica el progreso de las misiones (archivo missions_missiondata_adf).
+El perfil, el dinero, las habilidades, las armas, los animales, los trofeos y el
+resto de la partida no se tocan.
+
+
+CÓMO USARLO
+-----------
+1. CIERRA el juego (el programa no cambia nada con el juego abierto).
+2. Haz doble clic en "ResetMissionsCOTW.exe".
+   La primera vez aparecen un aviso y una introducción rápida (puedes omitirla).
+3. El programa encuentra tu partida solo y muestra la lista de mapas con las
+   misiones completadas, en curso y el total.
+   (Si no la encuentra, haz clic en "Elegir carpeta..." y elige la carpeta de
+   la partida, que normalmente es: Documentos\Avalanche Studios\COTW\Saves\<número>)
+
+   ¿Tienes partida en Steam Y en Epic, o más de una cuenta? Elige la plataforma
+   en "Plataforma" y la cuenta en la lista "Partida". La partida jugada más
+   recientemente ya viene elegida. El programa solo modifica la partida elegida.
+4. RECOMENDADO: haz clic en "Copia de seguridad de la partida completa" antes
+   de todo. Guarda una copia de la carpeta ENTERA de la partida.
+5. Haz clic en el mapa que quieres reiniciar (para elegir varios, mantén Ctrl).
+6. Haz clic en "Reiniciar misiones de los mapas seleccionados" y confirma.
+7. El mapa se pone verde, con "Misiones reiniciadas". Abre el juego y entra en
+   ese mapa: las misiones empezarán desde cero.
+
+
+COPIAS DE SEGURIDAD
+-------------------
+Fila "Misiones":
+* Antes de cada reinicio se hace sola una copia del archivo de misiones.
+* "Restaurar copia de misiones...": deshace un reinicio. La tabla muestra en
+  amarillo lo que cambiará antes de que confirmes.
+* Se guardan hasta 50. A partir de ahí, la más antigua se borra sola, excepto
+  la primera (🔒), que siempre se conserva.
+
+Fila "Partida completa":
+* "Copia de seguridad de la partida completa": copia la carpeta entera de la
+  partida.
+* "Restaurar partida completa...": devuelve la partida entera desde una copia.
+  Atención: se pierde todo el progreso hecho después de esa copia, en cualquier
+  parte del juego. Antes de restaurar, también se guarda la partida actual.
+* Se guardan hasta 5, y la primera (🔒) siempre se conserva.
+* "Abrir carpeta": dentro hay un archivo que explica cómo restaurar a mano.
+
+Las copias están en Documentos\.BKP_ResetMissions_Saves_COTW (carpeta oculta),
+separadas por cuenta, en las carpetas Backups_MISSIONS y Backups_SAVE.
+
+
+AVISOS QUE PUEDEN APARECER
+--------------------------
+* "Windows protegió su PC" (pantalla azul al abrir el programa)
+  Pasa con programas nuevos que no tienen firma digital de pago.
+  Haz clic en "Más información" y después en "Ejecutar de todas formas".
+
+* Barra amarilla "Windows está bloqueando que este programa..."
+  Solo aparece si activaste la protección "Acceso controlado a carpetas" de
+  Windows Defender. Usa los botones de la propia barra: "Cómo permitirlo (paso
+  a paso)" lo explica todo. Permite el programa en el lugar donde va a quedarse:
+  si después mueves el .exe a otra carpeta, tendrás que permitirlo de nuevo.
+
+* Steam Cloud / Epic Cloud
+  Si al abrir el juego aparece un aviso de conflicto de archivos en la nube,
+  elige la versión LOCAL (la de este equipo). Si eliges la de la nube, el
+  reinicio se deshace.
+
+
+IMPORTANTE
+----------
+* No ejecutes el programa desde dentro del archivo .zip: extrae la carpeta antes.
+* Funciona en Windows 10 y 11. No hay que instalar nada.
+* Idioma: el programa se abre en el idioma de tu Windows (portugués, inglés o
+  español). Para cambiarlo, usa la lista con el globo 🌐 en la esquina inferior.
+* Tema: claro u oscuro, igual que tu Windows. Para cambiarlo, usa el botón
+  "Tema oscuro" / "Tema claro" en la esquina inferior.
+* "Cómo usar", en la esquina inferior, muestra la introducción de nuevo.
+* Probado con la versión de Steam. En Epic debería funcionar, pero todavía no
+  se ha probado.
+
+
+¿ENCONTRASTE UN PROBLEMA?
+-------------------------
+Abre un aviso ("Issue") en la página del proyecto en GitHub, con:
+- una captura de pantalla con el mensaje de error;
+- lo que hiciste antes de que apareciera el error.
+
+https://github.com/Sheeerpha/ResetMissionsCOTW/issues
+
+
+PÁGINA DEL PROYECTO (código abierto)
+------------------------------------
+https://github.com/Sheeerpha/ResetMissionsCOTW

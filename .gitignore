@@ -1,0 +1,25 @@
+# Arquivos que NUNCA devem ir para o GitHub
+# (saves reais, anotações pessoais e arquivos gerados no PC)
+
+# Saves do jogo e amostras (contêm dados pessoais)
+amostras/
+missions_missiondata_adf*
+*.adf
+Saves/
+slots/
+
+# Anotações do projeto
+CLAUDE.md
+
+# Python e PyInstaller
+.venv/
+venv/
+__pycache__/
+*.pyc
+build/
+dist/
+*.spec
+
+# Pacotes gerados (os oficiais saem pelo GitHub Releases)
+*.zip
+ResetMissionsCOTW_*/

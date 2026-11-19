@@ -1,0 +1,58 @@
+# Build automático: roda os testes, gera o .exe e anexa o .zip na Release.
+# Dispara quando uma Release é publicada no site do GitHub (aba Releases > Draft a new release),
+# ou manualmente na aba Actions (nesse caso o .zip fica só em "Artifacts", sem Release).
+name: Build and release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.15'
+          allow-prereleases: true
+
+      - name: Install PyInstaller
+        run: python -m pip install --upgrade pip pyinstaller
+
+      - name: Run tests (synthetic saves, no real save needed)
+        run: python -X utf8 programa/testes.py
+
+      - name: Build exe
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name ResetMissionsCOTW programa/cotw_app.py
+
+      - name: Package
+        shell: pwsh
+        run: |
+          $versao = if ('${{ github.event_name }}' -eq 'release') { '${{ github.event.release.tag_name }}' } else { 'dev' }
+          $nome = "ResetMissionsCOTW_$versao"
+          New-Item -ItemType Directory $nome | Out-Null
+          Copy-Item dist/ResetMissionsCOTW.exe $nome/
+          Copy-Item 'programa/LEIA-ME (distribuicao).txt' "$nome/LEIA-ME.txt"
+          Copy-Item 'programa/README (distribuicao).txt' "$nome/README.txt"
+          Copy-Item 'programa/LEEME (distribuicao).txt' "$nome/LEEME.txt"
+          Copy-Item LICENSE "$nome/LICENSE.txt"
+          Compress-Archive -Path $nome -DestinationPath "$nome.zip"
+          "ZIP=$nome.zip" >> $env:GITHUB_ENV
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ResetMissionsCOTW
+          path: ${{ env.ZIP }}
+
+      - name: Attach zip to the release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: ${{ env.ZIP }}

@@ -1,0 +1,104 @@
+ResetMissionsCOTW - versão 0.9.5 (Beta)
+Reset de missões por mapa - theHunter: Call of the Wild
+Criado por Sheeerpha
+=========================================================
+
+ESTA É UMA VERSÃO DE TESTE (BETA).
+O programa foi criado por um jogador, não é oficial e pode ter falhas. Use com
+atenção e, se algo der errado, avise na página do projeto (link no fim).
+
+
+O QUE O PROGRAMA FAZ
+--------------------
+No jogo, só dá para resetar as missões apagando o arquivo de missões, e isso zera
+as missões de TODOS os mapas. Este programa reseta as missões de UM mapa escolhido
+(ou de vários) e mantém os outros mapas como estão.
+
+Ele só altera o progresso das missões (arquivo missions_missiondata_adf). Perfil,
+dinheiro, habilidades, armas, animais, troféus e o resto do save não são tocados.
+
+
+COMO USAR
+---------
+1. FECHE o jogo (o programa não deixa alterar nada com o jogo aberto).
+2. Dê dois cliques em "ResetMissionsCOTW.exe".
+   Na primeira vez, aparecem um aviso e uma introdução rápida (dá para pular).
+3. O programa encontra o seu save sozinho e mostra a lista de mapas com as
+   missões concluídas, em andamento e o total.
+   (Se não encontrar, clique em "Escolher pasta..." e aponte a pasta do save,
+   que normalmente é: Documentos\Avalanche Studios\COTW\Saves\<número>)
+
+   Tem save na Steam E na Epic, ou mais de uma conta? Escolha a plataforma
+   em "Plataforma" e a conta na lista "Save". O save jogado mais recentemente
+   já vem escolhido. O programa só mexe no save que estiver escolhido.
+4. RECOMENDADO: clique em "Fazer backup do save completo" antes de tudo.
+   Ele guarda uma cópia da pasta INTEIRA do save.
+5. Clique no mapa que quer resetar (para escolher vários, segure Ctrl).
+6. Clique em "Resetar missões do(s) mapa(s) selecionado(s)" e confirme.
+7. O mapa fica verde, escrito "Missões resetadas". Abra o jogo e entre nesse
+   mapa: as missões vão começar do zero.
+
+
+BACKUPS
+-------
+Linha "Missões":
+* Um backup do arquivo de missões é feito sozinho antes de cada reset.
+* "Restaurar backup de missões...": desfaz um reset. A tabela mostra em amarelo
+  o que vai mudar antes de você confirmar.
+* São guardados até 50. Passando disso, o mais antigo é apagado sozinho, menos
+  o primeiro (🔒), que é sempre mantido.
+
+Linha "Save completo":
+* "Fazer backup do save completo": copia a pasta inteira do save.
+* "Restaurar save completo...": devolve o save inteiro de um backup. Atenção:
+  todo o progresso feito depois daquele backup, em qualquer parte do jogo, é
+  perdido. Antes de restaurar, o save atual também é guardado.
+* São guardados até 5, com o primeiro (🔒) sempre mantido.
+* "Abrir pasta": lá dentro há um arquivo explicando como restaurar à mão.
+
+Os backups ficam em Documentos\.BKP_ResetMissions_Saves_COTW (pasta oculta),
+separados por conta, nas pastas Backups_MISSIONS e Backups_SAVE.
+
+
+AVISOS QUE PODEM APARECER
+-------------------------
+* "O Windows protegeu o computador" (tela azul ao abrir o programa)
+  Acontece com programas novos que não têm assinatura digital paga.
+  Clique em "Mais informações" e depois em "Executar assim mesmo".
+
+* Faixa amarela "O Windows está bloqueando este programa..."
+  Só aparece se você tiver ligado a proteção "Acesso Controlado a Pastas" do
+  Windows Defender. Use os botões da própria faixa: "Como liberar (passo a
+  passo)" explica tudo. Libere o programa no lugar onde ele vai ficar: se
+  você mover o .exe de pasta depois, vai precisar liberar de novo.
+
+* Steam Cloud / Epic Cloud
+  Se ao abrir o jogo aparecer um aviso de conflito de arquivos na nuvem,
+  escolha a versão LOCAL (a deste computador). Se escolher a da nuvem, o reset
+  é desfeito.
+
+
+IMPORTANTE
+----------
+* Não rode o programa de dentro do arquivo .zip: extraia a pasta antes.
+* Funciona no Windows 10 e 11. Não precisa instalar nada.
+* Idioma: o programa abre no idioma do seu Windows (português, inglês ou
+  espanhol). Para trocar, use a lista com o globo 🌐 no canto de baixo.
+* Tema: claro ou escuro, igual ao do seu Windows. Para trocar, use o botão
+  "Tema escuro" / "Tema claro" no canto de baixo.
+* "Como usar", no canto de baixo, mostra a introdução de novo.
+* Testado com a versão Steam. Na Epic deve funcionar, mas ainda não foi testado.
+
+
+ENCONTROU UM PROBLEMA?
+----------------------
+Abra um aviso ("Issue") na página do projeto no GitHub, com:
+- um print da tela com a mensagem de erro;
+- o que você fez antes do erro acontecer.
+
+https://github.com/Sheeerpha/ResetMissionsCOTW/issues
+
+
+PÁGINA DO PROJETO (código aberto)
+---------------------------------
+https://github.com/Sheeerpha/ResetMissionsCOTW
