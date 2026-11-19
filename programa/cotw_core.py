@@ -1265,9 +1265,9 @@ def texto_do_erro(erro, exe):
 def jogo_aberto():
     try:
         saida = subprocess.run(
-            ['tasklist', '/fo', 'csv', '/nh'], capture_output=True, text=True,
+            ['tasklist', '/fo', 'csv', '/nh'], capture_output=True, encoding='oem', errors='replace',
             creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0), timeout=15,
-        ).stdout
+        ).stdout or ''
     except Exception:
         return False
     for linha in saida.splitlines():

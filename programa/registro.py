@@ -30,15 +30,29 @@ def arquivo_atual():
     return _arquivo
 
 
+def _nome_curto(caminho):
+    """Forma curta (8.3) do caminho, ex.: C:\\Users\\RUNNER~1 (o Windows às vezes usa essa forma)."""
+    try:
+        import ctypes
+        buf = ctypes.create_unicode_buffer(1024)
+        if ctypes.windll.kernel32.GetShortPathNameW(caminho, buf, 1024):
+            return buf.value
+    except Exception:
+        pass
+    return ''
+
+
 def mascarar(texto):
     texto = str(texto)
     perfil = os.environ.get('USERPROFILE', '')
-    if perfil:
-        texto = re.sub(re.escape(perfil), '%USERPROFILE%', texto, flags=re.IGNORECASE)
-        texto = re.sub(re.escape(perfil.replace('\\', '/')), '%USERPROFILE%', texto, flags=re.IGNORECASE)
+    for p in sorted({perfil, _nome_curto(perfil)} - {''}, key=len, reverse=True):
+        texto = re.sub(re.escape(p), '%USERPROFILE%', texto, flags=re.IGNORECASE)
+        texto = re.sub(re.escape(p.replace('\\', '/')), '%USERPROFILE%', texto, flags=re.IGNORECASE)
     usuario = os.environ.get('USERNAME', '')
-    if len(usuario) >= 3:
-        texto = re.sub(r'(?<=[\\/])' + re.escape(usuario) + r'(?=[\\/])', '<usuario>', texto, flags=re.IGNORECASE)
+    curto = os.path.basename(_nome_curto(perfil)) if perfil else ''
+    for u in {usuario, curto} - {''}:
+        if len(u) >= 3:
+            texto = re.sub(r'(?<=[\\/])' + re.escape(u) + r'(?=[\\/])', '<usuario>', texto, flags=re.IGNORECASE)
     pc = os.environ.get('COMPUTERNAME', '')
     if len(pc) >= 3:
         texto = re.sub(re.escape(pc), '<pc>', texto, flags=re.IGNORECASE)

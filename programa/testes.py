@@ -1180,9 +1180,10 @@ def verificacao_descobre_quem_usa_o_arquivo_e_somente_leitura():
                 travado.wait()
             # (no ambiente de testes o python.exe é um "lançador" que abre um processo filho,
             #  por isso o número do processo pode ser outro; o nome do programa é o que importa)
-            assert len(usando) == 1 and usando[0].exe == 'python.exe', usando
-            assert [(i.tipo, i.nivel) for i in r.itens] == [('em_uso', 'impede')], r.itens
-            assert 'python.exe' in r.itens[0].texto
+            # (num PC com antivírus, ele também pode aparecer lendo o arquivo naquele instante)
+            assert any(p.exe == 'python.exe' for p in usando), usando
+            assert all(i.tipo == 'em_uso' and i.nivel == 'impede' for i in r.itens), r.itens
+            assert any('python.exe' in i.texto for i in r.itens), r.itens
             marcar_somente_leitura(pasta)
             r = diagnostico.verificar(save, raiz)
             (item,) = r.itens
@@ -1271,6 +1272,17 @@ def causa_do_erro_somente_leitura_em_uso_e_acesso_controlado():
             c = diagnostico.descobrir_causa(PermissionError(13, 'x', arq), None, 'app.exe')
         assert not any('Acesso Controlado' in x for x in c.textos), c.textos
     assert diagnostico.cfa_bloqueou_recentemente(r'C:\nao\existe.exe') in (False, None)
+
+
+@teste
+def log_mascara_tambem_o_nome_curto_do_usuario():
+    from unittest import mock
+    longo, curto = r'C:\Users\fulanodetal', r'C:\Users\FULANO~1'
+    with mock.patch.dict(os.environ, {'USERPROFILE': longo, 'USERNAME': 'fulanodetal'}), \
+         mock.patch.object(registro, '_nome_curto', lambda p: curto if p == longo else ''):
+        texto = registro.mascarar(rf'{curto}\AppData\Local\Temp\x e {longo}\Documents e C:/Users/FULANO~1/y')
+    assert 'FULANO~1' not in texto and 'fulanodetal' not in texto, texto
+    assert texto.count('%USERPROFILE%') == 3, texto
 
 
 def _app_de_teste(tmp, save, extra=()):

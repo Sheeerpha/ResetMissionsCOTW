@@ -41,8 +41,9 @@ PROGRAMAS = {
 def processos_abertos():
     """{nome do processo em minúsculas: [pids]}"""
     try:
-        saida = subprocess.run(['tasklist', '/fo', 'csv', '/nh'], capture_output=True, text=True,
-                               creationflags=SEM_JANELA, timeout=15).stdout
+        # o tasklist escreve na página de código do console (com acentos): 'oem' lê certo
+        saida = subprocess.run(['tasklist', '/fo', 'csv', '/nh'], capture_output=True, encoding='oem',
+                               errors='replace', creationflags=SEM_JANELA, timeout=15).stdout
     except Exception:
         return {}
     abertos = {}
@@ -333,7 +334,7 @@ def fechar_normalmente(exe):
     Programas que ficam só no ícone perto do relógio normalmente não fecham assim."""
     registro.log(f'Pedindo para {exe} fechar (taskkill sem /f).')
     try:
-        r = subprocess.run(['taskkill', '/im', exe], capture_output=True, text=True,
+        r = subprocess.run(['taskkill', '/im', exe], capture_output=True, encoding='oem', errors='replace',
                            creationflags=SEM_JANELA, timeout=15)
         return r.returncode == 0
     except Exception:
@@ -351,12 +352,14 @@ def esta_aberto(exe):
 def cfa_bloqueou_recentemente(exe, minutos=15):
     """O Windows Defender registrou bloqueio deste programa (Acesso Controlado a Pastas)?
     True/False, ou None se não deu para consultar o histórico."""
-    comando = ("Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Windows Defender/Operational';"
+    comando = ("[Console]::OutputEncoding = [Text.Encoding]::UTF8; "
+               "Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-Windows Defender/Operational';"
                f"Id=1123; StartTime=(Get-Date).AddMinutes(-{minutos})}} -ErrorAction SilentlyContinue |"
                " ForEach-Object { $_.Message }")
     try:
         r = subprocess.run(['powershell', '-NoProfile', '-NonInteractive', '-Command', comando],
-                           capture_output=True, text=True, creationflags=SEM_JANELA, timeout=20)
+                           capture_output=True, encoding='utf-8', errors='replace',
+                           creationflags=SEM_JANELA, timeout=20)
     except Exception:
         return None
     return os.path.normcase(exe) in os.path.normcase(r.stdout or '')
