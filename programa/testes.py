@@ -20,6 +20,7 @@ idiomas.ARQUIVO_PREF = os.path.join(tempfile.mkdtemp(), 'config.json')
 idiomas.salvar_config(aviso_visto=True, intro_vista=True)
 import cotw_app as _app
 _app.App.mostrar_aviso_ao_abrir = False
+_app.App.verificar_atualizacao_ao_abrir = False   # os testes não consultam a internet
 # A sugestão de backup completo antes do reset responde "Não" (continuar), salvo nos testes dela
 import tkinter.messagebox as _mb
 _mb.askyesnocancel = lambda *a, **k: False
@@ -408,7 +409,7 @@ def faixa_de_aviso_aparece_quando_o_windows_bloqueia():
             ativado = app.bt_reset.instate(['!disabled'])
             app.destroy()
         assert visivel and 'Acesso Controlado a Pastas' in texto and desativado
-        assert 'Acesso Controlado' not in texto_sem_cfa and botoes_cfa == ['', '', ''], (texto_sem_cfa, botoes_cfa)
+        assert 'Acesso Controlado' not in texto_sem_cfa and all(m == '' for m in botoes_cfa), (texto_sem_cfa, botoes_cfa)
         assert some and ativado
 
 
@@ -518,8 +519,7 @@ def janela_com_steam_e_epic():
             app.resetar()
             credito = app.credito.cget('text')
             apoio = cotw_app.JanelaApoio(app)
-            botoes = [w for w in apoio.winfo_children()[0].winfo_children() if isinstance(w, cotw_app.ttk.Button)]
-            estados = [(b.cget('text'), b.instate(['disabled'])) for b in botoes]
+            estados = list(apoio.opcoes)
             apoio.destroy()
             app.destroy()
         assert r1[0] == 'Epic' and r1[1] == p['epic'] and r1[2] == 'Epic (1 save)' and r1[3] == '', r1
@@ -527,8 +527,9 @@ def janela_com_steam_e_epic():
         assert r2[0] == p['steam_novo'] and r2[1] == 2, r2
         assert 'Há 2 saves da Steam' in r2[2] and 'também tem save da Epic' in r2[2], r2
         assert perguntas and perguntas[0].startswith('Save: Steam - conta 76561190000000002 (jogado em'), perguntas
-        assert credito == f'Criado por Sheeerpha   •   versão {cotw_app.VERSAO}', credito
-        assert ('☕  Buy Me a Coffee', False) in estados and ('💠  LivePix (Pix)', False) in estados, estados
+        assert credito == f'Feito por Sheeerpha  ·  v{cotw_app.VERSAO}', credito
+        assert ('☕  Buy Me a Coffee', cotw_app.LINK_BUYMEACOFFEE) in estados, estados
+        assert ('💠  LivePix (Pix)', cotw_app.LINK_LIVEPIX) in estados, estados
         assert cotw_app.LINK_BUYMEACOFFEE == 'https://buymeacoffee.com/sheeerpha'
         assert cotw_app.LINK_LIVEPIX == 'https://livepix.gg/sherpa'
 
@@ -610,19 +611,19 @@ def janela_troca_de_idioma_sem_perder_o_save():
                 app.trocar_idioma('en')
                 app.update()
                 en = (app.credito.cget('text'), app.lista.item('21')['values'][0], app.save_atual.pasta,
-                      app.radios['Steam'].cget('text'), app.lista.heading('concluidas')['text'],
+                      app.radios['Steam'].cget('text'), app.bt_reset.cget('text'),
                       app.title(), core.listar_backups(save, app.raiz)[0].titulo, app.combo_idioma.get())
                 app.trocar_idioma('es')
                 app.update()
                 es = (app.credito.cget('text'), app.lista.item('21')['values'][0],
                       app.radios['Steam'].cget('text'), app.combo['values'][0])
                 app.destroy()
-        assert en[0] == f'Created by Sheeerpha   •   version {cotw_app.VERSAO}', en
+        assert en[0] == f'Made by Sheeerpha  ·  v{cotw_app.VERSAO}', en
         assert en[1] == 'Intisuyu   —   Missions reset' and en[2] == save.pasta, en
-        assert en[3] == 'Steam (1 save)' and en[4] == 'Completed missions', en
+        assert en[3] == 'Steam (1 save)' and en[4] == 'Reset', en
         assert en[5].startswith('ResetMissionsCOTW - Per-Map Mission Reset'), en
         assert en[6] == 'Before resetting Intisuyu' and en[7] == 'English', en
-        assert es[0].startswith('Creado por Sheeerpha') and es[1] == 'Intisuyu   —   Misiones reiniciadas', es
+        assert es[0].startswith('Hecho por Sheeerpha') and es[1] == 'Intisuyu   —   Misiones reiniciadas', es
         assert es[2] == 'Steam (1 partida)' and es[3].startswith('Cuenta 76561190000000000  —  jugada el'), es
         assert idiomas.carregar_preferencia() == 'es'
     finally:
@@ -667,7 +668,7 @@ def janela_alterna_tema_sem_perder_o_save():
                 app.update()
                 estilo = cotw_app.ttk.Style()
                 escuro = (app.bt_tema.cget('text'), estilo.theme_use(), estilo.lookup('Treeview', 'background'),
-                          str(app.cget('bg')), str(app.lista.tag_configure('resetado', 'background')),
+                          str(app.cget('bg')), str(app.lista.linhas['21'].n.cget('fg')),
                           app.lista.item('21')['values'][0], app.save_atual.pasta,
                           idiomas.ler_config().get('tema'))
                 jan = cotw_app.JanelaRestaurar(app, core.listar_backups(save, app.raiz))
@@ -678,12 +679,12 @@ def janela_alterna_tema_sem_perder_o_save():
                 app.update()
                 de_volta = (app.bt_tema.cget('text'), cotw_app.ttk.Style().theme_use())
                 app.destroy()
-        assert claro == ('🌙  Tema escuro', 'vista'), claro
-        assert escuro[:4] == ('☀  Tema claro', 'clam', '#2b2d31', '#202124'), escuro
-        assert escuro[4] == '#1e4229' and escuro[5] == 'Intisuyu   —   Missões resetadas', escuro
+        assert claro == ('☾  Tema escuro', 'clam'), claro
+        assert escuro[:4] == ('☀  Tema claro', 'clam', '#1a1c1e', '#121314'), escuro
+        assert escuro[4] == '#5cbf8c' and escuro[5] == 'Intisuyu   —   Missões resetadas', escuro
         assert escuro[6] == save.pasta and escuro[7] == 'escuro', escuro
-        assert fundo_restaurar == '#202124', fundo_restaurar
-        assert de_volta == ('🌙  Tema escuro', 'vista'), de_volta
+        assert fundo_restaurar == '#121314', fundo_restaurar
+        assert de_volta == ('☾  Tema escuro', 'clam'), de_volta
     finally:
         temas.definir('claro', salvar=False)
 
@@ -878,11 +879,10 @@ def aviso_aparece_sempre_e_introducao_so_na_primeira_vez():
                 app.update()
                 janelas = lambda tipo: [w for w in app.winfo_children() if isinstance(w, tipo)]
                 (aviso,) = janelas(cotw_app.JanelaAviso)
-                textos = [w.cget('text') for w in aviso.winfo_children()[0].winfo_children()
-                          if isinstance(w, cotw_app.ttk.Label)]
-                assert any('criado por um jogador' in x and cotw_app.LINK_GITHUB in x
-                           and 'github.com/Sheeerpha/ResetMissionsCOTW' in x
-                           and '"Fazer backup do save completo"' in x and 'troféus' in x for x in textos), textos
+                textos = '\n'.join(aviso.textos)
+                assert 'criado por um jogador' in textos and '"Fazer backup do save completo"' in textos, textos
+                assert 'troféus' in textos and 'gratuito' in textos, textos
+                assert aviso.link_github.cget('text') == 'Código aberto no GitHub'
                 assert janelas(cotw_app.JanelaIntro) == []
                 aviso.fechar()
                 app.update()
@@ -910,8 +910,9 @@ def aviso_aparece_sempre_e_introducao_so_na_primeira_vez():
                 app.destroy()
         assert paginas[0][0] == '1 de 6' and paginas[-1][0] == '6 de 6', paginas
         assert paginas[-1][2] == 'Começar!' and paginas[0][2] == 'Próximo  →', paginas
-        assert '"Resetar missões do(s) mapa(s) selecionado(s)"' in paginas[3][3], paginas[3][3]
-        assert 'Fazer backup do save completo' in paginas[4][3] and '50' in paginas[4][3], paginas[4][3]
+        assert '"↺ resetado"' in paginas[3][3], paginas[3][3]
+        assert 'Fazer backup do save completo' in paginas[2][3] and '5 backups' in paginas[2][3], paginas[2][3]
+        assert '"Restaurar missões"' in paginas[4][3] and '50' in paginas[4][3], paginas[4][3]
         assert not any('{' in p[3] for p in paginas), 'sobrou campo sem preencher'
     finally:
         idiomas.salvar_config(intro_vista=True)
@@ -1322,8 +1323,8 @@ def linha_de_status_da_verificacao():
             app.verificar_agora()
             textos.append(app.status_verif.cget('text'))
             app.destroy()
-    assert textos == ['✔ Verificação: tudo pronto', '⚠ Verificação: 1 aviso(s)',
-                      '⛔ Verificação: 1 problema(s) impede(m) alterações'], textos
+    assert textos == ['●  Tudo pronto: nada está usando os arquivos do save', '●  1 aviso(s) antes de começar',
+                      '●  1 problema(s) impede(m) alterações'], textos
 
 
 @teste
@@ -1413,7 +1414,7 @@ def janela_de_erro_mostra_a_causa_e_copia_detalhes():
             core.tirar_somente_leitura_de_tudo(alvo)
     assert 'Causa encontrada:' in texto and 'somente leitura' in texto, texto
     assert 'Acesso Controlado' not in texto, texto
-    assert aviso.startswith('Detalhes copiados') and 'ResetMissionsCOTW 0.9.6' in copiado, aviso
+    assert aviso.startswith('Detalhes copiados') and f'ResetMissionsCOTW {cotw_app.VERSAO}' in copiado, aviso
     assert os.environ['USERPROFILE'].lower() not in copiado.lower() and '%USERPROFILE%' in copiado
 
 
@@ -1435,6 +1436,63 @@ def botao_logs_abre_a_pasta_e_sobra_vira_aviso_ao_abrir():
     assert abertos == [registro.pasta()], abertos
     assert 'restauração anterior' in aviso and 'guardada' in aviso, aviso
 
+
+@teste
+def aviso_de_versao_nova():
+    import atualizacao, datetime
+    from unittest import mock
+    assert atualizacao.numero('v0.9.7-beta') == (0, 9, 7) and atualizacao.numero('0.9.7 (Beta)') == (0, 9, 7)
+    assert atualizacao.mais_nova('v0.9.10-beta', '0.9.7 (Beta)') and atualizacao.mais_nova('v1.0.0', '0.9.7 (Beta)')
+    assert not atualizacao.mais_nova('v0.9.7-beta', '0.9.7 (Beta)') and not atualizacao.mais_nova('', '0.9.7')
+    with tempfile.TemporaryDirectory() as tmp:
+        consultas = []
+        nova = ('v0.9.8-beta', 'https://github.com/Sheeerpha/ResetMissionsCOTW/releases/tag/v0.9.8-beta')
+
+        def consultar():
+            consultas.append(1)
+            return nova
+        with mock.patch.object(idiomas, 'ARQUIVO_PREF', os.path.join(tmp, 'config.json')), \
+             mock.patch.object(atualizacao, 'consultar', consultar):
+            hoje = datetime.date(2026, 11, 20)
+            assert atualizacao.verificar('0.9.7 (Beta)', hoje) == nova
+            assert atualizacao.verificar('0.9.7 (Beta)', hoje) == nova and len(consultas) == 1   # 1 vez por dia
+            assert atualizacao.verificar('0.9.8 (Beta)', hoje) is None                           # já está na nova
+            atualizacao.ignorar('v0.9.8-beta')
+            assert atualizacao.verificar('0.9.7 (Beta)', hoje) is None                           # "Agora não"
+            nova = ('v0.9.9-beta', 'https://site-estranho.com/x')
+            assert atualizacao.verificar('0.9.7 (Beta)', datetime.date(2026, 11, 21)) == \
+                ('v0.9.9-beta', atualizacao.PAGINA)                                               # só links do projeto
+        # sem internet: não mostra nada e não quebra
+        with mock.patch.object(idiomas, 'ARQUIVO_PREF', os.path.join(tmp, 'config2.json')), \
+             mock.patch.object(atualizacao, 'consultar', mock.Mock(side_effect=OSError('sem rede'))):
+            assert atualizacao.verificar('0.9.7 (Beta)', hoje) is None
+            assert 'atualizacao_consultada_em' not in idiomas.ler_config()
+
+
+@teste
+def faixa_de_versao_nova_na_janela():
+    import cotw_app, atualizacao
+    from unittest import mock
+    abertos, ignorados = [], []
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        app, pilha = _app_de_teste(tmp, save, [mock.patch('webbrowser.open', lambda url, *a, **k: abertos.append(url)),
+                                               mock.patch.object(atualizacao, 'ignorar', ignorados.append)])
+        with pilha:
+            link = 'https://github.com/Sheeerpha/ResetMissionsCOTW/releases/tag/v0.9.8-beta'
+            sem = app.faixa_update.winfo_manager()
+            app.mostrar_atualizacao(('v0.9.8-beta', link))
+            com, texto = app.faixa_update.winfo_manager(), app.update_texto.cget('text')
+            app.alternar_tema()                       # continua aparecendo depois de remontar a janela
+            depois_tema = app.faixa_update.winfo_manager()
+            app.link_baixar.invoke()
+            app.link_ignorar.invoke()
+            fim = app.faixa_update.winfo_manager()
+            app.alternar_tema()
+            app.destroy()
+    assert sem == '' and com == 'pack' and depois_tema == 'pack' and fim == '', (sem, com, depois_tema, fim)
+    assert texto == 'Nova versão disponível: v0.9.8-beta', texto
+    assert abertos == [link] and ignorados == ['v0.9.8-beta'], (abertos, ignorados)
 
 print()
 if pulados:

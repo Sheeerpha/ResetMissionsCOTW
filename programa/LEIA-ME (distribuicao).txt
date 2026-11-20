@@ -1,144 +1,199 @@
-ResetMissionsCOTW - versão 0.9.6 (Beta)
-Reset de missões por mapa - theHunter: Call of the Wild
-Criado por Sheeerpha
-=========================================================
-
-ESTA É UMA VERSÃO DE TESTE (BETA).
-O programa foi criado por um jogador, não é oficial e pode ter falhas. Use com
-atenção e, se algo der errado, avise na página do projeto (link no fim).
+﻿==========================================================================
+  ResetMissionsCOTW  -  versão 0.9.7 (Beta)
+  Reset de missões por mapa  -  theHunter: Call of the Wild
+  Feito por Sheeerpha  -  gratuito e de código aberto
+==========================================================================
 
 
-O QUE O PROGRAMA FAZ
---------------------
-No jogo, só dá para resetar as missões apagando o arquivo de missões, e isso zera
-as missões de TODOS os mapas. Este programa reseta as missões de UM mapa escolhido
-(ou de vários) e mantém os outros mapas como estão.
+RESUMO EM 30 SEGUNDOS
+---------------------
+  No jogo, resetar as missões apaga as de TODOS os mapas de uma vez.
+  Este programa reseta só os mapas que VOCÊ escolher.
 
-Ele só altera o progresso das missões (arquivo missions_missiondata_adf). Perfil,
-dinheiro, habilidades, armas, animais, troféus e o resto do save não são tocados.
+  O que muda:     só as missões dos mapas que você marcar.
+  O que NÃO muda: os outros mapas, perfil, dinheiro, habilidades, armas,
+                  animais, troféus e todo o resto do save.
 
+  Em resumo:
+    1. Extraia o .zip
+    2. Feche o jogo
+    3. Abra o ResetMissionsCOTW.exe
+    4. Siga os 4 passos da janela, de cima para baixo
+    5. Abra o jogo e entre no mapa: as missões começam do zero
 
-ANTES DE ABRIR: A TELA AZUL "O WINDOWS PROTEGEU O COMPUTADOR"
--------------------------------------------------------------
-Na primeira vez que você abrir o programa, o Windows provavelmente vai
-mostrar uma tela azul dizendo "O Windows protegeu o computador".
-
-ISSO É NORMAL. Acontece com todo programa que não tem uma "assinatura
-digital", um certificado pago, comprado todo ano, que grandes empresas
-usam. Como este é um programa gratuito, feito por um jogador, ele não
-tem essa assinatura, e o Windows avisa por precaução. Não quer dizer
-que o programa tenha vírus.
-
-Como passar por ela:
-1. Na tela azul, clique em "Mais informações" (o texto pequeno, logo
-   abaixo da mensagem).
-2. Vai aparecer o botão "Executar assim mesmo". Clique nele.
-3. Pronto: o programa abre. Normalmente, essa tela só aparece na
-   primeira vez.
-
-Quer conferir antes? O código do programa é aberto: qualquer pessoa pode
-ver exatamente o que ele faz em
-https://github.com/Sheeerpha/ResetMissionsCOTW
-e o programa é gerado automaticamente pelo próprio GitHub a partir desse
-código. Baixe sempre da página oficial (GitHub ou Nexus Mods).
+  Esta é uma versão de teste (Beta). O programa não é oficial e pode ter
+  falhas. Por isso ele faz backup antes de tudo e deixa você desfazer.
 
 
-COMO USAR
----------
-1. FECHE o jogo (o programa não deixa alterar nada com o jogo aberto).
-2. Dê dois cliques em "ResetMissionsCOTW.exe".
-   Se aparecer a tela azul do Windows, veja a seção acima.
-   Sempre que o programa abre, aparece o aviso "Antes de começar". Na
-   primeira vez, aparece também uma introdução rápida (dá para pular).
-3. O programa encontra o seu save sozinho e mostra a lista de mapas com as
-   missões concluídas, em andamento e o total.
-   (Se não encontrar, clique em "Escolher pasta..." e aponte a pasta do save,
-   que normalmente é: Documentos\Avalanche Studios\COTW\Saves\<número>)
+==========================================================================
+ PARTE 1 - ANTES DE ABRIR
+==========================================================================
 
-   Tem save na Steam E na Epic, ou mais de uma conta? Escolha a plataforma
-   em "Plataforma" e a conta na lista "Save". O save jogado mais recentemente
-   já vem escolhido. O programa só mexe no save que estiver escolhido.
-4. RECOMENDADO: clique em "Fazer backup do save completo" antes de tudo.
-   Ele guarda uma cópia da pasta INTEIRA do save.
-5. Clique no mapa que quer resetar (para escolher vários, segure Ctrl).
-6. Clique em "Resetar missões do(s) mapa(s) selecionado(s)" e confirme.
-7. O mapa fica verde, escrito "Missões resetadas". Abra o jogo e entre nesse
-   mapa: as missões vão começar do zero.
+[1] EXTRAIA A PASTA DO .ZIP
+    Clique com o botão direito no arquivo .zip e escolha "Extrair tudo...".
+    Use o programa de dentro da pasta extraída, nunca de dentro do .zip.
+    Dica: deixe a pasta num lugar fixo (por exemplo, na Área de Trabalho).
 
+[2] FECHE O JOGO
+    Com o jogo aberto, o programa não altera nada.
 
-BACKUPS
--------
-Linha "Missões":
-* Um backup do arquivo de missões é feito sozinho antes de cada reset.
-* "Restaurar backup de missões...": desfaz um reset. A tabela mostra em amarelo
-  o que vai mudar antes de você confirmar.
-* São guardados até 50. Passando disso, o mais antigo é apagado sozinho, menos
-  o primeiro (🔒), que é sempre mantido.
+[3] A TELA AZUL "O WINDOWS PROTEGEU O COMPUTADOR"
+    Na primeira vez, o Windows provavelmente vai mostrar essa tela azul.
 
-Linha "Save completo":
-* "Fazer backup do save completo": copia a pasta inteira do save.
-* "Restaurar save completo...": devolve o save inteiro de um backup. Atenção:
-  todo o progresso feito depois daquele backup, em qualquer parte do jogo, é
-  perdido. Antes de restaurar, o save atual também é guardado.
-* São guardados até 5, com o primeiro (🔒) sempre mantido.
-* "Abrir pasta": lá dentro há um arquivo explicando como restaurar à mão.
+    É NORMAL. Ela aparece para todo programa sem "assinatura digital" (um
+    certificado pago, renovado todo ano, que empresas grandes compram).
+    Este programa é gratuito e feito por um jogador, então não tem essa
+    assinatura. O aviso é só uma precaução: não quer dizer que tem vírus.
 
-Os backups ficam em Documentos\.BKP_ResetMissions_Saves_COTW (pasta oculta),
-separados por conta, nas pastas Backups_MISSIONS e Backups_SAVE.
+    Para passar:
+      a) Clique em "Mais informações" (o texto pequeno embaixo da mensagem).
+      b) Clique no botão "Executar assim mesmo".
+      Pronto. Normalmente isso só acontece na primeira vez.
+
+    Quer conferir antes? O código é aberto e qualquer pessoa pode ver o que
+    o programa faz: https://github.com/Sheeerpha/ResetMissionsCOTW
+    O .exe é gerado pelo próprio GitHub a partir desse código.
+    Baixe sempre da página oficial.
 
 
-VERIFICAÇÃO ANTES DE COMEÇAR
-----------------------------
-Ao abrir e antes de alterar o save, o programa confere se algo pode atrapalhar:
-o jogo aberto, programas usando os arquivos do save (Steam, OneDrive, Google
-Drive, Dropbox...), save dentro de pasta de nuvem e arquivos marcados como
-"somente leitura". Tudo acontece só no seu computador: nada vai para a internet.
-* Se estiver tudo certo, aparece só "✔ Verificação: tudo pronto".
-* Se algo impedir, abre uma tela com botões: "Fechar Steam", "Fechar OneDrive",
-  "Corrigir" (somente leitura) e "Verificar de novo". O programa NUNCA fecha
-  nada sozinho nem à força: só quando você clica.
-* O jogo nunca é fechado pelo programa: feche-o normalmente, pelo menu.
+==========================================================================
+ PARTE 2 - USANDO O PROGRAMA
+==========================================================================
+
+Ao abrir, aparece o aviso "Antes de começar" (toda vez) e, só na primeira
+vez, um tutorial rápido de 6 telas (dá para pular).
+
+A janela tem 4 PASSOS NUMERADOS, de cima para baixo. O passo que falta
+fazer fica com o número em verde; o que já está feito ganha um ✓.
+
+PASSO 1 - ESCOLHA O SAVE
+    O programa encontra o seu save sozinho (Steam ou Epic) e já escolhe o
+    que você jogou por último. Normalmente você não precisa fazer nada.
+    * Tem mais de um save (duas contas, ou Steam e Epic)? Clique em
+      "Trocar" e escolha. O programa só mexe no save escolhido.
+    * Ele não achou o save? Clique em "Escolher pasta" e aponte a pasta.
+      Normalmente é: Documentos\Avalanche Studios\COTW\Saves\<número>
+
+PASSO 2 - FAÇA UM BACKUP DO SAVE COMPLETO (recomendado)
+    Clique em "Fazer backup do save completo". Ele guarda uma cópia de
+    TODOS os arquivos do save, não só das missões. Leva poucos segundos.
+    É opcional, mas faça pelo menos na primeira vez.
+
+PASSO 3 - MARQUE OS MAPAS QUE QUER RECOMEÇAR
+    Clique na caixinha (ou no nome) de cada mapa. Pode marcar vários.
+    * A barrinha e o número (ex.: 53/76) mostram quantas missões daquele
+      mapa você já concluiu. Pare o mouse em cima do nome para ver também
+      quantas estão em andamento.
+    * "↺ resetado" = esse mapa já foi resetado e está pronto.
+
+PASSO 4 - RESETAR
+    Clique no botão verde "Resetar" e confirme.
+    Antes de mudar qualquer coisa, o programa faz sozinho um backup das
+    missões. Os outros mapas não mudam.
+
+DEPOIS DO RESET
+    1. Abra o jogo normalmente.
+    2. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar,
+       escolha a LOCAL (a deste computador).
+       (Se escolher a da nuvem, o reset é desfeito.)
+    3. Entre no mapa: as missões começam do zero.
 
 
-OUTROS AVISOS QUE PODEM APARECER
---------------------------------
-* Faixa amarela "O Windows está bloqueando este programa..."
-  Só aparece se você tiver ligado a proteção "Acesso Controlado a Pastas" do
-  Windows Defender. Use os botões da própria faixa: "Como liberar (passo a
-  passo)" explica tudo. Libere o programa no lugar onde ele vai ficar: se
-  você mover o .exe de pasta depois, vai precisar liberar de novo.
+==========================================================================
+ PARTE 3 - COMO DESFAZER
+==========================================================================
 
-* Steam Cloud / Epic Cloud
-  Se ao abrir o jogo aparecer um aviso de conflito de arquivos na nuvem,
-  escolha a versão LOCAL (a deste computador). Se escolher a da nuvem, o reset
-  é desfeito.
+Logo abaixo do botão "Resetar" tem a linha "Precisa desfazer?":
 
+  * "Restaurar missões"
+    Volta as missões de todos os mapas para como estavam num backup.
+    A janela mostra, em amarelo, o que vai mudar antes de você confirmar.
 
-IMPORTANTE
-----------
-* Não rode o programa de dentro do arquivo .zip: extraia a pasta antes.
-* Funciona no Windows 10 e 11. Não precisa instalar nada.
-* Idioma: o programa abre no idioma do seu Windows (português, inglês ou
-  espanhol). Para trocar, use a lista com o globo 🌐 no canto de baixo.
-* Tema: claro ou escuro, igual ao do seu Windows. Para trocar, use o botão
-  "Tema escuro" / "Tema claro" no canto de baixo.
-* "Como usar", no canto de baixo, mostra a introdução de novo.
-* Testado com a versão Steam. Na Epic deve funcionar, mas ainda não foi testado.
+  * "Restaurar save completo"
+    Volta o save INTEIRO para como estava num backup completo.
+    Atenção: tudo o que você jogou depois daquele backup é perdido.
+    (O save atual é guardado antes, por segurança.)
 
+  * "Pasta de backups"
+    Abre a pasta onde ficam as cópias. Dentro de Backups_SAVE há um
+    arquivo explicando como restaurar à mão, se preferir.
 
-ENCONTROU UM PROBLEMA?
-----------------------
-Abra um aviso ("Issue") na página do projeto no GitHub, com:
-- um print da tela com a mensagem de erro;
-- o que você fez antes do erro acontecer;
-- o LOG: clique no botão "📄 Logs" do programa e mande o arquivo mais recente
-  (ou use "Copiar detalhes" na janela de erro e cole no relato).
-  O log fica em %LOCALAPPDATA%\ResetMissionsCOTW\logs (são guardados os 5 mais
-  recentes) e não contém seu nome de usuário: os dados pessoais são mascarados.
-
-https://github.com/Sheeerpha/ResetMissionsCOTW/issues
+Onde ficam os backups:
+    Documentos\.BKP_ResetMissions_Saves_COTW   (pasta oculta)
+    -> Backups_MISSIONS : até 50 backups das missões
+    -> Backups_SAVE     : até 5 backups do save completo
+    Passando do limite, o mais antigo sai sozinho, MENOS o primeiro de
+    todos (🔒), que é sempre mantido.
 
 
-PÁGINA DO PROJETO (código aberto)
----------------------------------
-https://github.com/Sheeerpha/ResetMissionsCOTW
+==========================================================================
+ PARTE 4 - SE APARECER ALGUM AVISO
+==========================================================================
+
+"O Windows está impedindo o programa de salvar arquivos" (aviso amarelo)
+    Só acontece se a proteção "Acesso Controlado a Pastas" do Windows
+    Defender estiver ligada. Clique em "Como liberar (passo a passo)": o
+    programa mostra 5 passos com desenhos e um botão para copiar o caminho
+    do programa. Leva cerca de 1 minuto e só precisa ser feito uma vez.
+    Atenção: se depois você mover o programa para outra pasta, precisa
+    liberar de novo.
+
+"● ... problema(s) impede(m) alterações" (linha de status no topo)
+    Algo está usando os arquivos do save (o jogo, o Steam, o OneDrive...).
+    Clique em "detalhes". A tela mostra o que é e oferece botões como
+    "Fechar Steam" ou "Corrigir". O programa NUNCA fecha nada sozinho nem à
+    força: só quando você clica. O jogo você fecha pelo menu do próprio jogo.
+    Essa verificação acontece só no seu computador: nada vai para a internet.
+
+"Não encontrei o save sozinho"
+    Use "Escolher pasta" no passo 1 (veja a Parte 2).
+
+O jogo perguntou qual versão do save usar (nuvem)
+    Escolha a LOCAL. Se escolher a da nuvem, o reset é desfeito.
+
+
+==========================================================================
+ PARTE 5 - OUTRAS DICAS
+==========================================================================
+
+  * Idioma: o programa abre no idioma do Windows (português, inglês ou
+    espanhol). Para trocar, clique no nome do idioma, no topo da janela.
+  * Tema claro/escuro: abre igual ao do Windows. Para trocar, clique em
+    "Tema escuro" / "Tema claro", no topo da janela.
+  * "Como usar", no topo da janela, mostra o tutorial de novo.
+  * Versão nova: quando sair uma, aparece uma faixa verde no topo da janela
+    com o link "Baixar". O programa só consulta a página do projeto no GitHub
+    (no máximo 1 vez por dia), não envia dados pessoais e não baixa nada sozinho.
+  * Funciona no Windows 10 e 11. Não precisa instalar nada.
+  * Testado na versão Steam. Na Epic deve funcionar, mas ainda não foi
+    testado.
+
+
+==========================================================================
+ ENCONTROU UM PROBLEMA?
+==========================================================================
+
+Abra um aviso ("Issue") na página do projeto:
+    https://github.com/Sheeerpha/ResetMissionsCOTW/issues
+
+Mande junto:
+    1. um print da tela com a mensagem;
+    2. o que você fez antes de acontecer;
+    3. o log: clique em "Logs", no topo do programa, e mande o arquivo mais
+       recente. Ou, na janela de erro, clique em "Copiar detalhes" e cole
+       no seu relato.
+
+O log fica em %LOCALAPPDATA%\ResetMissionsCOTW\logs (são guardados os 5
+mais recentes). Seu nome de usuário e dados pessoais aparecem mascarados.
+
+
+==========================================================================
+ GOSTOU?
+==========================================================================
+
+O programa é gratuito e sempre vai ser. Se ele te ajudou, você pode apoiar
+pelo botão "Gostou? Apoie o projeto", no rodapé da janela. Deixar uma
+estrela no GitHub e indicar para os amigos também ajuda muito. Obrigado!
+
+Página do projeto (código aberto):
+    https://github.com/Sheeerpha/ResetMissionsCOTW

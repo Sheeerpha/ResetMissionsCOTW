@@ -112,13 +112,9 @@ TEXTOS = {
         'titulo_janela': 'ResetMissionsCOTW - Reset de Missões por Mapa  v{versao}',
 
         # faixa do Acesso Controlado a Pastas
-        'faixa_bloqueio': '⚠  O Windows está bloqueando este programa de gravar na pasta Documentos '
-                          '(proteção "Acesso Controlado a Pastas").\n'
-                          'Libere o programa para poder resetar ou restaurar. Enquanto isso, nada é alterado.',
         'faixa_erro': '⚠  Não consegui gravar na pasta Documentos ({erro}).\n'
                       'Enquanto isso não for resolvido, o programa não altera nada.',
         'bt_como_liberar': 'Como liberar (passo a passo)',
-        'bt_abrir_seguranca': 'Abrir a Segurança do Windows',
         'bt_copiar_caminho': 'Copiar caminho do programa',
         'bt_testar_de_novo': 'Já liberei, testar de novo',
         'dica_copiar': 'Dica: o botão "Copiar caminho do programa" copia o caminho acima; na janela de escolher '
@@ -155,8 +151,6 @@ TEXTOS = {
         'aviso_varios_saves': '⚠  Há {n} saves da {plat} neste PC. O mais recente já vem escolhido; '
                               'confira na lista "Save" se é o seu antes de resetar.',
         'aviso_outra_plataforma': 'Este PC também tem save da {plat}. Para usar, troque em "Plataforma".',
-        'nao_encontrei_save': 'Não encontrei o save automaticamente. Clique em "Escolher pasta..." e aponte a '
-                              'pasta que tem o arquivo missions_missiondata_adf.',
         'titulo_escolher_pasta': 'Escolha a pasta do save (a que tem missions_missiondata_adf)',
         'pasta_sem_arquivo': 'Essa pasta não tem o arquivo {arquivo}.',
         'pasta_slots': 'Essa é uma pasta "slots" (cópia de segurança do próprio jogo). Escolha a pasta '
@@ -192,29 +186,16 @@ TEXTOS = {
                          'backup é feito automaticamente antes de qualquer alteração.\n'
                          'Antes de usar: feche o jogo. Se usar Steam Cloud ou Epic Cloud e aparecer um aviso de '
                          'conflito ao abrir o jogo, escolha a versão LOCAL (deste computador).',
-        'credito': 'Criado por {autor}   •   versão {versao}',
         'bt_apoiar': '☕  Apoiar o projeto',
-        'bt_tema_escuro': '🌙  Tema escuro',
-        'bt_tema_claro': '☀  Tema claro',
 
         # reset
-        'aviso_usar_faixa': 'O Windows está bloqueando o programa. Use os botões da faixa amarela no topo da '
-                            'janela para liberar.',
         'jogo_aberto': 'O theHunter: Call of the Wild está aberto.\n\nFeche o jogo completamente e tente de novo.',
         'nenhum_save_escolhido': 'Nenhum save escolhido.',
-        'selecione_mapa': 'Selecione na lista o mapa que você quer resetar.',
         'ja_resetados': 'As missões desse(s) mapa(s) já estão resetadas. O jogo cria as missões do zero quando '
                         'você entrar no mapa.',
         'linha_detalhe': '  • {nome}: {c} concluídas, {a} em andamento, {t} no total',
         'ignorados': '(Ignorado(s), já resetado(s): {nomes})',
-        'confirmar_reset': 'Save: {save}\n\nResetar TODAS as missões de:\n\n{detalhes}\n\n'
-                           'O progresso das missões desse(s) mapa(s) será perdido. Os outros mapas não mudam.\n'
-                           'Um backup será feito antes, e você pode desfazer em "Restaurar backup de missões...".\n\n'
-                           'Continuar?',
         'nao_foi_possivel_resetar': 'Não foi possível resetar.\n\n{texto}\n\nO save não foi alterado.',
-        'reset_ok': 'Pronto! Missões resetadas:\n\n{nomes}\n\n'
-                    'Foi feito um backup do save anterior. Para desfazer, use "Restaurar backup de missões...".\n\n'
-                    'Ao entrar nesse mapa no jogo, as missões vão começar do zero.',
         'sem_backups': 'Ainda não existe nenhum backup deste save.',
         'sem_backups_explica': 'Ainda não existe nenhum backup deste save.\n\n'
                                'O programa cria um backup automaticamente antes de cada reset.',
@@ -251,11 +232,6 @@ TEXTOS = {
 
         # apoio
         'apoio_titulo': 'Apoiar o projeto',
-        'apoio_pergunta': '☕  Gostou do programa?',
-        'apoio_texto': 'O {programa} é gratuito, feito por um jogador para a comunidade de '
-                       'theHunter: Call of the Wild.\n\n'
-                       'Se ele te ajudou e você quiser apoiar o desenvolvimento, qualquer valor é bem-vindo. '
-                       'Obrigado!',
         'em_breve': '(em breve)',
 
         # erros do arquivo
@@ -270,7 +246,6 @@ TEXTOS = {
         'erro_conferencia': 'A conferência de segurança falhou: o arquivo gerado não ficou como esperado '
                             '(código {codigo}). Nada foi alterado.',
         'erro_backup_diferente': 'O backup não ficou igual ao original. Nada foi alterado.',
-        'erro_pos_gravacao': 'Depois de gravar, o arquivo não está igual ao esperado. Use "Restaurar backup de missões...".',
 
         # pasta do programa
         # backup do save completo
@@ -330,7 +305,6 @@ TEXTOS = {
                            '7. Se tudo estiver certo, pode apagar a pasta "_antigo".\n',
 
         # aviso da primeira vez
-        'aviso_titulo': '⚠  Antes de começar',
         'aviso_texto': 'Este programa foi criado por um jogador, de forma independente. Ele é gratuito e de código '
                        'aberto: {link}\n\n'
                        'Ele NÃO é oficial e pode ter falhas. Por isso, antes de qualquer alteração no save, '
@@ -344,51 +318,10 @@ TEXTOS = {
         # introdução
         'bt_ajuda': '❔  Como usar',
         'intro_titulo': 'Como usar',
-        'intro_pular': 'Pular',
         'intro_voltar': '←  Voltar',
         'intro_proximo': 'Próximo  →',
         'intro_comecar': 'Começar!',
         'intro_pagina': '{n} de {total}',
-        'intro_titulo_1': 'Bem-vindo ao ResetMissionsCOTW!',
-        'intro_texto_1': 'Este programa reseta as missões de UM mapa do theHunter: Call of the Wild, sem mexer no '
-                         'progresso dos outros mapas.\n\n'
-                         'No jogo, a única forma de resetar as missões apaga as de TODOS os mapas. Aqui você escolhe '
-                         'qual mapa quer recomeçar.\n\n'
-                         'Veja em 1 minuto como usar, ou clique em "Pular".',
-        'intro_titulo_2': 'Escolha o seu save',
-        'intro_texto_2': 'No topo da janela:\n\n'
-                         '•  Plataforma: escolha Steam ou Epic.\n'
-                         '•  Save: a conta daquela plataforma. O save jogado mais recentemente já vem escolhido.\n'
-                         '•  {procurar}: procura os saves de novo.\n'
-                         '•  {escolher_pasta}: use se o programa não encontrar o seu save sozinho.',
-        'intro_titulo_3': 'A lista de mapas',
-        'intro_texto_3': 'Para cada mapa, a lista mostra quantas missões estão concluídas, quantas estão em andamento '
-                         'e o total.\n\n'
-                         'Mapas em verde, com "{resetadas}", já foram resetados: as missões deles começam do zero '
-                         'quando você entrar no mapa no jogo.',
-        'intro_titulo_4': 'Resetar missões',
-        'intro_texto_4': '1.  Feche o jogo.\n'
-                         '2.  Clique no mapa que quer recomeçar (segure Ctrl para escolher vários).\n'
-                         '3.  Clique em "{resetar}" e confirme.\n'
-                         '4.  Abra o jogo e entre no mapa: as missões começam do zero.\n\n'
-                         'Um backup das missões é feito sozinho antes de cada reset. Se usar Steam Cloud ou Epic Cloud '
-                         'e aparecer um aviso de conflito ao abrir o jogo, escolha a versão LOCAL.',
-        'intro_titulo_5': 'Backups: sua rede de segurança',
-        'intro_texto_5': '•  {backup_save}: guarda uma cópia do save INTEIRO. Recomendado antes de usar o programa '
-                         'pela primeira vez.\n'
-                         '•  {restaurar_save}: devolve o save inteiro a partir de um backup completo.\n'
-                         '•  {restaurar}: desfaz um reset, devolvendo só as missões. As linhas amarelas mostram o '
-                         'que vai mudar antes de você confirmar.\n'
-                         '•  {abrir_pasta}: abre a pasta onde ficam as cópias.\n\n'
-                         'São guardados até {limite_missoes} backups de missões e {limite_save} do save completo. '
-                         'O mais antigo de cada tipo nunca é apagado.',
-        'intro_titulo_6': 'Detalhes no rodapé',
-        'intro_texto_6': 'Na parte de baixo da janela:\n\n'
-                         '•  🌐 Idioma: português, inglês ou espanhol.\n'
-                         '•  {tema_escuro} / {tema_claro}: muda as cores da janela.\n'
-                         '•  {apoiar}: se quiser ajudar o desenvolvimento.\n'
-                         '•  {ajuda}: mostra esta introdução de novo quando quiser.\n\n'
-                         'Boa caçada!',
 
         # verificação antes de começar
         'verif_titulo': 'Verificação antes de começar',
@@ -400,9 +333,6 @@ TEXTOS = {
         'verif_tudo_pronto': '✔  Tudo pronto: nada deve atrapalhar.',
         'verif_impede': '⛔  Precisa resolver',
         'verif_atencao': '⚠  Atenção',
-        'status_ok': '✔ Verificação: tudo pronto',
-        'status_avisos': '⚠ Verificação: {n} aviso(s)',
-        'status_impede': '⛔ Verificação: {n} problema(s) impede(m) alterações',
         'bt_ver_verificacao': 'Ver verificação',
         'bt_verificar_de_novo': 'Verificar de novo',
         'bt_continuar': 'Continuar',
@@ -465,8 +395,6 @@ TEXTOS = {
                               'a gravação.',
         'causa_desconhecida': 'Outro programa pode ter segurado os arquivos por alguns instantes (OneDrive, Steam, '
                               'antivírus ou o Explorador de Arquivos). Feche-os e tente de novo.',
-        'faixa_erro_causa': '⚠  Não consegui gravar na pasta Documentos. {causa}\n'
-                            'Enquanto isso não for resolvido, o programa não altera nada.',
 
         'nome_leia_me': 'LEIA-ME.txt',
         'leia_me_pasta': 'Pasta do programa "ResetMissionsCOTW - Reset de Missões por Mapa".\n\n'
@@ -477,6 +405,183 @@ TEXTOS = {
                          'de dentro da pasta do backup para a pasta do save do jogo.\n\n'
                          'Esta pasta fica oculta para não atrapalhar sua pasta Documentos.\n'
                          'Pode apagar backups antigos, se quiser.\n',
+        # ---- visual novo (0.9.7): janela em 4 passos
+        'cabecalho': 'Reset de missões por mapa',
+        'link_como_usar': 'Como usar',
+        'link_logs': 'Logs',
+        'link_detalhes': 'detalhes',
+        'bt_tema_escuro': '☾  Tema escuro',
+        'bt_tema_claro': '☀  Tema claro',
+        'status_ok': '●  Tudo pronto: nada está usando os arquivos do save',
+        'status_avisos': '●  {n} aviso(s) antes de começar',
+        'status_impede': '●  {n} problema(s) impede(m) alterações',
+        'credito': 'Feito por {autor}  ·  v{versao}',
+        'pilula_apoiar': 'Gostou? Apoie o projeto',
+        'update_disponivel': 'Nova versão disponível: {versao}',
+        'link_baixar': 'Baixar',
+        'link_agora_nao': 'Agora não',
+        'passo1_titulo': 'Escolha o save',
+        'passo1_resumo': '{plat}  ·  conta {id}  ·  {quando}',
+        'link_trocar': 'Trocar',
+        'link_escolher_pasta': 'Escolher pasta',
+        'link_procurar': 'Procurar de novo',
+        'nao_encontrei_save': 'Não encontrei o save sozinho. Clique em "Escolher pasta" e aponte a pasta que tem o '
+                              'arquivo missions_missiondata_adf.',
+        'passo2_titulo': 'Faça um backup do save completo',
+        'recomendado': '(recomendado)',
+        'passo2_sub': 'Guarda uma cópia de TODOS os arquivos do save, não só as missões. Leva poucos segundos.',
+        'passo2_feito': 'Backup feito {quando}  ·  {tamanho}',
+        'hoje_as': 'hoje às {hora}',
+        'ontem_as': 'ontem às {hora}',
+        'dia_as': 'em {data} às {hora}',
+        'link_fazer_outro': 'Fazer outro',
+        'passo3_titulo': 'Escolha os mapas que quer recomeçar',
+        'passo3_sub': 'Marque um ou mais. A barra mostra quanto você já avançou nas missões de cada mapa.',
+        'passo3_sem_save': 'Escolha um save no passo 1 para ver os mapas.',
+        'passo3_vazio': 'Este save ainda não tem missões em nenhum mapa.',
+        'mapa_resetado_curto': '↺ resetado',
+        'dica_mapa': '{c} concluídas  ·  {a} em andamento  ·  {t} no total',
+        'dica_mapa_resetado': 'Missões resetadas ({t} no total). Elas começam do zero quando você entrar nesse mapa '
+                              'no jogo.',
+        'passo4_titulo': 'Resetar',
+        'bt_resetar_nenhum': 'Resetar',
+        'bt_resetar_um': 'Resetar 1 mapa',
+        'bt_resetar_varios': 'Resetar {n} mapas',
+        'passo4_nenhum': 'Marque pelo menos um mapa no passo 3.',
+        'passo4_resumo': '{nomes}. Os outros mapas não mudam.',
+        'conjuncao_e': ' e ',
+        'desfazer': 'Precisa desfazer?',
+        'link_restaurar_missoes': 'Restaurar missões',
+        'link_restaurar_save': 'Restaurar save completo',
+        'link_pasta_backups': 'Pasta de backups',
+        'selecione_mapa': 'Marque na lista (passo 3) o mapa que você quer resetar.',
+        'aviso_usar_faixa': 'O Windows está bloqueando o programa. Use o aviso amarelo no topo da janela para '
+                            'liberar.',
+        'confirmar_reset': 'Save: {save}\n\nResetar TODAS as missões de:\n\n{detalhes}\n\n'
+                           'O progresso das missões desse(s) mapa(s) será perdido. Os outros mapas não mudam.\n'
+                           'Um backup será feito antes, e você pode desfazer em "Restaurar missões".\n\n'
+                           'Continuar?',
+        'reset_ok': 'Pronto! Missões resetadas:\n\n{nomes}\n\n'
+                    'Agora abra o jogo. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar, escolha a '
+                    'LOCAL (deste computador). Ao entrar nesse mapa, as missões começam do zero.\n\n'
+                    'Foi feito um backup antes. Para desfazer, use "Restaurar missões".',
+        'erro_pos_gravacao': 'Depois de gravar, o arquivo não está igual ao esperado. Use "Restaurar missões".',
+
+        # faixa e guia do Windows Defender
+        'faixa_titulo_cfa': 'O Windows está impedindo o programa de salvar arquivos',
+        'faixa_bloqueio': 'A proteção "Acesso Controlado a Pastas" do Windows Defender está bloqueando a pasta '
+                          'Documentos, onde fica o seu save. Nada foi alterado. Libere o programa uma vez e pronto: '
+                          'leva cerca de 1 minuto.',
+        'faixa_titulo_erro': 'Não consegui gravar na pasta Documentos',
+        'faixa_erro_causa': '{causa}\nEnquanto isso não for resolvido, o programa não altera nada.',
+        'bt_abrir_seguranca': '↗  Abrir a Segurança do Windows',
+        'guia_titulo': 'Liberar o programa no Windows Defender',
+        'guia_intro': 'Você só precisa fazer isso uma vez. Leva cerca de 1 minuto.',
+        'guia_contador': 'PASSO {n} DE {total}',
+        'guia_passo_1': 'Abrir a Segurança do Windows',
+        'guia_passo_2': 'Proteção contra vírus e ameaças',
+        'guia_passo_3': 'Proteção contra ransomware',
+        'guia_passo_4': 'Permitir um aplicativo',
+        'guia_passo_5': 'Escolher este programa',
+        'guia_texto_1': 'Clique em "Abrir a Segurança do Windows", aqui embaixo. Ele já tenta abrir direto na página '
+                        'certa (passo 4). Se não abrir, procure "Segurança do Windows" no menu Iniciar.',
+        'guia_texto_2': 'Se abriu na tela inicial, clique em "Proteção contra vírus e ameaças" (o ícone de escudo).',
+        'guia_texto_3': 'Role a página até "Proteção contra ransomware" e clique em "Gerenciar a proteção contra '
+                        'ransomware".',
+        'guia_texto_4': 'Em "Acesso controlado a pastas", clique em "Permitir um aplicativo pelo Acesso controlado a '
+                        'pastas". Se o Windows perguntar se quer permitir alterações, clique em "Sim".',
+        'guia_texto_5': 'Clique em "+ Adicionar um aplicativo permitido" e depois em "Procurar todos os aplicativos". '
+                        'Na janela que abrir, cole o caminho abaixo na caixa "Nome" (Ctrl+V) e clique em "Abrir". '
+                        'Depois clique em "Já liberei, testar de novo".',
+        'guia_caminho': 'Caminho deste programa (para colar no passo 5):',
+        'bt_copiar': 'Copiar',
+        'copiado': '✓ Copiado! Agora é só colar (Ctrl+V).',
+        'win_seguranca': 'Segurança do Windows',
+        'win_melhor': 'MELHOR CORRESPONDÊNCIA',
+        'win_inicio': 'Início',
+        'win_virus': 'Proteção contra vírus e ameaças',
+        'win_conta': 'Proteção da conta',
+        'win_firewall': 'Firewall e proteção de rede',
+        'win_aplicativos': 'Controle de aplicativos e do navegador',
+        'win_seguranca_rapida': 'Segurança em um piscar de olhos',
+        'win_ransomware_titulo': 'Proteção contra ransomware',
+        'win_ransomware': 'Gerenciar a proteção contra ransomware',
+        'win_cfa': 'Acesso controlado a pastas',
+        'win_ligado': 'Ativado',
+        'win_historico': 'Histórico de bloqueios  ·  Pastas protegidas',
+        'win_permitir': 'Permitir um aplicativo pelo Acesso controlado a pastas',
+        'win_adicionar': 'Adicionar um aplicativo permitido',
+        'win_recentes': 'Aplicativos bloqueados recentemente',
+        'win_procurar': 'Procurar todos os aplicativos',
+
+        # "Antes de começar"
+        'aviso_titulo': 'Antes de começar',
+        'aviso_intro': 'Este programa foi criado por um jogador, de forma independente. Ele é gratuito, de código '
+                       'aberto e NÃO é oficial.',
+        'aviso_ponto_1': 'Altera SOMENTE as missões dos mapas que você escolher. Perfil, dinheiro, habilidades, '
+                         'armas, animais e troféus não mudam.',
+        'aviso_ponto_2': 'Faz um backup sozinho antes de cada alteração, e você pode desfazer quando quiser.',
+        'aviso_ponto_3': 'Pode ter falhas. Antes de alterar o save, recomendamos fazer o backup completo do save '
+                         '("{bt_backup}") e fechar o jogo.',
+        'aviso_apoio': 'O programa é gratuito e sempre vai ser. Se ele te ajudar, considere apoiar o projeto.',
+        'bt_apoiar_curto': '☕  Apoiar',
+        'aviso_github': 'Código aberto no GitHub',
+        'bt_backup_agora': 'Fazer backup agora',
+
+        # "Apoiar o projeto"
+        'apoio_pergunta': 'Gostou do {programa}?',
+        'apoio_texto': 'Ele é gratuito e feito por um jogador para a comunidade de theHunter: Call of the Wild. '
+                       'Se ele te ajudou, qualquer valor ajuda a manter o projeto vivo.',
+        'apoio_bmc_sub': 'Cartão ou PayPal  ·  do mundo todo',
+        'apoio_livepix_sub': 'Pix  ·  Brasil',
+        'apoio_sem_dinheiro': 'Sem dinheiro sobrando? Também ajuda:',
+        'apoio_estrela': '⭐ estrela no GitHub',
+        'apoio_compartilhar': 'compartilhar com amigos',
+        'apoio_erros': 'avisar sobre erros',
+        'apoio_obrigado': 'Obrigado! ♥  — {autor}',
+        'apoio_link_copiado': 'Link copiado! Cole para os seus amigos.',
+
+        # tutorial
+        'intro_pular': 'Pular tutorial',
+        'intro_passo_1': 'BEM-VINDO',
+        'intro_passo_2': 'PASSO 1',
+        'intro_passo_3': 'PASSO 2',
+        'intro_passo_4': 'PASSO 3',
+        'intro_passo_5': 'PASSO 4',
+        'intro_passo_6': 'DEPOIS DO RESET',
+        'intro_titulo_1': 'Recomece só o mapa que você quiser',
+        'intro_texto_1': 'No jogo, resetar as missões apaga as de TODOS os mapas. Com este programa você escolhe '
+                         'quais mapas recomeçam, e o progresso dos outros continua como está.\n\n'
+                         'A janela tem 4 passos, de cima para baixo. Veja em 1 minuto como usar.',
+        'intro_titulo_2': 'Escolha o save',
+        'intro_texto_2': 'O programa encontra o seu save sozinho (Steam ou Epic) e já escolhe o que você jogou por '
+                         'último.\n\n'
+                         'Tem mais de um save? Clique em "{trocar}" para escolher outro. Se ele não encontrar nada, '
+                         'use "{escolher_pasta}".',
+        'intro_titulo_3': 'Faça um backup do save completo',
+        'intro_texto_3': 'É opcional, mas recomendado, principalmente na primeira vez. O botão "{backup_save}" guarda '
+                         'uma cópia de TODOS os arquivos do save, não só as missões.\n\n'
+                         'São guardados até {limite_save} backups completos. O mais antigo nunca é apagado.',
+        'intro_titulo_4': 'Marque os mapas que quer recomeçar',
+        'intro_texto_4': 'Clique na caixinha (ou no nome) de cada mapa. A barrinha mostra quanto você já avançou nas '
+                         'missões daquele mapa.\n\n'
+                         'Mapas com "{resetado}" já estão prontos: as missões deles começam do zero quando você '
+                         'entrar no mapa.',
+        'intro_titulo_5': 'Resetar',
+        'intro_texto_5': 'Feche o jogo, clique no botão verde "{resetar}" e confirme. Antes, o programa faz um backup '
+                         'das missões sozinho (guarda até {limite_missoes}).\n\n'
+                         'Mudou de ideia? Logo abaixo do botão, use "{restaurar}" (só as missões) ou '
+                         '"{restaurar_save}" (o save inteiro).',
+        'intro_titulo_6': 'Depois do reset',
+        'intro_texto_6': 'Abra o jogo normalmente. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar, '
+                         'escolha a LOCAL (deste computador). Entre no mapa: as missões começam do zero.\n\n'
+                         'Quer ver este tutorial de novo? Clique em "{ajuda}", no topo da janela. Boa caçada!',
+        'il_mantem': '✓ continua igual',
+        'il_recomeca': '↺ recomeça',
+        'il_clique_caixinha': 'Clique na caixinha para marcar o mapa',
+        'il_abra_jogo': 'Abra o jogo normalmente',
+        'il_local': 'A nuvem perguntou? Escolha a versão LOCAL',
+        'il_entre_mapa': 'Entre no mapa: as missões começam do zero',
     },
 
     # =====================================================================
@@ -484,13 +589,9 @@ TEXTOS = {
         'formato_data': '%m/%d/%Y',
         'titulo_janela': 'ResetMissionsCOTW - Per-Map Mission Reset  v{versao}',
 
-        'faixa_bloqueio': '⚠  Windows is blocking this program from writing to the Documents folder '
-                          '("Controlled folder access" protection).\n'
-                          'Allow the program to be able to reset or restore. Until then, nothing is changed.',
         'faixa_erro': '⚠  Could not write to the Documents folder ({erro}).\n'
                       'Until this is solved, the program does not change anything.',
         'bt_como_liberar': 'How to allow it (step by step)',
-        'bt_abrir_seguranca': 'Open Windows Security',
         'bt_copiar_caminho': 'Copy program path',
         'bt_testar_de_novo': 'Done, test again',
         'dica_copiar': 'Tip: the "Copy program path" button copies the path above; in the window for choosing '
@@ -526,8 +627,6 @@ TEXTOS = {
         'aviso_varios_saves': '⚠  There are {n} {plat} saves on this PC. The most recent one is already selected; '
                               'check in the "Save" list that it is yours before resetting.',
         'aviso_outra_plataforma': 'This PC also has a save on {plat}. To use it, switch in "Platform".',
-        'nao_encontrei_save': 'Could not find the save automatically. Click "Choose folder..." and select the '
-                              'folder that has the missions_missiondata_adf file.',
         'titulo_escolher_pasta': 'Choose the save folder (the one with missions_missiondata_adf)',
         'pasta_sem_arquivo': 'This folder does not have the {arquivo} file.',
         'pasta_slots': 'This is a "slots" folder (the game\'s own backup copy). Choose the main save folder, one '
@@ -562,28 +661,15 @@ TEXTOS = {
                          'change. A backup is made automatically before any change.\n'
                          'Before using: close the game. If you use Steam Cloud or Epic Cloud and a sync conflict '
                          'warning shows up when opening the game, choose the LOCAL version (this computer).',
-        'credito': 'Created by {autor}   •   version {versao}',
         'bt_apoiar': '☕  Support the project',
-        'bt_tema_escuro': '🌙  Dark theme',
-        'bt_tema_claro': '☀  Light theme',
 
-        'aviso_usar_faixa': 'Windows is blocking the program. Use the buttons in the yellow bar at the top of '
-                            'the window to allow it.',
         'jogo_aberto': 'theHunter: Call of the Wild is open.\n\nClose the game completely and try again.',
         'nenhum_save_escolhido': 'No save selected.',
-        'selecione_mapa': 'Select the map you want to reset in the list.',
         'ja_resetados': 'The missions of this map (these maps) are already reset. The game creates the missions '
                         'from scratch when you enter the map.',
         'linha_detalhe': '  • {nome}: {c} completed, {a} in progress, {t} in total',
         'ignorados': '(Skipped, already reset: {nomes})',
-        'confirmar_reset': 'Save: {save}\n\nReset ALL missions of:\n\n{detalhes}\n\n'
-                           'The mission progress of this map (these maps) will be lost. Other maps do not change.\n'
-                           'A backup is made first, and you can undo it with "Restore missions backup...".\n\n'
-                           'Continue?',
         'nao_foi_possivel_resetar': 'Could not reset.\n\n{texto}\n\nThe save was not changed.',
-        'reset_ok': 'Done! Missions reset:\n\n{nomes}\n\n'
-                    'A backup of the previous save was made. To undo, use "Restore missions backup...".\n\n'
-                    'When you enter this map in the game, its missions will start from scratch.',
         'sem_backups': 'There are no backups of this save yet.',
         'sem_backups_explica': 'There are no backups of this save yet.\n\n'
                                'The program makes a backup automatically before each reset.',
@@ -618,10 +704,6 @@ TEXTOS = {
         'titulo_backup': 'Backup',
 
         'apoio_titulo': 'Support the project',
-        'apoio_pergunta': '☕  Enjoying the program?',
-        'apoio_texto': '{programa} is free, made by a player for the theHunter: Call of the Wild community.\n\n'
-                       'If it helped you and you would like to support its development, any amount is welcome. '
-                       'Thank you!',
         'em_breve': '(coming soon)',
 
         'erro_jogo_aberto': 'The game is open. Close theHunter: Call of the Wild and try again.',
@@ -635,7 +717,6 @@ TEXTOS = {
         'erro_conferencia': 'The safety check failed: the generated file is not as expected (code {codigo}). '
                             'Nothing was changed.',
         'erro_backup_diferente': 'The backup does not match the original. Nothing was changed.',
-        'erro_pos_gravacao': 'After writing, the file is not as expected. Use "Restore missions backup...".',
 
         'erro_copia_save': 'The save copy does not match the original. Nothing was changed.',
         'erro_backup_save_invalido': 'This full save backup is incomplete or damaged.',
@@ -691,7 +772,6 @@ TEXTOS = {
                            '   choose the LOCAL version.\n'
                            '7. If everything is fine, you can delete the "_old" folder.\n',
 
-        'aviso_titulo': '⚠  Before you start',
         'aviso_texto': 'This program was made by a player, independently. It is free and open source: {link}\n\n'
                        'It is NOT official and it may have bugs. So, before any change to your save, we recommend '
                        'making a full backup of the save using the program\'s own "{bt_backup}" option.\n\n'
@@ -702,51 +782,10 @@ TEXTOS = {
 
         'bt_ajuda': '❔  How to use',
         'intro_titulo': 'How to use',
-        'intro_pular': 'Skip',
         'intro_voltar': '←  Back',
         'intro_proximo': 'Next  →',
         'intro_comecar': 'Let\'s go!',
         'intro_pagina': '{n} of {total}',
-        'intro_titulo_1': 'Welcome to ResetMissionsCOTW!',
-        'intro_texto_1': 'This program resets the missions of ONE map in theHunter: Call of the Wild, without '
-                         'touching the progress of the other maps.\n\n'
-                         'In the game, the only way to reset missions resets the missions of ALL maps. Here you '
-                         'choose which map you want to start over.\n\n'
-                         'See how to use it in 1 minute, or click "Skip".',
-        'intro_titulo_2': 'Choose your save',
-        'intro_texto_2': 'At the top of the window:\n\n'
-                         '•  Platform: choose Steam or Epic.\n'
-                         '•  Save: the account on that platform. The most recently played save is already selected.\n'
-                         '•  {procurar}: looks for the saves again.\n'
-                         '•  {escolher_pasta}: use it if the program cannot find your save by itself.',
-        'intro_titulo_3': 'The map list',
-        'intro_texto_3': 'For each map, the list shows how many missions are completed, how many are in progress '
-                         'and the total.\n\n'
-                         'Green maps, marked "{resetadas}", have already been reset: their missions start from '
-                         'scratch when you enter the map in the game.',
-        'intro_titulo_4': 'Reset missions',
-        'intro_texto_4': '1.  Close the game.\n'
-                         '2.  Click the map you want to start over (hold Ctrl to choose several).\n'
-                         '3.  Click "{resetar}" and confirm.\n'
-                         '4.  Open the game and enter the map: its missions start from scratch.\n\n'
-                         'A missions backup is made automatically before each reset. If you use Steam Cloud or Epic '
-                         'Cloud and a conflict warning shows up when opening the game, choose the LOCAL version.',
-        'intro_titulo_5': 'Backups: your safety net',
-        'intro_texto_5': '•  {backup_save}: keeps a copy of the ENTIRE save. Recommended before using the program '
-                         'for the first time.\n'
-                         '•  {restaurar_save}: brings the entire save back from a full backup.\n'
-                         '•  {restaurar}: undoes a reset, bringing back only the missions. The yellow rows show what '
-                         'will change before you confirm.\n'
-                         '•  {abrir_pasta}: opens the folder where the copies are kept.\n\n'
-                         'Up to {limite_missoes} missions backups and {limite_save} full save backups are kept. '
-                         'The oldest of each type is never deleted.',
-        'intro_titulo_6': 'Footer details',
-        'intro_texto_6': 'At the bottom of the window:\n\n'
-                         '•  🌐 Language: Portuguese, English or Spanish.\n'
-                         '•  {tema_escuro} / {tema_claro}: changes the window colors.\n'
-                         '•  {apoiar}: if you would like to help the development.\n'
-                         '•  {ajuda}: shows this introduction again whenever you want.\n\n'
-                         'Happy hunting!',
 
         'verif_titulo': 'Check before you start',
         'verif_explicacao': 'To avoid errors and lost progress, the program checks whether another program could '
@@ -757,9 +796,6 @@ TEXTOS = {
         'verif_tudo_pronto': '✔  All set: nothing should get in the way.',
         'verif_impede': '⛔  Needs fixing',
         'verif_atencao': '⚠  Heads-up',
-        'status_ok': '✔ Check: all set',
-        'status_avisos': '⚠ Check: {n} warning(s)',
-        'status_impede': '⛔ Check: {n} problem(s) blocking changes',
         'bt_ver_verificacao': 'View check',
         'bt_verificar_de_novo': 'Check again',
         'bt_continuar': 'Continue',
@@ -816,8 +852,6 @@ TEXTOS = {
         'causa_cfa_possivel': 'Windows Defender "Controlled folder access" is on and may have blocked writing.',
         'causa_desconhecida': 'Another program may have held the files for a few moments (OneDrive, Steam, '
                               'antivirus or File Explorer). Close them and try again.',
-        'faixa_erro_causa': '⚠  Could not write to the Documents folder. {causa}\n'
-                            'Until this is solved, the program does not change anything.',
 
         'nome_leia_me': 'README.txt',
         'leia_me_pasta': 'Folder of the program "ResetMissionsCOTW - Per-Map Mission Reset".\n\n'
@@ -828,6 +862,179 @@ TEXTOS = {
                          'file from inside the backup folder into the game\'s save folder.\n\n'
                          'This folder is hidden so it does not clutter your Documents folder.\n'
                          'You may delete old backups if you want.\n',
+        # ---- new look (0.9.7): window in 4 steps
+        'cabecalho': 'Per-map mission reset',
+        'link_como_usar': 'How to use',
+        'link_logs': 'Logs',
+        'link_detalhes': 'details',
+        'bt_tema_escuro': '☾  Dark theme',
+        'bt_tema_claro': '☀  Light theme',
+        'status_ok': '●  All set: nothing is using the save files',
+        'status_avisos': '●  {n} warning(s) before you start',
+        'status_impede': '●  {n} problem(s) prevent changes',
+        'credito': 'Made by {autor}  ·  v{versao}',
+        'pilula_apoiar': 'Like it? Support the project',
+        'update_disponivel': 'New version available: {versao}',
+        'link_baixar': 'Download',
+        'link_agora_nao': 'Not now',
+        'passo1_titulo': 'Choose the save',
+        'passo1_resumo': '{plat}  ·  account {id}  ·  {quando}',
+        'link_trocar': 'Change',
+        'link_escolher_pasta': 'Choose folder',
+        'link_procurar': 'Search again',
+        'nao_encontrei_save': 'Could not find the save automatically. Click "Choose folder" and select the folder '
+                              'that has the missions_missiondata_adf file.',
+        'passo2_titulo': 'Back up the full save',
+        'recomendado': '(recommended)',
+        'passo2_sub': 'Keeps a copy of ALL the save files, not just the missions. It takes a few seconds.',
+        'passo2_feito': 'Backup made {quando}  ·  {tamanho}',
+        'hoje_as': 'today at {hora}',
+        'ontem_as': 'yesterday at {hora}',
+        'dia_as': 'on {data} at {hora}',
+        'link_fazer_outro': 'Make another',
+        'passo3_titulo': 'Choose the maps you want to start over',
+        'passo3_sub': 'Tick one or more. The bar shows how far you have got in the missions of each map.',
+        'passo3_sem_save': 'Choose a save in step 1 to see the maps.',
+        'passo3_vazio': 'This save has no missions in any map yet.',
+        'mapa_resetado_curto': '↺ reset',
+        'dica_mapa': '{c} completed  ·  {a} in progress  ·  {t} in total',
+        'dica_mapa_resetado': 'Missions reset ({t} in total). They start from scratch when you enter this map in the '
+                              'game.',
+        'passo4_titulo': 'Reset',
+        'bt_resetar_nenhum': 'Reset',
+        'bt_resetar_um': 'Reset 1 map',
+        'bt_resetar_varios': 'Reset {n} maps',
+        'passo4_nenhum': 'Tick at least one map in step 3.',
+        'passo4_resumo': '{nomes}. Other maps do not change.',
+        'conjuncao_e': ' and ',
+        'desfazer': 'Need to undo?',
+        'link_restaurar_missoes': 'Restore missions',
+        'link_restaurar_save': 'Restore full save',
+        'link_pasta_backups': 'Backups folder',
+        'selecione_mapa': 'Tick the map you want to reset in the list (step 3).',
+        'aviso_usar_faixa': 'Windows is blocking the program. Use the yellow notice at the top of the window to '
+                            'allow it.',
+        'confirmar_reset': 'Save: {save}\n\nReset ALL missions of:\n\n{detalhes}\n\n'
+                           'The mission progress of this map (these maps) will be lost. Other maps do not change.\n'
+                           'A backup is made first, and you can undo it with "Restore missions".\n\n'
+                           'Continue?',
+        'reset_ok': 'Done! Missions reset:\n\n{nomes}\n\n'
+                    'Now open the game. If Steam Cloud or Epic Cloud asks which version to use, choose the LOCAL one '
+                    '(this computer). When you enter this map, its missions start from scratch.\n\n'
+                    'A backup was made first. To undo, use "Restore missions".',
+        'erro_pos_gravacao': 'After writing, the file is not as expected. Use "Restore missions".',
+
+        'faixa_titulo_cfa': 'Windows is preventing the program from saving files',
+        'faixa_bloqueio': 'The Windows Defender "Controlled folder access" protection is blocking the Documents '
+                          'folder, where your save is. Nothing was changed. Allow the program once and you are done: '
+                          'it takes about 1 minute.',
+        'faixa_titulo_erro': 'Could not write to the Documents folder',
+        'faixa_erro_causa': '{causa}\nUntil this is solved, the program does not change anything.',
+        'bt_abrir_seguranca': '↗  Open Windows Security',
+        'guia_titulo': 'Allow the program in Windows Defender',
+        'guia_intro': 'You only need to do this once. It takes about 1 minute.',
+        'guia_contador': 'STEP {n} OF {total}',
+        'guia_passo_1': 'Open Windows Security',
+        'guia_passo_2': 'Virus & threat protection',
+        'guia_passo_3': 'Ransomware protection',
+        'guia_passo_4': 'Allow an app',
+        'guia_passo_5': 'Choose this program',
+        'guia_texto_1': 'Click "Open Windows Security" below. It tries to open the right page directly (step 4). If '
+                        'it does not, search for "Windows Security" in the Start menu.',
+        'guia_texto_2': 'If it opened on the home screen, click "Virus & threat protection" (the shield icon).',
+        'guia_texto_3': 'Scroll down to "Ransomware protection" and click "Manage ransomware protection".',
+        'guia_texto_4': 'Under "Controlled folder access", click "Allow an app through Controlled folder access". If '
+                        'Windows asks whether to allow changes, click "Yes".',
+        'guia_texto_5': 'Click "+ Add an allowed app" and then "Browse all apps". In the window that opens, paste the '
+                        'path below into the "File name" box (Ctrl+V) and click "Open". Then click "Done, test '
+                        'again".',
+        'guia_caminho': 'Path of this program (to paste in step 5):',
+        'bt_copiar': 'Copy',
+        'copiado': '✓ Copied! Now just paste it (Ctrl+V).',
+        'win_seguranca': 'Windows Security',
+        'win_melhor': 'BEST MATCH',
+        'win_inicio': 'Home',
+        'win_virus': 'Virus & threat protection',
+        'win_conta': 'Account protection',
+        'win_firewall': 'Firewall & network protection',
+        'win_aplicativos': 'App & browser control',
+        'win_seguranca_rapida': 'Security at a glance',
+        'win_ransomware_titulo': 'Ransomware protection',
+        'win_ransomware': 'Manage ransomware protection',
+        'win_cfa': 'Controlled folder access',
+        'win_ligado': 'On',
+        'win_historico': 'Block history  ·  Protected folders',
+        'win_permitir': 'Allow an app through Controlled folder access',
+        'win_adicionar': 'Add an allowed app',
+        'win_recentes': 'Recently blocked apps',
+        'win_procurar': 'Browse all apps',
+
+        'aviso_titulo': 'Before you start',
+        'aviso_intro': 'This program was created by a player, independently. It is free, open source and NOT '
+                       'official.',
+        'aviso_ponto_1': 'It changes ONLY the missions of the maps you choose. Profile, money, skills, weapons, '
+                         'animals and trophies do not change.',
+        'aviso_ponto_2': 'It makes a backup on its own before every change, and you can undo whenever you want.',
+        'aviso_ponto_3': 'It may have bugs. Before changing the save, we recommend backing up the full save '
+                         '("{bt_backup}") and closing the game.',
+        'aviso_apoio': 'The program is free and always will be. If it helps you, please consider supporting the '
+                       'project.',
+        'bt_apoiar_curto': '☕  Support',
+        'aviso_github': 'Open source on GitHub',
+        'bt_backup_agora': 'Back up now',
+
+        'apoio_pergunta': 'Do you like {programa}?',
+        'apoio_texto': 'It is free and made by a player for the theHunter: Call of the Wild community. If it helped '
+                       'you, any amount helps keep the project alive.',
+        'apoio_bmc_sub': 'Card or PayPal  ·  worldwide',
+        'apoio_livepix_sub': 'Pix  ·  Brazil',
+        'apoio_sem_dinheiro': 'No money to spare? This helps too:',
+        'apoio_estrela': '⭐ star on GitHub',
+        'apoio_compartilhar': 'share with friends',
+        'apoio_erros': 'report bugs',
+        'apoio_obrigado': 'Thank you! ♥  — {autor}',
+        'apoio_link_copiado': 'Link copied! Paste it to your friends.',
+
+        'intro_pular': 'Skip tutorial',
+        'intro_passo_1': 'WELCOME',
+        'intro_passo_2': 'STEP 1',
+        'intro_passo_3': 'STEP 2',
+        'intro_passo_4': 'STEP 3',
+        'intro_passo_5': 'STEP 4',
+        'intro_passo_6': 'AFTER THE RESET',
+        'intro_titulo_1': 'Start over only the map you want',
+        'intro_texto_1': 'In the game, resetting missions wipes them on ALL maps. With this program you choose which '
+                         'maps start over, and the progress of the others stays as it is.\n\n'
+                         'The window has 4 steps, from top to bottom. See how to use it in 1 minute.',
+        'intro_titulo_2': 'Choose the save',
+        'intro_texto_2': 'The program finds your save on its own (Steam or Epic) and picks the one you played last.'
+                         '\n\n'
+                         'Have more than one save? Click "{trocar}" to pick another. If it finds nothing, use '
+                         '"{escolher_pasta}".',
+        'intro_titulo_3': 'Back up the full save',
+        'intro_texto_3': 'It is optional but recommended, especially the first time. The "{backup_save}" button keeps '
+                         'a copy of ALL the save files, not just the missions.\n\n'
+                         'Up to {limite_save} full backups are kept. The oldest one is never deleted.',
+        'intro_titulo_4': 'Tick the maps you want to start over',
+        'intro_texto_4': 'Click the box (or the name) of each map. The small bar shows how far you have got in the '
+                         'missions of that map.\n\n'
+                         'Maps marked "{resetado}" are ready: their missions start from scratch when you enter the '
+                         'map.',
+        'intro_titulo_5': 'Reset',
+        'intro_texto_5': 'Close the game, click the green "{resetar}" button and confirm. The program first backs up '
+                         'the missions on its own (keeps up to {limite_missoes}).\n\n'
+                         'Changed your mind? Right below the button, use "{restaurar}" (missions only) or '
+                         '"{restaurar_save}" (the whole save).',
+        'intro_titulo_6': 'After the reset',
+        'intro_texto_6': 'Open the game normally. If Steam Cloud or Epic Cloud asks which version to use, choose the '
+                         'LOCAL one (this computer). Enter the map: its missions start from scratch.\n\n'
+                         'Want to see this tutorial again? Click "{ajuda}" at the top of the window. Happy hunting!',
+        'il_mantem': '✓ stays the same',
+        'il_recomeca': '↺ starts over',
+        'il_clique_caixinha': 'Click the box to tick the map',
+        'il_abra_jogo': 'Open the game normally',
+        'il_local': 'Cloud asked? Choose the LOCAL version',
+        'il_entre_mapa': 'Enter the map: missions start from scratch',
     },
 
     # =====================================================================
@@ -835,13 +1042,9 @@ TEXTOS = {
         'formato_data': '%d/%m/%Y',
         'titulo_janela': 'ResetMissionsCOTW - Reinicio de Misiones por Mapa  v{versao}',
 
-        'faixa_bloqueio': '⚠  Windows está bloqueando que este programa escriba en la carpeta Documentos '
-                          '(protección "Acceso controlado a carpetas").\n'
-                          'Permite el programa para poder reiniciar o restaurar. Mientras tanto, no se cambia nada.',
         'faixa_erro': '⚠  No se pudo escribir en la carpeta Documentos ({erro}).\n'
                       'Hasta que se resuelva, el programa no cambia nada.',
         'bt_como_liberar': 'Cómo permitirlo (paso a paso)',
-        'bt_abrir_seguranca': 'Abrir Seguridad de Windows',
         'bt_copiar_caminho': 'Copiar ruta del programa',
         'bt_testar_de_novo': 'Ya lo permití, probar de nuevo',
         'dica_copiar': 'Consejo: el botón "Copiar ruta del programa" copia la ruta de arriba; en la ventana para '
@@ -878,8 +1081,6 @@ TEXTOS = {
         'aviso_varios_saves': '⚠  Hay {n} partidas de {plat} en este PC. La más reciente ya está elegida; '
                               'comprueba en la lista "Partida" que es la tuya antes de reiniciar.',
         'aviso_outra_plataforma': 'Este PC también tiene una partida de {plat}. Para usarla, cambia en "Plataforma".',
-        'nao_encontrei_save': 'No se encontró la partida automáticamente. Haz clic en "Elegir carpeta..." y elige '
-                              'la carpeta que tiene el archivo missions_missiondata_adf.',
         'titulo_escolher_pasta': 'Elige la carpeta de la partida (la que tiene missions_missiondata_adf)',
         'pasta_sem_arquivo': 'Esta carpeta no tiene el archivo {arquivo}.',
         'pasta_slots': 'Esta es una carpeta "slots" (copia de seguridad del propio juego). Elige la carpeta '
@@ -914,29 +1115,15 @@ TEXTOS = {
                          'Se hace una copia de seguridad automáticamente antes de cualquier cambio.\n'
                          'Antes de usarlo: cierra el juego. Si usas Steam Cloud o Epic Cloud y aparece un aviso de '
                          'conflicto al abrir el juego, elige la versión LOCAL (de este equipo).',
-        'credito': 'Creado por {autor}   •   versión {versao}',
         'bt_apoiar': '☕  Apoyar el proyecto',
-        'bt_tema_escuro': '🌙  Tema oscuro',
-        'bt_tema_claro': '☀  Tema claro',
 
-        'aviso_usar_faixa': 'Windows está bloqueando el programa. Usa los botones de la barra amarilla en la '
-                            'parte superior de la ventana para permitirlo.',
         'jogo_aberto': 'theHunter: Call of the Wild está abierto.\n\nCierra el juego por completo e inténtalo de nuevo.',
         'nenhum_save_escolhido': 'No hay ninguna partida elegida.',
-        'selecione_mapa': 'Selecciona en la lista el mapa que quieres reiniciar.',
         'ja_resetados': 'Las misiones de este(s) mapa(s) ya están reiniciadas. El juego crea las misiones desde '
                         'cero cuando entres en el mapa.',
         'linha_detalhe': '  • {nome}: {c} completadas, {a} en curso, {t} en total',
         'ignorados': '(Omitido(s), ya reiniciado(s): {nomes})',
-        'confirmar_reset': 'Partida: {save}\n\n¿Reiniciar TODAS las misiones de estos mapas?\n\n{detalhes}\n\n'
-                           'Se perderá el progreso de las misiones de este(s) mapa(s). Los demás mapas no cambian.\n'
-                           'Antes se hace una copia de seguridad, y puedes deshacerlo en "Restaurar copia de '
-                           'misiones...".\n\n¿Continuar?',
         'nao_foi_possivel_resetar': 'No se pudo reiniciar.\n\n{texto}\n\nLa partida no se modificó.',
-        'reset_ok': '¡Listo! Misiones reiniciadas:\n\n{nomes}\n\n'
-                    'Se hizo una copia de seguridad de las misiones anteriores. Para deshacerlo, usa "Restaurar copia '
-                    'de misiones...".\n\n'
-                    'Al entrar en ese mapa en el juego, las misiones empezarán desde cero.',
         'sem_backups': 'Todavía no hay copias de seguridad de esta partida.',
         'sem_backups_explica': 'Todavía no hay copias de seguridad de esta partida.\n\n'
                                'El programa hace una copia automáticamente antes de cada reinicio.',
@@ -972,10 +1159,6 @@ TEXTOS = {
         'titulo_backup': 'Copia de seguridad',
 
         'apoio_titulo': 'Apoyar el proyecto',
-        'apoio_pergunta': '☕  ¿Te gustó el programa?',
-        'apoio_texto': '{programa} es gratuito, hecho por un jugador para la comunidad de '
-                       'theHunter: Call of the Wild.\n\n'
-                       'Si te ayudó y quieres apoyar su desarrollo, cualquier cantidad es bienvenida. ¡Gracias!',
         'em_breve': '(próximamente)',
 
         'erro_jogo_aberto': 'El juego está abierto. Cierra theHunter: Call of the Wild e inténtalo de nuevo.',
@@ -989,8 +1172,6 @@ TEXTOS = {
         'erro_conferencia': 'La comprobación de seguridad falló: el archivo generado no quedó como se esperaba '
                             '(código {codigo}). No se cambió nada.',
         'erro_backup_diferente': 'La copia de seguridad no quedó igual al original. No se cambió nada.',
-        'erro_pos_gravacao': 'Después de escribir, el archivo no quedó como se esperaba. Usa "Restaurar copia de '
-                             'misiones...".',
 
         'erro_copia_save': 'La copia de la partida no quedó igual al original. No se cambió nada.',
         'erro_backup_save_invalido': 'Esta copia de la partida completa está incompleta o dañada.',
@@ -1048,7 +1229,6 @@ TEXTOS = {
                            '   elige la versión LOCAL.\n'
                            '7. Si todo está bien, puedes borrar la carpeta "_antigua".\n',
 
-        'aviso_titulo': '⚠  Antes de empezar',
         'aviso_texto': 'Este programa fue creado por un jugador, de forma independiente. Es gratuito y de código '
                        'abierto: {link}\n\n'
                        'NO es oficial y puede tener fallos. Por eso, antes de cualquier cambio en la partida, te '
@@ -1061,51 +1241,10 @@ TEXTOS = {
 
         'bt_ajuda': '❔  Cómo usar',
         'intro_titulo': 'Cómo usar',
-        'intro_pular': 'Omitir',
         'intro_voltar': '←  Atrás',
         'intro_proximo': 'Siguiente  →',
         'intro_comecar': '¡Empezar!',
         'intro_pagina': '{n} de {total}',
-        'intro_titulo_1': '¡Bienvenido a ResetMissionsCOTW!',
-        'intro_texto_1': 'Este programa reinicia las misiones de UN mapa de theHunter: Call of the Wild, sin tocar el '
-                         'progreso de los demás mapas.\n\n'
-                         'En el juego, la única forma de reiniciar las misiones reinicia las de TODOS los mapas. Aquí '
-                         'eliges qué mapa quieres empezar de nuevo.\n\n'
-                         'Mira cómo usarlo en 1 minuto, o haz clic en "Omitir".',
-        'intro_titulo_2': 'Elige tu partida',
-        'intro_texto_2': 'En la parte superior de la ventana:\n\n'
-                         '•  Plataforma: elige Steam o Epic.\n'
-                         '•  Partida: la cuenta de esa plataforma. La partida jugada más recientemente ya viene elegida.\n'
-                         '•  {procurar}: busca las partidas de nuevo.\n'
-                         '•  {escolher_pasta}: úsalo si el programa no encuentra tu partida solo.',
-        'intro_titulo_3': 'La lista de mapas',
-        'intro_texto_3': 'Para cada mapa, la lista muestra cuántas misiones están completadas, cuántas están en curso '
-                         'y el total.\n\n'
-                         'Los mapas en verde, con "{resetadas}", ya se reiniciaron: sus misiones empiezan desde cero '
-                         'cuando entres en el mapa en el juego.',
-        'intro_titulo_4': 'Reiniciar misiones',
-        'intro_texto_4': '1.  Cierra el juego.\n'
-                         '2.  Haz clic en el mapa que quieres empezar de nuevo (mantén Ctrl para elegir varios).\n'
-                         '3.  Haz clic en "{resetar}" y confirma.\n'
-                         '4.  Abre el juego y entra en el mapa: las misiones empiezan desde cero.\n\n'
-                         'Antes de cada reinicio se hace sola una copia de las misiones. Si usas Steam Cloud o Epic '
-                         'Cloud y aparece un aviso de conflicto al abrir el juego, elige la versión LOCAL.',
-        'intro_titulo_5': 'Copias de seguridad: tu red de seguridad',
-        'intro_texto_5': '•  {backup_save}: guarda una copia de la partida ENTERA. Recomendado antes de usar el '
-                         'programa por primera vez.\n'
-                         '•  {restaurar_save}: devuelve la partida entera desde una copia completa.\n'
-                         '•  {restaurar}: deshace un reinicio, devolviendo solo las misiones. Las filas amarillas '
-                         'muestran lo que cambiará antes de que confirmes.\n'
-                         '•  {abrir_pasta}: abre la carpeta donde se guardan las copias.\n\n'
-                         'Se guardan hasta {limite_missoes} copias de misiones y {limite_save} de la partida completa. '
-                         'La más antigua de cada tipo nunca se borra.',
-        'intro_titulo_6': 'Detalles en la parte inferior',
-        'intro_texto_6': 'En la parte de abajo de la ventana:\n\n'
-                         '•  🌐 Idioma: portugués, inglés o español.\n'
-                         '•  {tema_escuro} / {tema_claro}: cambia los colores de la ventana.\n'
-                         '•  {apoiar}: si quieres ayudar al desarrollo.\n'
-                         '•  {ajuda}: muestra esta introducción de nuevo cuando quieras.\n\n'
-                         '¡Buena caza!',
 
         'verif_titulo': 'Comprobación antes de empezar',
         'verif_explicacao': 'Para evitar errores y pérdida de progreso, el programa comprueba si algún programa puede '
@@ -1116,9 +1255,6 @@ TEXTOS = {
         'verif_tudo_pronto': '✔  Todo listo: nada debería estorbar.',
         'verif_impede': '⛔  Hay que resolverlo',
         'verif_atencao': '⚠  Atención',
-        'status_ok': '✔ Comprobación: todo listo',
-        'status_avisos': '⚠ Comprobación: {n} aviso(s)',
-        'status_impede': '⛔ Comprobación: {n} problema(s) impide(n) cambios',
         'bt_ver_verificacao': 'Ver comprobación',
         'bt_verificar_de_novo': 'Comprobar de nuevo',
         'bt_continuar': 'Continuar',
@@ -1180,8 +1316,6 @@ TEXTOS = {
                               'bloqueado la escritura.',
         'causa_desconhecida': 'Otro programa puede haber retenido los archivos unos instantes (OneDrive, Steam, '
                               'antivirus o el Explorador de archivos). Ciérralos e inténtalo de nuevo.',
-        'faixa_erro_causa': '⚠  No se pudo escribir en la carpeta Documentos. {causa}\n'
-                            'Hasta que se resuelva, el programa no cambia nada.',
 
         'nome_leia_me': 'LEEME.txt',
         'leia_me_pasta': 'Carpeta del programa "ResetMissionsCOTW - Reinicio de Misiones por Mapa".\n\n'
@@ -1193,5 +1327,181 @@ TEXTOS = {
                          'de dentro de la carpeta de la copia a la carpeta de la partida del juego.\n\n'
                          'Esta carpeta está oculta para no desordenar tu carpeta Documentos.\n'
                          'Puedes borrar copias antiguas si quieres.\n',
+        # ---- nuevo aspecto (0.9.7): ventana en 4 pasos
+        'cabecalho': 'Reinicio de misiones por mapa',
+        'link_como_usar': 'Cómo usar',
+        'link_logs': 'Registros',
+        'link_detalhes': 'detalles',
+        'bt_tema_escuro': '☾  Tema oscuro',
+        'bt_tema_claro': '☀  Tema claro',
+        'status_ok': '●  Todo listo: nada está usando los archivos de la partida',
+        'status_avisos': '●  {n} aviso(s) antes de empezar',
+        'status_impede': '●  {n} problema(s) impide(n) cambios',
+        'credito': 'Hecho por {autor}  ·  v{versao}',
+        'pilula_apoiar': '¿Te gustó? Apoya el proyecto',
+        'update_disponivel': 'Nueva versión disponible: {versao}',
+        'link_baixar': 'Descargar',
+        'link_agora_nao': 'Ahora no',
+        'passo1_titulo': 'Elige la partida',
+        'passo1_resumo': '{plat}  ·  cuenta {id}  ·  {quando}',
+        'link_trocar': 'Cambiar',
+        'link_escolher_pasta': 'Elegir carpeta',
+        'link_procurar': 'Buscar de nuevo',
+        'nao_encontrei_save': 'No se encontró la partida automáticamente. Haz clic en "Elegir carpeta" y elige la '
+                              'carpeta que tiene el archivo missions_missiondata_adf.',
+        'passo2_titulo': 'Haz una copia de seguridad de la partida completa',
+        'recomendado': '(recomendado)',
+        'passo2_sub': 'Guarda una copia de TODOS los archivos de la partida, no solo las misiones. Tarda unos '
+                      'segundos.',
+        'passo2_feito': 'Copia hecha {quando}  ·  {tamanho}',
+        'hoje_as': 'hoy a las {hora}',
+        'ontem_as': 'ayer a las {hora}',
+        'dia_as': 'el {data} a las {hora}',
+        'link_fazer_outro': 'Hacer otra',
+        'passo3_titulo': 'Elige los mapas que quieres empezar de nuevo',
+        'passo3_sub': 'Marca uno o más. La barra muestra cuánto has avanzado en las misiones de cada mapa.',
+        'passo3_sem_save': 'Elige una partida en el paso 1 para ver los mapas.',
+        'passo3_vazio': 'Esta partida todavía no tiene misiones en ningún mapa.',
+        'mapa_resetado_curto': '↺ reiniciado',
+        'dica_mapa': '{c} completadas  ·  {a} en curso  ·  {t} en total',
+        'dica_mapa_resetado': 'Misiones reiniciadas ({t} en total). Empiezan desde cero cuando entres en este mapa en '
+                              'el juego.',
+        'passo4_titulo': 'Reiniciar',
+        'bt_resetar_nenhum': 'Reiniciar',
+        'bt_resetar_um': 'Reiniciar 1 mapa',
+        'bt_resetar_varios': 'Reiniciar {n} mapas',
+        'passo4_nenhum': 'Marca al menos un mapa en el paso 3.',
+        'passo4_resumo': '{nomes}. Los demás mapas no cambian.',
+        'conjuncao_e': ' y ',
+        'desfazer': '¿Necesitas deshacer?',
+        'link_restaurar_missoes': 'Restaurar misiones',
+        'link_restaurar_save': 'Restaurar partida completa',
+        'link_pasta_backups': 'Carpeta de copias',
+        'selecione_mapa': 'Marca en la lista (paso 3) el mapa que quieres reiniciar.',
+        'aviso_usar_faixa': 'Windows está bloqueando el programa. Usa el aviso amarillo de la parte superior de la '
+                            'ventana para permitirlo.',
+        'confirmar_reset': 'Partida: {save}\n\n¿Reiniciar TODAS las misiones de estos mapas?\n\n{detalhes}\n\n'
+                           'Se perderá el progreso de las misiones de este(s) mapa(s). Los demás mapas no cambian.\n'
+                           'Antes se hace una copia de seguridad, y puedes deshacerlo en "Restaurar misiones".\n\n'
+                           '¿Continuar?',
+        'reset_ok': '¡Listo! Misiones reiniciadas:\n\n{nomes}\n\n'
+                    'Ahora abre el juego. Si Steam Cloud o Epic Cloud pregunta qué versión usar, elige la LOCAL '
+                    '(de este ordenador). Al entrar en ese mapa, las misiones empiezan desde cero.\n\n'
+                    'Antes se hizo una copia de seguridad. Para deshacerlo, usa "Restaurar misiones".',
+        'erro_pos_gravacao': 'Después de escribir, el archivo no quedó como se esperaba. Usa "Restaurar misiones".',
+
+        'faixa_titulo_cfa': 'Windows está impidiendo que el programa guarde archivos',
+        'faixa_bloqueio': 'La protección "Acceso controlado a carpetas" de Windows Defender está bloqueando la carpeta '
+                          'Documentos, donde está tu partida. No se cambió nada. Permite el programa una vez y listo: '
+                          'tarda cerca de 1 minuto.',
+        'faixa_titulo_erro': 'No se pudo escribir en la carpeta Documentos',
+        'faixa_erro_causa': '{causa}\nHasta que se resuelva, el programa no cambia nada.',
+        'bt_abrir_seguranca': '↗  Abrir Seguridad de Windows',
+        'guia_titulo': 'Permitir el programa en Windows Defender',
+        'guia_intro': 'Solo tienes que hacerlo una vez. Tarda cerca de 1 minuto.',
+        'guia_contador': 'PASO {n} DE {total}',
+        'guia_passo_1': 'Abrir Seguridad de Windows',
+        'guia_passo_2': 'Protección antivirus y contra amenazas',
+        'guia_passo_3': 'Protección contra ransomware',
+        'guia_passo_4': 'Permitir una aplicación',
+        'guia_passo_5': 'Elegir este programa',
+        'guia_texto_1': 'Haz clic en "Abrir Seguridad de Windows", aquí abajo. Intenta abrir directamente la página '
+                        'correcta (paso 4). Si no se abre, busca "Seguridad de Windows" en el menú Inicio.',
+        'guia_texto_2': 'Si se abrió en la pantalla de inicio, haz clic en "Protección antivirus y contra amenazas" '
+                        '(el icono del escudo).',
+        'guia_texto_3': 'Baja hasta "Protección contra ransomware" y haz clic en "Administrar la protección contra '
+                        'ransomware".',
+        'guia_texto_4': 'En "Acceso controlado a carpetas", haz clic en "Permitir una aplicación a través del Acceso '
+                        'controlado a carpetas". Si Windows pregunta si quieres permitir cambios, haz clic en "Sí".',
+        'guia_texto_5': 'Haz clic en "+ Agregar una aplicación permitida" y luego en "Examinar todas las '
+                        'aplicaciones". En la ventana que se abre, pega la ruta de abajo en el cuadro "Nombre" '
+                        '(Ctrl+V) y haz clic en "Abrir". Después haz clic en "Ya lo permití, probar de nuevo".',
+        'guia_caminho': 'Ruta de este programa (para pegar en el paso 5):',
+        'bt_copiar': 'Copiar',
+        'copiado': '✓ ¡Copiado! Ahora solo pégalo (Ctrl+V).',
+        'win_seguranca': 'Seguridad de Windows',
+        'win_melhor': 'MEJOR COINCIDENCIA',
+        'win_inicio': 'Inicio',
+        'win_virus': 'Protección antivirus y contra amenazas',
+        'win_conta': 'Protección de cuentas',
+        'win_firewall': 'Firewall y protección de red',
+        'win_aplicativos': 'Control de aplicaciones y navegador',
+        'win_seguranca_rapida': 'Seguridad de un vistazo',
+        'win_ransomware_titulo': 'Protección contra ransomware',
+        'win_ransomware': 'Administrar la protección contra ransomware',
+        'win_cfa': 'Acceso controlado a carpetas',
+        'win_ligado': 'Activado',
+        'win_historico': 'Historial de bloqueos  ·  Carpetas protegidas',
+        'win_permitir': 'Permitir una aplicación a través del Acceso controlado a carpetas',
+        'win_adicionar': 'Agregar una aplicación permitida',
+        'win_recentes': 'Aplicaciones bloqueadas recientemente',
+        'win_procurar': 'Examinar todas las aplicaciones',
+
+        'aviso_titulo': 'Antes de empezar',
+        'aviso_intro': 'Este programa fue creado por un jugador, de forma independiente. Es gratuito, de código '
+                       'abierto y NO es oficial.',
+        'aviso_ponto_1': 'Cambia SOLO las misiones de los mapas que elijas. Perfil, dinero, habilidades, armas, '
+                         'animales y trofeos no cambian.',
+        'aviso_ponto_2': 'Hace una copia de seguridad solo antes de cada cambio, y puedes deshacerlo cuando quieras.',
+        'aviso_ponto_3': 'Puede tener fallos. Antes de modificar la partida, te recomendamos hacer la copia de la '
+                         'partida completa ("{bt_backup}") y cerrar el juego.',
+        'aviso_apoio': 'El programa es gratuito y siempre lo será. Si te ayuda, considera apoyar el proyecto.',
+        'bt_apoiar_curto': '☕  Apoyar',
+        'aviso_github': 'Código abierto en GitHub',
+        'bt_backup_agora': 'Hacer copia ahora',
+
+        'apoio_pergunta': '¿Te gustó {programa}?',
+        'apoio_texto': 'Es gratuito y lo hizo un jugador para la comunidad de theHunter: Call of the Wild. Si te '
+                       'ayudó, cualquier cantidad ayuda a mantener vivo el proyecto.',
+        'apoio_bmc_sub': 'Tarjeta o PayPal  ·  todo el mundo',
+        'apoio_livepix_sub': 'Pix  ·  Brasil',
+        'apoio_sem_dinheiro': '¿Sin dinero de sobra? También ayuda:',
+        'apoio_estrela': '⭐ estrella en GitHub',
+        'apoio_compartilhar': 'compartir con amigos',
+        'apoio_erros': 'avisar de errores',
+        'apoio_obrigado': '¡Gracias! ♥  — {autor}',
+        'apoio_link_copiado': '¡Enlace copiado! Pégalo para tus amigos.',
+
+        'intro_pular': 'Saltar tutorial',
+        'intro_passo_1': 'BIENVENIDO',
+        'intro_passo_2': 'PASO 1',
+        'intro_passo_3': 'PASO 2',
+        'intro_passo_4': 'PASO 3',
+        'intro_passo_5': 'PASO 4',
+        'intro_passo_6': 'DESPUÉS DEL REINICIO',
+        'intro_titulo_1': 'Empieza de nuevo solo el mapa que quieras',
+        'intro_texto_1': 'En el juego, reiniciar las misiones las borra en TODOS los mapas. Con este programa eliges '
+                         'qué mapas empiezan de nuevo, y el progreso de los demás se queda como está.\n\n'
+                         'La ventana tiene 4 pasos, de arriba abajo. Mira en 1 minuto cómo usarla.',
+        'intro_titulo_2': 'Elige la partida',
+        'intro_texto_2': 'El programa encuentra tu partida solo (Steam o Epic) y elige la que jugaste por última vez.'
+                         '\n\n'
+                         '¿Tienes más de una? Haz clic en "{trocar}" para elegir otra. Si no encuentra nada, usa '
+                         '"{escolher_pasta}".',
+        'intro_titulo_3': 'Haz una copia de la partida completa',
+        'intro_texto_3': 'Es opcional, pero recomendable, sobre todo la primera vez. El botón "{backup_save}" guarda '
+                         'una copia de TODOS los archivos de la partida, no solo las misiones.\n\n'
+                         'Se guardan hasta {limite_save} copias completas. La más antigua nunca se borra.',
+        'intro_titulo_4': 'Marca los mapas que quieres empezar de nuevo',
+        'intro_texto_4': 'Haz clic en la casilla (o en el nombre) de cada mapa. La barrita muestra cuánto has avanzado '
+                         'en las misiones de ese mapa.\n\n'
+                         'Los mapas con "{resetado}" ya están listos: sus misiones empiezan desde cero cuando entres '
+                         'en el mapa.',
+        'intro_titulo_5': 'Reiniciar',
+        'intro_texto_5': 'Cierra el juego, haz clic en el botón verde "{resetar}" y confirma. Antes, el programa hace '
+                         'solo una copia de las misiones (guarda hasta {limite_missoes}).\n\n'
+                         '¿Cambiaste de idea? Justo debajo del botón, usa "{restaurar}" (solo las misiones) o '
+                         '"{restaurar_save}" (la partida entera).',
+        'intro_titulo_6': 'Después del reinicio',
+        'intro_texto_6': 'Abre el juego normalmente. Si Steam Cloud o Epic Cloud pregunta qué versión usar, elige la '
+                         'LOCAL (de este ordenador). Entra en el mapa: las misiones empiezan desde cero.\n\n'
+                         '¿Quieres ver este tutorial otra vez? Haz clic en "{ajuda}", arriba en la ventana. ¡Buena '
+                         'caza!',
+        'il_mantem': '✓ sigue igual',
+        'il_recomeca': '↺ empieza de nuevo',
+        'il_clique_caixinha': 'Haz clic en la casilla para marcar el mapa',
+        'il_abra_jogo': 'Abre el juego normalmente',
+        'il_local': '¿Preguntó la nube? Elige la versión LOCAL',
+        'il_entre_mapa': 'Entra en el mapa: las misiones empiezan de cero',
     },
 }

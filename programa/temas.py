@@ -1,7 +1,10 @@
-"""Tema claro e tema escuro da janela.
+"""Tema claro e tema escuro da janela (visual minimalista).
+
+Tons neutros + UMA cor de destaque (verde) para "o que fazer agora" e um tom
+quente (laranja) só para "Apoiar o projeto".
 
 O tema inicial é o mesmo do Windows (Configurações > Personalização > Cores),
-ou o que o usuário escolheu no botão do rodapé (fica salvo junto com o idioma).
+ou o que o usuário escolheu no topo da janela (fica salvo junto com o idioma).
 """
 import ctypes
 import tkinter as tk
@@ -10,41 +13,39 @@ from tkinter import ttk
 import idiomas
 
 TEMAS = ('claro', 'escuro')
+FONTE = 'Segoe UI'
 
 CORES = {
     'claro': {
-        'fundo': None,              # None = cor padrão do Windows
-        'texto': None,
-        'texto_fraco': '#555555',
-        'link': '#0b5cd5',
-        'erro_texto': '#b42318',
-        'ok_texto': '#1a7f37',
-        'campo': 'SystemWindow',
-        'campo_texto': 'SystemWindowText',
-        'resetado_fundo': '#d6f5d6', 'resetado_texto': '#14532d',
-        'diferente_fundo': '#fff4ce',
-        'aviso_fundo': '#fff4ce', 'aviso_texto': '#5c4400', 'aviso_borda': '#e0c060',
-        'aviso_saves': '#9a5b00',
+        'fundo': '#f6f6f4', 'sup': '#ffffff', 'borda': '#e6e6e2',
+        'texto': '#1f2328', 'fraco': '#6b7280', 'fraquinho': '#a3a8b0',
+        'destaque': '#2f7d5b', 'destaque_suave': '#e9f3ee', 'destaque_texto': '#ffffff',
+        'destaque_hover': '#286b4e',
+        'aviso': '#a15c07', 'aviso_suave': '#fdf3e2', 'aviso_borda': '#ecd2a8',
+        'erro': '#b42318', 'erro_suave': '#fdecea',
+        'trilho': '#ececea',
+        'quente': '#c2620a', 'quente_suave': '#fdf1e3', 'quente_borda': '#f3d3ad', 'quente_hover': '#a9550a',
+        'hover': '#f0f0ec', 'selecao': '#dcebe3',
+        'diferente_fundo': '#fdf3e2',
     },
     'escuro': {
-        'fundo': '#202124',
-        'texto': '#e8eaed',
-        'texto_fraco': '#a0a4aa',
-        'link': '#8ab4f8',
-        'erro_texto': '#ff8a80',
-        'ok_texto': '#7ee2a8',
-        'campo': '#2b2d31',
-        'campo_texto': '#e8eaed',
-        'botao': '#3a3d42', 'botao_hover': '#4a4e55', 'botao_pressionado': '#55595f',
-        'borda': '#4a4d52',
-        'selecao': '#2f5d8a',
-        'cabecalho': '#33363b',
-        'resetado_fundo': '#1e4229', 'resetado_texto': '#a6e8b6',
-        'diferente_fundo': '#4d4214',
-        'aviso_fundo': '#3d3410', 'aviso_texto': '#ffe08a', 'aviso_borda': '#7a6420',
-        'aviso_saves': '#ffb454',
+        'fundo': '#121314', 'sup': '#1a1c1e', 'borda': '#2b2e32',
+        'texto': '#e8eaed', 'fraco': '#9aa0a6', 'fraquinho': '#5f646b',
+        'destaque': '#5cbf8c', 'destaque_suave': '#1b2a23', 'destaque_texto': '#0f1a14',
+        'destaque_hover': '#6fcc9b',
+        'aviso': '#e0a84a', 'aviso_suave': '#2a2215', 'aviso_borda': '#4d3b1c',
+        'erro': '#ff8a80', 'erro_suave': '#2d1a19',
+        'trilho': '#26292d',
+        'quente': '#f0a050', 'quente_suave': '#2b2016', 'quente_borda': '#5a3d1f', 'quente_hover': '#f5b26f',
+        'hover': '#222528', 'selecao': '#21352b',
+        'diferente_fundo': '#3a2f17',
     },
 }
+# nomes antigos, usados em algumas janelas
+for _c in CORES.values():
+    _c.update({'texto_fraco': _c['fraco'], 'link': _c['fraco'], 'erro_texto': _c['erro'],
+               'ok_texto': _c['destaque'], 'aviso_saves': _c['aviso'], 'aviso_texto': _c['aviso'],
+               'aviso_fundo': _c['aviso_suave'], 'campo': _c['sup'], 'campo_texto': _c['texto']})
 
 _atual = 'claro'
 
@@ -82,71 +83,116 @@ def definir(nome, salvar=True):
         idiomas.salvar_config(tema=_atual)
 
 
+ESCALA = 1.0   # 1.0 = 100% no Windows; 1.25 = 125% etc. (medida em medir())
+
+
+def medir(raiz):
+    """Mede o zoom do Windows, para as imagens e tamanhos acompanharem as letras."""
+    global ESCALA
+    try:
+        ESCALA = max(1.0, raiz.winfo_fpixels('1i') / 96)
+    except tk.TclError:
+        ESCALA = 1.0
+
+
+def px(n):
+    """Tamanho em pixels já com o zoom do Windows."""
+    return int(round(n * ESCALA))
+
+
+def fonte(tamanho=10, *estilos):
+    return (FONTE, tamanho, *estilos)
+
+
 def aplicar(raiz):
     """Aplica as cores do tema atual nos estilos ttk e nas opções padrão do Tk.
 
     Chame antes de criar os widgets (a janela é reconstruída ao trocar de tema)."""
+    medir(raiz)
     estilo = ttk.Style(raiz)
     c = CORES[_atual]
-    if _atual == 'claro':
-        estilo.theme_use('vista' if 'vista' in estilo.theme_names() else 'clam')
-        raiz.configure(bg='SystemButtonFace')
-    else:
-        estilo.theme_use('clam')
-        fundo, texto = c['fundo'], c['texto']
-        estilo.configure('.', background=fundo, foreground=texto, fieldbackground=c['campo'],
-                         bordercolor=c['borda'], darkcolor=fundo, lightcolor=fundo, troughcolor=fundo,
-                         selectbackground=c['selecao'], selectforeground=texto, insertcolor=texto,
-                         focuscolor=c['botao'])
-        estilo.configure('TButton', background=c['botao'], foreground=texto, bordercolor=c['borda'],
-                         lightcolor=c['botao'], darkcolor=c['botao'], padding=(10, 4))
-        estilo.map('TButton',
-                   background=[('disabled', fundo), ('pressed', c['botao_pressionado']),
-                               ('active', c['botao_hover'])],
-                   foreground=[('disabled', c['texto_fraco'])],
-                   lightcolor=[('active', c['botao_hover'])], darkcolor=[('active', c['botao_hover'])])
-        estilo.configure('TCombobox', fieldbackground=c['campo'], background=c['botao'], foreground=texto,
-                         arrowcolor=texto, bordercolor=c['borda'], lightcolor=c['campo'], darkcolor=c['campo'])
-        estilo.map('TCombobox',
-                   fieldbackground=[('readonly', c['campo'])], foreground=[('readonly', texto)],
-                   selectbackground=[('readonly', c['campo'])], selectforeground=[('readonly', texto)],
-                   background=[('active', c['botao_hover'])])
-        # No tema 'clam', o círculo é 'indicatorbackground' e a bolinha marcada é 'indicatorforeground'.
-        estilo.configure('TRadiobutton', background=fundo, foreground=texto, indicatorbackground=c['campo'],
-                         indicatorforeground=c['campo'], upperbordercolor=c['borda'], lowerbordercolor=c['borda'])
-        estilo.map('TRadiobutton',
-                   foreground=[('disabled', c['texto_fraco'])],
-                   indicatorforeground=[('selected', '#8ab4f8')],
-                   indicatorbackground=[('disabled', fundo)],
-                   background=[('active', fundo)])
-        estilo.configure('Treeview', background=c['campo'], fieldbackground=c['campo'], foreground=texto,
-                         bordercolor=c['borda'], lightcolor=c['campo'], darkcolor=c['campo'])
-        estilo.map('Treeview', background=[('selected', c['selecao'])], foreground=[('selected', texto)])
-        estilo.configure('Treeview.Heading', background=c['cabecalho'], foreground=texto,
-                         bordercolor=c['borda'], lightcolor=c['cabecalho'], darkcolor=c['cabecalho'])
-        estilo.map('Treeview.Heading', background=[('active', c['botao_hover'])])
-        estilo.configure('TScrollbar', background=c['botao'], troughcolor=fundo, arrowcolor=texto,
-                         bordercolor=c['borda'], lightcolor=c['botao'], darkcolor=c['botao'])
-        estilo.map('TScrollbar', background=[('active', c['botao_hover'])])
-        estilo.configure('TSeparator', background=c['borda'])
-        raiz.configure(bg=fundo)
-    estilo.configure('Fraco.TLabel', foreground=c['texto_fraco'])
-    estilo.configure('Link.TLabel', foreground=c['link'], font=('Segoe UI', 9, 'underline'))
-    estilo.configure('Negrito.TLabel', font=('Segoe UI', 9, 'bold'))
-    estilo.configure('Titulo.TLabel', font=('Segoe UI', 12, 'bold'))
+    estilo.theme_use('clam')
+    fundo, texto, sup, borda = c['fundo'], c['texto'], c['sup'], c['borda']
+    estilo.configure('.', background=fundo, foreground=texto, fieldbackground=sup, font=fonte(10),
+                     bordercolor=borda, darkcolor=fundo, lightcolor=fundo, troughcolor=fundo,
+                     selectbackground=c['selecao'], selectforeground=texto, insertcolor=texto,
+                     focuscolor=fundo)
+    estilo.configure('TFrame', background=fundo)
+    estilo.configure('Sup.TFrame', background=sup)
+    estilo.configure('TLabel', background=fundo, foreground=texto)
+
+    # Botões: neutro (contorno), principal (verde) e quente (Apoiar)
+    def botao(nome, bg, fg, hover, borda_bt, negrito=False, pad=(14, 7)):
+        estilo.configure(nome, background=bg, foreground=fg, bordercolor=borda_bt, lightcolor=bg, darkcolor=bg,
+                         padding=pad, relief='flat', focusthickness=0,
+                         font=fonte(10, 'bold') if negrito else fonte(10))
+        estilo.map(nome,
+                   background=[('disabled', fundo), ('pressed', hover), ('active', hover)],
+                   foreground=[('disabled', c['fraquinho'])],
+                   bordercolor=[('disabled', borda), ('active', borda_bt if bg != sup else c['fraquinho'])],
+                   lightcolor=[('active', hover), ('pressed', hover)],
+                   darkcolor=[('active', hover), ('pressed', hover)])
+    botao('TButton', sup, texto, c['hover'], borda)
+    botao('Primario.TButton', c['destaque'], c['destaque_texto'], c['destaque_hover'], c['destaque'], True)
+    botao('Grande.TButton', c['destaque'], c['destaque_texto'], c['destaque_hover'], c['destaque'], True,
+          pad=(22, 10))
+    botao('Quente.TButton', c['quente'], '#ffffff' if _atual == 'claro' else '#1a1208', c['quente_hover'],
+          c['quente'], True, pad=(12, 5))
+    botao('Aviso.TButton', c['aviso'], '#ffffff' if _atual == 'claro' else '#1a1208', c['aviso'], c['aviso'], True)
+
+    estilo.configure('TCombobox', fieldbackground=sup, background=sup, foreground=texto, arrowcolor=c['fraco'],
+                     bordercolor=borda, lightcolor=sup, darkcolor=sup, padding=4)
+    estilo.map('TCombobox',
+               fieldbackground=[('readonly', sup)], foreground=[('readonly', texto)],
+               selectbackground=[('readonly', sup)], selectforeground=[('readonly', texto)],
+               background=[('active', c['hover'])], bordercolor=[('focus', c['fraquinho'])])
+    estilo.configure('TRadiobutton', background=fundo, foreground=texto, indicatorbackground=sup,
+                     indicatorforeground=sup, upperbordercolor=c['fraquinho'], lowerbordercolor=c['fraquinho'],
+                     indicatormargin=(0, 0, 6, 0))
+    estilo.map('TRadiobutton',
+               foreground=[('disabled', c['fraquinho'])],
+               indicatorforeground=[('selected', c['destaque'])],
+               indicatorbackground=[('disabled', fundo)],
+               background=[('active', fundo)])
+    estilo.configure('Sup.TRadiobutton', background=sup)
+    estilo.map('Sup.TRadiobutton', background=[('active', sup)])
+    estilo.configure('Treeview', background=sup, fieldbackground=sup, foreground=texto, rowheight=24,
+                     bordercolor=borda, lightcolor=sup, darkcolor=sup)
+    estilo.map('Treeview', background=[('selected', c['selecao'])], foreground=[('selected', texto)])
+    estilo.configure('Treeview.Heading', background=fundo, foreground=c['fraco'], relief='flat',
+                     bordercolor=borda, lightcolor=fundo, darkcolor=fundo, font=fonte(9, 'bold'), padding=(6, 4))
+    estilo.map('Treeview.Heading', background=[('active', c['hover'])])
+    estilo.configure('TScrollbar', background=c['trilho'], troughcolor=fundo, arrowcolor=c['fraco'],
+                     bordercolor=fundo, lightcolor=c['trilho'], darkcolor=c['trilho'], gripcount=0, arrowsize=12)
+    estilo.map('TScrollbar', background=[('active', c['fraquinho'])])
+    estilo.configure('TSeparator', background=borda)
+    estilo.configure('TEntry', fieldbackground=sup, foreground=texto, bordercolor=borda, lightcolor=sup,
+                     darkcolor=sup, padding=5)
+
+    estilo.configure('Fraco.TLabel', foreground=c['fraco'])
+    estilo.configure('Fraquinho.TLabel', foreground=c['fraquinho'], font=fonte(9))
+    estilo.configure('Link.TLabel', foreground=c['fraco'], font=fonte(10, 'underline'))
+    estilo.configure('Negrito.TLabel', font=fonte(10, 'bold'))
+    estilo.configure('Titulo.TLabel', font=fonte(14, 'bold'))
+    estilo.configure('Sup.TLabel', background=sup)
+    estilo.configure('SupFraco.TLabel', background=sup, foreground=c['fraco'])
     # Lista que abre ao clicar numa caixa de opções (Combobox)
-    raiz.option_add('*TCombobox*Listbox.background', c['campo'])
-    raiz.option_add('*TCombobox*Listbox.foreground', c['campo_texto'])
-    raiz.option_add('*TCombobox*Listbox.selectBackground', c.get('selecao', 'SystemHighlight'))
-    raiz.option_add('*TCombobox*Listbox.selectForeground', c.get('texto') or 'SystemHighlightText')
+    raiz.option_add('*TCombobox*Listbox.background', sup)
+    raiz.option_add('*TCombobox*Listbox.foreground', texto)
+    raiz.option_add('*TCombobox*Listbox.selectBackground', c['selecao'])
+    raiz.option_add('*TCombobox*Listbox.selectForeground', texto)
+    raiz.option_add('*TCombobox*Listbox.font', fonte(10))
+    raiz.option_add('*Menu.background', sup)
+    raiz.option_add('*Menu.foreground', texto)
+    raiz.option_add('*Menu.activeBackground', c['selecao'])
+    raiz.option_add('*Menu.activeForeground', texto)
+    raiz.option_add('*Menu.font', fonte(10))
+    raiz.configure(bg=fundo)
 
 
 def preparar_janela(janela):
     """Cor de fundo e barra de título (escura no tema escuro) de uma janela."""
-    if _atual == 'escuro':
-        janela.configure(bg=cor('fundo'))
-    else:
-        janela.configure(bg='SystemButtonFace')
+    janela.configure(bg=cor('fundo'))
     barra_de_titulo(janela)
 
 
@@ -166,7 +212,7 @@ def barra_de_titulo(janela):
 
 def label_tk(pai, **opcoes):
     """tk.Label com as cores do tema (para os rótulos coloridos que não são ttk)."""
-    rotulo = tk.Label(pai, **opcoes)
-    if _atual == 'escuro' and 'bg' not in opcoes:
-        rotulo.configure(bg=cor('fundo'))
-    return rotulo
+    opcoes.setdefault('bg', cor('fundo'))
+    opcoes.setdefault('fg', cor('texto'))
+    opcoes.setdefault('font', fonte(10))
+    return tk.Label(pai, **opcoes)
