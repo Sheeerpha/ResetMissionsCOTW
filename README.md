@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🎯 ResetMissionsCOTW
+<img src="imagens/icone.png" width="96" alt="">
+
+# ResetMissionsCOTW
 
 ### Start over the missions of **one map** in theHunter: Call of the Wild, without losing the others.
 
@@ -27,6 +29,7 @@ Finished all the missions of a reserve and want to play them again? The game has
 | Other maps             | ❌ lost                             | ✅ untouched           |
 | Backup before changing | ❌ you have to remember             | ✅ automatic           |
 | Undo                   | ❌                                  | ✅ one click           |
+| Your original missions | ❌ gone                             | ✅ kept forever 🔒     |
 
 Only the **mission progress** of the maps you pick changes. Your profile, money, skills, perks, weapons, animals, trophies and everything else stay exactly as they are.
 
@@ -50,34 +53,42 @@ Want to be sure? All the code is right here, and the `.exe` in Releases is **bui
 
 ---
 
-## 🚀 How to use: 4 steps
+## 🚀 How to use: 5 steps
 
 Close the game, open the program and follow the window from top to bottom:
 
 | Step | What you do |
 |:---:|---|
-| **1** | **Choose the save.** It is found automatically (Steam or Epic), already picking the one you played last. |
-| **2** | **Back up the full save** *(recommended)*. One click copies the whole save folder. |
-| **3** | **Tick the maps** you want to start over. A small bar shows your progress on each one. |
-| **4** | **Reset.** Then open the game and enter the map: its missions start from scratch. |
+| **1** | **Check before you start.** The program makes sure nothing (the game, Steam, OneDrive…) is using the save files. Green ✓ = all set. |
+| **2** | **Choose the save.** It is found automatically (Steam or Epic), already picking the one you played last. |
+| **3** | **Back up the full save** *(recommended)*. One click copies the whole save folder; you can give it a name. |
+| **4** | **Tick the maps** you want to start over (or *Tick all*). A small bar shows your progress on each one. |
+| **5** | **Reset.** A confirmation screen shows each map → *starts from scratch*. Then open the game and enter the map. |
 
 > ☁️ **Steam Cloud / Epic Cloud:** if the game asks which save version to use, choose **LOCAL** (this computer). Choosing the cloud one undoes the reset.
 
-**Changed your mind?** Right below the Reset button: **Restore missions** or **Restore full save**.
+**Changed your mind?** Right below the Reset button there is a **Need to undo?** box with **Restore missions** and **Restore full save**, plus an illustrated *How does it work?* guide.
+
+> 🔒 **Your original missions are always safe.** The first time you use the program, it keeps a backup of your missions as they were. That **original backup is never deleted**, no matter how many resets you do. To get everything back: *Restore missions* → the green **🔒 Original backup** row at the top → *Restore this backup*.
+
+<div align="center"><img src="imagens/precisa_desfazer.png" alt="Need to undo? box" width="640"></div>
 
 ---
 
 ## ✨ Features
 
 **🔒 Safe**
-- Automatic backup of the missions file before every change (keeps 50) and a **full save backup** button (keeps 5). The very first backup of each kind is never deleted.
+- Automatic backup of the missions file before every change (keeps 50). The **original backup** 🔒, from before the first use, is **kept forever**.
+- **Full save backup** button (keeps 5), with an optional name. The newest one is never deleted, and the step turns yellow when your last full backup is more than 3 days old.
+- A clear **confirmation screen** before resetting and a **Done!** screen with what to do next.
 - Writes to a temporary file, re-reads it and checks everything byte by byte before replacing the real file.
 - Will not change anything while the game is open.
 - **Check before you start:** finds what could get in the way (the game, Steam, OneDrive, Google Drive, Dropbox, cloud folders, read-only files) and offers buttons like *Close Steam* or *Fix*. It never closes anything on its own or by force.
 
 **🧭 Simple**
-- One window, 4 numbered steps. What is done gets a ✓, what is next turns green.
-- A 6-screen illustrated tutorial the first time (reopen it anytime with *How to use*).
+- One window, 5 numbered steps. What is done gets a ✓, what is next turns green.
+- A 7-screen illustrated tutorial the first time (reopen it anytime with *How to use*), plus an illustrated **How to undo** guide.
+- *Tick all / Untick all* in the map list.
 - An illustrated guide if Windows Defender's *Controlled folder access* blocks the program.
 - Portuguese, English and Spanish · light and dark theme (follows Windows).
 
@@ -92,9 +103,11 @@ Close the game, open the program and follow the window from top to bottom:
 
 ## 🖼️ Screenshots
 
-| Dark theme | Tutorial |
+| Dark theme | Confirmation before resetting |
 |:---:|:---:|
-| <img src="imagens/janela_escuro.png" width="400"> | <img src="imagens/tutorial.png" width="320"> |
+| <img src="imagens/janela_escuro.png" width="400"> | <img src="imagens/confirmar.png" width="360"> |
+| **Tutorial** | **How to undo (original backup)** |
+| <img src="imagens/tutorial.png" width="340"> | <img src="imagens/como_desfazer.png" width="340"> |
 | **"Before you start"** | **Windows Defender guide** |
 | <img src="imagens/antes_de_comecar.png" width="320"> | <img src="imagens/guia_defender.png" width="400"> |
 
@@ -111,13 +124,13 @@ No. Only the missions of the maps you tick are reset. Every other map keeps its 
 <details>
 <summary><b>Can I undo a reset?</b></summary>
 
-Yes. A missions backup is made automatically before every reset. Use **Restore missions**: the window highlights in yellow what will change before you confirm. You can also restore the whole save from a full backup.
+Yes. A missions backup is made automatically before every reset. Use **Restore missions** in the *Need to undo?* box: the window highlights in yellow what will change before you confirm. You can also restore the whole save from a full backup. The *How does it work?* link teaches it step by step.
 </details>
 
 <details>
 <summary><b>Where are the backups?</b></summary>
 
-In `Documents\.BKP_ResetMissions_Saves_COTW` (a hidden folder), separated by account: `Backups_MISSIONS` and `Backups_SAVE`. The program has a **Backups folder** link that opens it.
+In `Documents\.BKP_ResetMissions_Saves_COTW` (a hidden folder), separated by account: `Backups_MISSIONS` (up to 50, plus the original 🔒 kept forever) and `Backups_SAVE` (up to 5; the oldest one stays protected for up to 3 days and the newest is never deleted). The program has a **Backups folder** link that opens it.
 </details>
 
 <details>
@@ -154,7 +167,7 @@ cd programa
 py -3 -m venv .venv
 .venv\Scripts\python.exe -m pip install pyinstaller
 .venv\Scripts\python.exe -X utf8 testes.py
-.venv\Scripts\python.exe -m PyInstaller --onefile --windowed --name ResetMissionsCOTW cotw_app.py
+.venv\Scripts\python.exe -m PyInstaller --onefile --windowed --name ResetMissionsCOTW --icon icone.ico --add-data "icone.ico;." cotw_app.py
 ```
 
 The tests generate synthetic saves on the fly, so no real save is needed. Releases are built by GitHub Actions (`.github/workflows/release.yml`) when a release is published.
@@ -198,18 +211,21 @@ No money to spare? A ⭐ on this page and telling your hunting friends helps a l
 
 > 🛡️ **"O Windows protegeu o computador" é normal.** Aparece em todo programa sem assinatura digital paga. Clique em **Mais informações** → **Executar assim mesmo**. O código está todo aqui, e o `.exe` é gerado pelo próprio GitHub.
 
-#### 🚀 Como usar: 4 passos
+#### 🚀 Como usar: 5 passos
 Feche o jogo, abra o programa e siga a janela de cima para baixo:
-1. **Escolha o save**: ele é encontrado sozinho (Steam ou Epic).
-2. **Faça um backup do save completo** *(recomendado)*.
-3. **Marque os mapas** que quer recomeçar.
-4. **Resetar.** Abra o jogo (se a nuvem perguntar, escolha **LOCAL**) e entre no mapa: as missões começam do zero.
+1. **Verificação antes de começar**: confere se nada está usando os arquivos do save.
+2. **Escolha o save**: ele é encontrado sozinho (Steam ou Epic).
+3. **Faça um backup do save completo** *(recomendado)*.
+4. **Marque os mapas** que quer recomeçar.
+5. **Resetar.** Confira a tela de confirmação, abra o jogo (se a nuvem perguntar, escolha **LOCAL**) e entre no mapa: as missões começam do zero.
 
-Para desfazer: **Restaurar missões** ou **Restaurar save completo**, logo abaixo do botão.
+Para desfazer: quadro **Precisa desfazer?**, logo abaixo do botão, com **Restaurar missões** e **Restaurar save completo** (e o tutorial *Como funciona?*).
+
+> 🔒 **Suas missões originais estão sempre guardadas.** Na primeira vez que você usa o programa, ele guarda um backup das suas missões como estavam, e esse **backup original nunca é apagado**. Para recuperar: *Restaurar missões* → linha verde **🔒 Backup original**, no topo → *Restaurar este backup*.
 
 #### ✨ Destaques
 - 🔒 Backup automático antes de cada alteração, conferência byte a byte e nada é alterado com o jogo aberto.
-- 🧭 Janela em 4 passos, tutorial ilustrado e guia com desenhos para liberar no Windows Defender.
+- 🧭 Janela em 5 passos, tela de confirmação, tela de "Pronto!", tutoriais ilustrados (uso e como desfazer) e guia com desenhos para liberar no Windows Defender.
 - 🔔 Avisa quando sai versão nova (sem enviar dados pessoais e sem baixar nada sozinho).
 - 🌐 Português, inglês e espanhol · tema claro e escuro.
 
@@ -234,18 +250,21 @@ Para desfazer: **Restaurar missões** ou **Restaurar save completo**, logo abaix
 
 > 🛡️ **"Windows protegió su PC" es normal.** Aparece con todo programa sin firma digital de pago. Haz clic en **Más información** → **Ejecutar de todas formas**. Todo el código está aquí, y el `.exe` lo genera el propio GitHub.
 
-#### 🚀 Cómo usarlo: 4 pasos
+#### 🚀 Cómo usarlo: 5 pasos
 Cierra el juego, abre el programa y sigue la ventana de arriba abajo:
-1. **Elige la partida**: se encuentra sola (Steam o Epic).
-2. **Haz una copia de seguridad de la partida completa** *(recomendado)*.
-3. **Marca los mapas** que quieres empezar de nuevo.
-4. **Reiniciar.** Abre el juego (si la nube pregunta, elige **LOCAL**) y entra en el mapa: las misiones empiezan desde cero.
+1. **Comprobación antes de empezar**: verifica que nada esté usando los archivos de la partida.
+2. **Elige la partida**: se encuentra sola (Steam o Epic).
+3. **Haz una copia de seguridad de la partida completa** *(recomendado)*.
+4. **Marca los mapas** que quieres empezar de nuevo.
+5. **Reiniciar.** Revisa la pantalla de confirmación, abre el juego (si la nube pregunta, elige **LOCAL**) y entra en el mapa: las misiones empiezan desde cero.
 
-Para deshacer: **Restaurar misiones** o **Restaurar partida completa**, justo debajo del botón.
+Para deshacer: cuadro **¿Necesitas deshacer?**, justo debajo del botón, con **Restaurar misiones** y **Restaurar partida completa** (y el tutorial *¿Cómo funciona?*).
+
+> 🔒 **Tus misiones originales siempre están guardadas.** La primera vez que usas el programa, guarda una copia de tus misiones como estaban, y esa **copia original nunca se borra**. Para recuperarla: *Restaurar misiones* → fila verde **🔒 Copia original**, arriba → *Restaurar esta copia*.
 
 #### ✨ Lo más destacado
 - 🔒 Copia automática antes de cada cambio, comprobación byte a byte y nada se cambia con el juego abierto.
-- 🧭 Ventana en 4 pasos, tutorial ilustrado y guía con dibujos para permitirlo en Windows Defender.
+- 🧭 Ventana en 5 pasos, pantalla de confirmación, pantalla de "¡Listo!", tutoriales ilustrados (uso y cómo deshacer) y guía con dibujos para permitirlo en Windows Defender.
 - 🔔 Avisa cuando sale una versión nueva (sin enviar datos personales y sin descargar nada solo).
 - 🌐 Portugués, inglés y español · tema claro y oscuro.
 

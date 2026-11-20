@@ -450,7 +450,6 @@ TEXTOS = {
         'passo4_nenhum': 'Marque pelo menos um mapa no passo 3.',
         'passo4_resumo': '{nomes}. Os outros mapas não mudam.',
         'conjuncao_e': ' e ',
-        'desfazer': 'Precisa desfazer?',
         'link_restaurar_missoes': 'Restaurar missões',
         'link_restaurar_save': 'Restaurar save completo',
         'link_pasta_backups': 'Pasta de backups',
@@ -520,7 +519,6 @@ TEXTOS = {
                        'aberto e NÃO é oficial.',
         'aviso_ponto_1': 'Altera SOMENTE as missões dos mapas que você escolher. Perfil, dinheiro, habilidades, '
                          'armas, animais e troféus não mudam.',
-        'aviso_ponto_2': 'Faz um backup sozinho antes de cada alteração, e você pode desfazer quando quiser.',
         'aviso_ponto_3': 'Pode ter falhas. Antes de alterar o save, recomendamos fazer o backup completo do save '
                          '("{bt_backup}") e fechar o jogo.',
         'aviso_apoio': 'O programa é gratuito e sempre vai ser. Se ele te ajudar, considere apoiar o projeto.',
@@ -543,45 +541,162 @@ TEXTOS = {
 
         # tutorial
         'intro_pular': 'Pular tutorial',
-        'intro_passo_1': 'BEM-VINDO',
-        'intro_passo_2': 'PASSO 1',
-        'intro_passo_3': 'PASSO 2',
-        'intro_passo_4': 'PASSO 3',
-        'intro_passo_5': 'PASSO 4',
-        'intro_passo_6': 'DEPOIS DO RESET',
-        'intro_titulo_1': 'Recomece só o mapa que você quiser',
-        'intro_texto_1': 'No jogo, resetar as missões apaga as de TODOS os mapas. Com este programa você escolhe '
-                         'quais mapas recomeçam, e o progresso dos outros continua como está.\n\n'
-                         'A janela tem 4 passos, de cima para baixo. Veja em 1 minuto como usar.',
-        'intro_titulo_2': 'Escolha o save',
-        'intro_texto_2': 'O programa encontra o seu save sozinho (Steam ou Epic) e já escolhe o que você jogou por '
-                         'último.\n\n'
-                         'Tem mais de um save? Clique em "{trocar}" para escolher outro. Se ele não encontrar nada, '
-                         'use "{escolher_pasta}".',
-        'intro_titulo_3': 'Faça um backup do save completo',
-        'intro_texto_3': 'É opcional, mas recomendado, principalmente na primeira vez. O botão "{backup_save}" guarda '
-                         'uma cópia de TODOS os arquivos do save, não só as missões.\n\n'
-                         'São guardados até {limite_save} backups completos. O mais antigo nunca é apagado.',
-        'intro_titulo_4': 'Marque os mapas que quer recomeçar',
-        'intro_texto_4': 'Clique na caixinha (ou no nome) de cada mapa. A barrinha mostra quanto você já avançou nas '
-                         'missões daquele mapa.\n\n'
-                         'Mapas com "{resetado}" já estão prontos: as missões deles começam do zero quando você '
-                         'entrar no mapa.',
-        'intro_titulo_5': 'Resetar',
-        'intro_texto_5': 'Feche o jogo, clique no botão verde "{resetar}" e confirme. Antes, o programa faz um backup '
-                         'das missões sozinho (guarda até {limite_missoes}).\n\n'
-                         'Mudou de ideia? Logo abaixo do botão, use "{restaurar}" (só as missões) ou '
-                         '"{restaurar_save}" (o save inteiro).',
-        'intro_titulo_6': 'Depois do reset',
-        'intro_texto_6': 'Abra o jogo normalmente. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar, '
-                         'escolha a LOCAL (deste computador). Entre no mapa: as missões começam do zero.\n\n'
-                         'Quer ver este tutorial de novo? Clique em "{ajuda}", no topo da janela. Boa caçada!',
         'il_mantem': '✓ continua igual',
         'il_recomeca': '↺ recomeça',
         'il_clique_caixinha': 'Clique na caixinha para marcar o mapa',
         'il_abra_jogo': 'Abra o jogo normalmente',
         'il_local': 'A nuvem perguntou? Escolha a versão LOCAL',
         'il_entre_mapa': 'Entre no mapa: as missões começam do zero',
+        # ---- 0.9.8: verificação como passo 1, desfazer, confirmação, "Pronto!", apelido, tutoriais
+        'passo_verif_titulo': 'Verificação antes de começar',
+        'link_verificar_de_novo': 'Verificar de novo',
+        'status_bloqueado': '●  O Windows está bloqueando o programa: veja o aviso amarelo acima',
+        'bt_novo_backup': '💾  Fazer novo backup',
+        'passo2_velho': 'Último backup há {dias} dias  ·  {tamanho}. Faça um novo antes de alterar o save.',
+        'link_marcar_todos': 'Marcar todos',
+        'link_desmarcar_todos': 'Desmarcar todos',
+        'desfazer': 'Precisa desfazer?',
+        'link_como_desfazer': 'Como funciona?',
+        'desfazer_sub': 'Mudou de ideia ou algo saiu errado? Dá para voltar atrás. Escolha o que você quer '
+                        'devolver:',
+        'bt_restaurar_missoes': '↺  Restaurar missões',
+        'desc_restaurar_missoes': 'Volta SÓ as missões para como estavam num backup automático. Inclui o '
+                                  'backup original 🔒, de antes do primeiro uso.',
+        'bt_restaurar_save_curto': '↺  Restaurar save completo',
+        'desc_restaurar_save': 'Volta o save INTEIRO (tudo do jogo) para como estava num backup completo '
+                               'feito por você.',
+        'espaco_backups': 'Backups ocupam {tamanho}',
+        'agradecimento': 'Muito obrigado aos amigos que contribuíram com testes, feedbacks e sugestões',
+        'backup_original': 'Backup original (antes do primeiro uso)',
+        'rest_original_nota': '🔒 O backup original guarda as suas missões como estavam antes de usar o programa '
+                              'pela primeira vez. Ele nunca é apagado.',
+        'backup_protegido_save': '🔒 protegido (até {dias} dias)',
+        'limite_backups_save': 'São guardados até {n} backups completos. O mais antigo fica protegido (🔒) por até '
+                               '{dias} dias; depois disso, a proteção passa para o próximo. O backup mais recente '
+                               'nunca é apagado.',
+        'aviso_ponto_2': 'Faz um backup sozinho antes de cada alteração e guarda PARA SEMPRE o backup original das '
+                         'suas missões, de antes do primeiro uso. Dá para desfazer quando quiser.',
+
+        # confirmação do reset
+        'conf_janela': 'Confirmar o reset',
+        'conf_titulo_um': 'Resetar as missões de 1 mapa?',
+        'conf_titulo_varios': 'Resetar as missões de {n} mapas?',
+        'conf_save': 'Save: {save}',
+        'conf_hoje': 'hoje: {c} de {t} concluídas',
+        'conf_zero': 'começa do zero',
+        'conf_mais': '+ {n} outro(s) mapa(s)',
+        'conf_outros': 'Os outros {n} mapa(s) não mudam.',
+        'conf_backup': 'Um backup das missões é feito antes, automaticamente.',
+        'conf_desfazer': 'Mudou de ideia depois? Use "{restaurar}", no quadro "Precisa desfazer?".',
+        'conf_sim_um': '↺  Sim, resetar 1 mapa',
+        'conf_sim_varios': '↺  Sim, resetar {n} mapas',
+
+        # "Pronto!"
+        'pronto_janela': 'Pronto!',
+        'pronto_titulo_um': 'Pronto! As missões de 1 mapa foram resetadas.',
+        'pronto_titulo_varios': 'Pronto! As missões de {n} mapas foram resetadas.',
+        'pronto_sub': 'Os outros mapas continuam como estavam, e um backup foi guardado.',
+        'pronto_agora': 'O que fazer agora',
+        'pronto_outros': 'Resetar outros mapas',
+        'pronto_desfazer': 'Desfazer este reset',
+
+        # apelido do backup completo
+        'apelido_janela': 'Backup do save completo',
+        'apelido_titulo': 'Dar um nome a este backup?',
+        'apelido_texto': 'Opcional: um nome ajuda a reconhecer este backup depois, na hora de restaurar. Pode '
+                         'deixar em branco.',
+        'apelido_exemplo': 'Exemplo: antes de resetar Yukon, antes de comprar o DLC…',
+        'apelido_fazer': '💾  Fazer backup',
+
+        # tutorial geral (7 telas)
+        'intro_ultimo_botao': 'Começar!',
+        'intro_passo_1': 'BEM-VINDO',
+        'intro_passo_2': 'PASSO 1',
+        'intro_passo_3': 'PASSO 2',
+        'intro_passo_4': 'PASSO 3',
+        'intro_passo_5': 'PASSO 4',
+        'intro_passo_6': 'PASSO 5',
+        'intro_passo_7': 'DEPOIS DO RESET',
+        'intro_titulo_1': 'Recomece só o mapa que você quiser',
+        'intro_texto_1': 'No jogo, resetar as missões apaga as de TODOS os mapas. Com este programa você escolhe '
+                         'quais mapas recomeçam, e o progresso dos outros continua como está.\n\n'
+                         'A janela tem 5 passos, de cima para baixo. Veja em 1 minuto como usar.',
+        'intro_titulo_2': 'Verificação antes de começar',
+        'intro_texto_2': 'O programa confere sozinho se o jogo, o Steam ou outro programa está usando os arquivos '
+                         'do save. Com tudo certo, o passo fica com ✓ verde.\n\n'
+                         'Se algo atrapalhar, ele fica amarelo: clique em "{detalhes}" para ver o que é e resolver, '
+                         'e depois em "{verificar}".',
+        'intro_titulo_3': 'Escolha o save',
+        'intro_texto_3': 'O programa encontra o seu save sozinho (Steam ou Epic) e já escolhe o que você jogou por '
+                         'último.\n\n'
+                         'Tem mais de um save? Clique em "{trocar}" para escolher outro. Se ele não encontrar nada, '
+                         'use "{escolher_pasta}".',
+        'intro_titulo_4': 'Faça um backup do save completo',
+        'intro_texto_4': 'Recomendado, principalmente na primeira vez: guarda uma cópia de TODOS os arquivos do '
+                         'save. Você pode dar um nome ao backup, para reconhecer depois.\n\n'
+                         'Se o último backup tiver mais de {dias} dias, o passo fica amarelo para lembrar você de '
+                         'fazer outro em "{novo_backup}".',
+        'intro_titulo_5': 'Marque os mapas que quer recomeçar',
+        'intro_texto_5': 'Clique na caixinha (ou no nome) de cada mapa, ou use "Marcar todos". A barrinha mostra '
+                         'quanto você já avançou nas missões daquele mapa.\n\n'
+                         'Mapas com "{resetado}" já estão prontos: as missões começam do zero quando você entrar '
+                         'no mapa.',
+        'intro_titulo_6': 'Resetar',
+        'intro_texto_6': 'Feche o jogo, clique no botão verde "{resetar}" e confira na tela de confirmação o que '
+                         'vai mudar. Antes, o programa faz um backup das missões sozinho.\n\n'
+                         'Logo abaixo fica o quadro "{desfazer}", com os botões para voltar atrás e o link '
+                         '"{como_desfazer}", que ensina passo a passo.',
+        'intro_titulo_7': 'Depois do reset',
+        'intro_texto_7': 'Abra o jogo normalmente. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar, '
+                         'escolha a LOCAL (deste computador). Entre no mapa: as missões começam do zero.\n\n'
+                         'Quer ver este tutorial de novo? Clique em "{ajuda}", no topo da janela. Boa caçada!',
+        'il_verif_1': 'Jogo fechado',
+        'il_verif_2': 'Nada está usando os arquivos do save',
+        'il_verif_3': 'Steam aberto: normalmente não atrapalha',
+
+        # tutorial "Como desfazer" (6 telas)
+        'desfazer_janela': 'Como desfazer',
+        'desfazer_ultimo_botao': 'Entendi',
+        'desfazer_passo_1': 'COMO DESFAZER',
+        'desfazer_passo_2': 'RESTAURAR MISSÕES · 1',
+        'desfazer_passo_3': 'RESTAURAR MISSÕES · 2',
+        'desfazer_passo_4': 'BACKUP ORIGINAL',
+        'desfazer_passo_5': 'SAVE COMPLETO',
+        'desfazer_passo_6': 'DEPOIS DE RESTAURAR',
+        'desfazer_titulo_1': 'Dois jeitos de voltar atrás',
+        'desfazer_texto_1': 'No quadro "{desfazer}", embaixo do botão de resetar:\n'
+                            '•  "{restaurar}": volta SÓ as missões. Use para desfazer um reset.\n'
+                            '•  "{restaurar_save}": volta o save INTEIRO (dinheiro, armas, animais, tudo). Use só '
+                            'se algo deu muito errado.',
+        'desfazer_titulo_2': 'Escolha o backup',
+        'desfazer_titulo_3': 'Confira e confirme',
+        'desfazer_texto_3': 'Embaixo, a tabela mostra cada mapa "Agora" e "Depois de restaurar". As linhas '
+                            'AMARELAS são as que vão mudar.\n\n'
+                            'Se estiver certo, clique em "Restaurar este backup" e confirme. O save atual também é '
+                            'guardado antes, então dá para voltar atrás de novo.',
+        'desfazer_titulo_4': 'O seu backup original 🔒',
+        'desfazer_texto_4': 'Na primeira vez que você usa o programa, ele guarda as suas missões como estavam. Esse '
+                            'backup original fica PARA SEMPRE, não importa quantos resets você faça depois.\n\n'
+                            'Para recuperar tudo como era: "{restaurar}" → escolha a linha verde "🔒 Backup '
+                            'original", sempre no topo da lista → "Restaurar este backup".',
+        'desfazer_titulo_5': 'Restaurar o save completo',
+        'desfazer_texto_5': 'Clique em "{restaurar_save}" e escolha um backup completo (o nome que você deu aparece '
+                            'na lista).\n\n'
+                            'Atenção: TUDO o que você jogou depois desse backup volta atrás, não só as missões. O save '
+                            'atual é guardado antes, por segurança.',
+        'desfazer_titulo_6': 'Depois de restaurar',
+        'desfazer_texto_6': 'Abra o jogo normalmente. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar, '
+                            'escolha a LOCAL (deste computador). Se escolher a da nuvem, a restauração é desfeita.\n\n'
+                            'Pronto: tudo volta a ficar como estava no backup escolhido.',
+        'il_amarelo': 'Amarelo = vai mudar',
+        'il_original_sempre': '🔒 Sempre no topo, nunca é apagado',
+        'il_apelido_exemplo': 'antes do DLC',
+        'il_save_aviso': 'Tudo o que foi jogado depois desse backup volta atrás',
+        'il_restaurado': 'Tudo volta como estava no backup',
+        'desfazer_texto_2': 'Clique em "{restaurar}". Abre a lista de backups das missões: o 🔒 backup original fica '
+                            'sempre em cima e, logo abaixo, os outros, do mais recente para o mais antigo. Cada um diz '
+                            'por que foi feito (ex.: "Antes de resetar Te Awaroa").\n\n'
+                            'Para desfazer o último reset, escolha o primeiro logo abaixo do 🔒.',
     },
 
     # =====================================================================
@@ -907,7 +1022,6 @@ TEXTOS = {
         'passo4_nenhum': 'Tick at least one map in step 3.',
         'passo4_resumo': '{nomes}. Other maps do not change.',
         'conjuncao_e': ' and ',
-        'desfazer': 'Need to undo?',
         'link_restaurar_missoes': 'Restore missions',
         'link_restaurar_save': 'Restore full save',
         'link_pasta_backups': 'Backups folder',
@@ -974,7 +1088,6 @@ TEXTOS = {
                        'official.',
         'aviso_ponto_1': 'It changes ONLY the missions of the maps you choose. Profile, money, skills, weapons, '
                          'animals and trophies do not change.',
-        'aviso_ponto_2': 'It makes a backup on its own before every change, and you can undo whenever you want.',
         'aviso_ponto_3': 'It may have bugs. Before changing the save, we recommend backing up the full save '
                          '("{bt_backup}") and closing the game.',
         'aviso_apoio': 'The program is free and always will be. If it helps you, please consider supporting the '
@@ -996,45 +1109,157 @@ TEXTOS = {
         'apoio_link_copiado': 'Link copied! Paste it to your friends.',
 
         'intro_pular': 'Skip tutorial',
-        'intro_passo_1': 'WELCOME',
-        'intro_passo_2': 'STEP 1',
-        'intro_passo_3': 'STEP 2',
-        'intro_passo_4': 'STEP 3',
-        'intro_passo_5': 'STEP 4',
-        'intro_passo_6': 'AFTER THE RESET',
-        'intro_titulo_1': 'Start over only the map you want',
-        'intro_texto_1': 'In the game, resetting missions wipes them on ALL maps. With this program you choose which '
-                         'maps start over, and the progress of the others stays as it is.\n\n'
-                         'The window has 4 steps, from top to bottom. See how to use it in 1 minute.',
-        'intro_titulo_2': 'Choose the save',
-        'intro_texto_2': 'The program finds your save on its own (Steam or Epic) and picks the one you played last.'
-                         '\n\n'
-                         'Have more than one save? Click "{trocar}" to pick another. If it finds nothing, use '
-                         '"{escolher_pasta}".',
-        'intro_titulo_3': 'Back up the full save',
-        'intro_texto_3': 'It is optional but recommended, especially the first time. The "{backup_save}" button keeps '
-                         'a copy of ALL the save files, not just the missions.\n\n'
-                         'Up to {limite_save} full backups are kept. The oldest one is never deleted.',
-        'intro_titulo_4': 'Tick the maps you want to start over',
-        'intro_texto_4': 'Click the box (or the name) of each map. The small bar shows how far you have got in the '
-                         'missions of that map.\n\n'
-                         'Maps marked "{resetado}" are ready: their missions start from scratch when you enter the '
-                         'map.',
-        'intro_titulo_5': 'Reset',
-        'intro_texto_5': 'Close the game, click the green "{resetar}" button and confirm. The program first backs up '
-                         'the missions on its own (keeps up to {limite_missoes}).\n\n'
-                         'Changed your mind? Right below the button, use "{restaurar}" (missions only) or '
-                         '"{restaurar_save}" (the whole save).',
-        'intro_titulo_6': 'After the reset',
-        'intro_texto_6': 'Open the game normally. If Steam Cloud or Epic Cloud asks which version to use, choose the '
-                         'LOCAL one (this computer). Enter the map: its missions start from scratch.\n\n'
-                         'Want to see this tutorial again? Click "{ajuda}" at the top of the window. Happy hunting!',
         'il_mantem': '✓ stays the same',
         'il_recomeca': '↺ starts over',
         'il_clique_caixinha': 'Click the box to tick the map',
         'il_abra_jogo': 'Open the game normally',
         'il_local': 'Cloud asked? Choose the LOCAL version',
         'il_entre_mapa': 'Enter the map: missions start from scratch',
+        # ---- 0.9.8
+        'passo_verif_titulo': 'Check before you start',
+        'link_verificar_de_novo': 'Check again',
+        'status_bloqueado': '●  Windows is blocking the program: see the yellow notice above',
+        'bt_novo_backup': '💾  Make a new backup',
+        'passo2_velho': 'Last backup {dias} days ago  ·  {tamanho}. Make a new one before changing the save.',
+        'link_marcar_todos': 'Tick all',
+        'link_desmarcar_todos': 'Untick all',
+        'desfazer': 'Need to undo?',
+        'link_como_desfazer': 'How does it work?',
+        'desfazer_sub': 'Changed your mind or something went wrong? You can go back. Choose what you want to bring '
+                        'back:',
+        'bt_restaurar_missoes': '↺  Restore missions',
+        'desc_restaurar_missoes': 'Brings ONLY the missions back to how they were in an automatic backup. Includes '
+                                  'the original backup 🔒, from before the first use.',
+        'bt_restaurar_save_curto': '↺  Restore full save',
+        'desc_restaurar_save': 'Brings the WHOLE save (everything in the game) back to how it was in a full backup '
+                               'you made.',
+        'espaco_backups': 'Backups use {tamanho}',
+        'agradecimento': 'Many thanks to the friends who helped with tests, feedback and suggestions',
+        'backup_original': 'Original backup (before the first use)',
+        'rest_original_nota': '🔒 The original backup keeps your missions as they were before you used the program '
+                              'for the first time. It is never deleted.',
+        'backup_protegido_save': '🔒 protected (up to {dias} days)',
+        'limite_backups_save': 'Up to {n} full backups are kept. The oldest one stays protected (🔒) for up to '
+                               '{dias} days; after that, the protection moves to the next one. The most recent backup '
+                               'is never deleted.',
+        'aviso_ponto_2': 'It makes a backup on its own before every change and keeps the ORIGINAL backup of your '
+                         'missions, from before the first use, FOREVER. You can undo whenever you want.',
+
+        'conf_janela': 'Confirm the reset',
+        'conf_titulo_um': 'Reset the missions of 1 map?',
+        'conf_titulo_varios': 'Reset the missions of {n} maps?',
+        'conf_save': 'Save: {save}',
+        'conf_hoje': 'today: {c} of {t} completed',
+        'conf_zero': 'starts from scratch',
+        'conf_mais': '+ {n} more map(s)',
+        'conf_outros': 'The other {n} map(s) do not change.',
+        'conf_backup': 'A missions backup is made first, automatically.',
+        'conf_desfazer': 'Changed your mind later? Use "{restaurar}" in the "Need to undo?" box.',
+        'conf_sim_um': '↺  Yes, reset 1 map',
+        'conf_sim_varios': '↺  Yes, reset {n} maps',
+
+        'pronto_janela': 'Done!',
+        'pronto_titulo_um': 'Done! The missions of 1 map were reset.',
+        'pronto_titulo_varios': 'Done! The missions of {n} maps were reset.',
+        'pronto_sub': 'The other maps stay as they were, and a backup was kept.',
+        'pronto_agora': 'What to do now',
+        'pronto_outros': 'Reset other maps',
+        'pronto_desfazer': 'Undo this reset',
+
+        'apelido_janela': 'Full save backup',
+        'apelido_titulo': 'Give this backup a name?',
+        'apelido_texto': 'Optional: a name helps you recognize this backup later, when restoring. You can leave it '
+                         'blank.',
+        'apelido_exemplo': 'Example: before resetting Yukon, before buying the DLC…',
+        'apelido_fazer': '💾  Back up',
+
+        'intro_ultimo_botao': 'Get started!',
+        'intro_passo_1': 'WELCOME',
+        'intro_passo_2': 'STEP 1',
+        'intro_passo_3': 'STEP 2',
+        'intro_passo_4': 'STEP 3',
+        'intro_passo_5': 'STEP 4',
+        'intro_passo_6': 'STEP 5',
+        'intro_passo_7': 'AFTER THE RESET',
+        'intro_titulo_1': 'Start over only the map you want',
+        'intro_texto_1': 'In the game, resetting missions wipes them on ALL maps. With this program you choose which '
+                         'maps start over, and the progress of the others stays as it is.\n\n'
+                         'The window has 5 steps, from top to bottom. See how to use it in 1 minute.',
+        'intro_titulo_2': 'Check before you start',
+        'intro_texto_2': 'The program checks on its own whether the game, Steam or another program is using the save '
+                         'files. When everything is fine, the step gets a green ✓.\n\n'
+                         'If something gets in the way, it turns yellow: click "{detalhes}" to see what it is and '
+                         'fix it, then "{verificar}".',
+        'intro_titulo_3': 'Choose the save',
+        'intro_texto_3': 'The program finds your save on its own (Steam or Epic) and picks the one you played last.'
+                         '\n\n'
+                         'Have more than one save? Click "{trocar}" to pick another. If it finds nothing, use '
+                         '"{escolher_pasta}".',
+        'intro_titulo_4': 'Back up the full save',
+        'intro_texto_4': 'Recommended, especially the first time: it keeps a copy of ALL the save files. You can give '
+                         'the backup a name to recognize it later.\n\n'
+                         'If the last backup is more than {dias} days old, the step turns yellow to remind you to '
+                         'make another one with "{novo_backup}".',
+        'intro_titulo_5': 'Tick the maps you want to start over',
+        'intro_texto_5': 'Click the box (or the name) of each map, or use "Tick all". The small bar shows how far you '
+                         'have got in the missions of that map.\n\n'
+                         'Maps marked "{resetado}" are ready: their missions start from scratch when you enter the '
+                         'map.',
+        'intro_titulo_6': 'Reset',
+        'intro_texto_6': 'Close the game, click the green "{resetar}" button and check on the confirmation screen what '
+                         'will change. The program first backs up the missions on its own.\n\n'
+                         'Right below is the "{desfazer}" box, with the buttons to go back and the "{como_desfazer}" '
+                         'link, which teaches it step by step.',
+        'intro_titulo_7': 'After the reset',
+        'intro_texto_7': 'Open the game normally. If Steam Cloud or Epic Cloud asks which version to use, choose the '
+                         'LOCAL one (this computer). Enter the map: its missions start from scratch.\n\n'
+                         'Want to see this tutorial again? Click "{ajuda}" at the top of the window. Happy hunting!',
+        'il_verif_1': 'Game closed',
+        'il_verif_2': 'Nothing is using the save files',
+        'il_verif_3': 'Steam open: usually not a problem',
+
+        'desfazer_janela': 'How to undo',
+        'desfazer_ultimo_botao': 'Got it',
+        'desfazer_passo_1': 'HOW TO UNDO',
+        'desfazer_passo_2': 'RESTORE MISSIONS · 1',
+        'desfazer_passo_3': 'RESTORE MISSIONS · 2',
+        'desfazer_passo_4': 'ORIGINAL BACKUP',
+        'desfazer_passo_5': 'FULL SAVE',
+        'desfazer_passo_6': 'AFTER RESTORING',
+        'desfazer_titulo_1': 'Two ways to go back',
+        'desfazer_texto_1': 'In the "{desfazer}" box, below the reset button:\n'
+                            '•  "{restaurar}": brings back ONLY the missions. Use it to undo a reset.\n'
+                            '•  "{restaurar_save}": brings back the WHOLE save (money, weapons, animals, everything). '
+                            'Use it only if something went really wrong.',
+        'desfazer_titulo_2': 'Choose the backup',
+        'desfazer_titulo_3': 'Check and confirm',
+        'desfazer_texto_3': 'Below, the table shows each map "Now" and "After restoring". The YELLOW rows are the ones '
+                            'that will change.\n\n'
+                            'If it looks right, click "Restore this backup" and confirm. The current save is kept '
+                            'first, so you can go back again.',
+        'desfazer_titulo_4': 'Your original backup 🔒',
+        'desfazer_texto_4': 'The first time you use the program, it keeps your missions as they were. This original '
+                            'backup stays FOREVER, no matter how many resets you do afterwards.\n\n'
+                            'To get everything back as it was: "{restaurar}" → choose the green "🔒 Original backup" '
+                            'row, always at the top of the list → "Restore this backup".',
+        'desfazer_titulo_5': 'Restore the full save',
+        'desfazer_texto_5': 'Click "{restaurar_save}" and choose a full backup (the name you gave it shows in the '
+                            'list).\n\n'
+                            'Warning: EVERYTHING you played after that backup goes back, not just the missions. The '
+                            'current save is kept first, just in case.',
+        'desfazer_titulo_6': 'After restoring',
+        'desfazer_texto_6': 'Open the game normally. If Steam Cloud or Epic Cloud asks which version to use, choose the '
+                            'LOCAL one (this computer). If you choose the cloud one, the restore is undone.\n\n'
+                            'Done: everything is back as it was in the chosen backup.',
+        'il_amarelo': 'Yellow = will change',
+        'il_original_sempre': '🔒 Always at the top, never deleted',
+        'il_apelido_exemplo': 'before the DLC',
+        'il_save_aviso': 'Everything played after this backup goes back',
+        'il_restaurado': 'Everything is back as it was in the backup',
+        'desfazer_texto_2': 'Click "{restaurar}". The list of mission backups opens: the 🔒 original backup is always '
+                            'at the top and, right below, the others, from the most recent to the oldest. Each one says '
+                            'why it was made (e.g. "Before resetting Te Awaroa").\n\n'
+                            'To undo the last reset, choose the first one right below the 🔒.',
     },
 
     # =====================================================================
@@ -1373,7 +1598,6 @@ TEXTOS = {
         'passo4_nenhum': 'Marca al menos un mapa en el paso 3.',
         'passo4_resumo': '{nomes}. Los demás mapas no cambian.',
         'conjuncao_e': ' y ',
-        'desfazer': '¿Necesitas deshacer?',
         'link_restaurar_missoes': 'Restaurar misiones',
         'link_restaurar_save': 'Restaurar partida completa',
         'link_pasta_backups': 'Carpeta de copias',
@@ -1442,7 +1666,6 @@ TEXTOS = {
                        'abierto y NO es oficial.',
         'aviso_ponto_1': 'Cambia SOLO las misiones de los mapas que elijas. Perfil, dinero, habilidades, armas, '
                          'animales y trofeos no cambian.',
-        'aviso_ponto_2': 'Hace una copia de seguridad solo antes de cada cambio, y puedes deshacerlo cuando quieras.',
         'aviso_ponto_3': 'Puede tener fallos. Antes de modificar la partida, te recomendamos hacer la copia de la '
                          'partida completa ("{bt_backup}") y cerrar el juego.',
         'aviso_apoio': 'El programa es gratuito y siempre lo será. Si te ayuda, considera apoyar el proyecto.',
@@ -1463,45 +1686,157 @@ TEXTOS = {
         'apoio_link_copiado': '¡Enlace copiado! Pégalo para tus amigos.',
 
         'intro_pular': 'Saltar tutorial',
-        'intro_passo_1': 'BIENVENIDO',
-        'intro_passo_2': 'PASO 1',
-        'intro_passo_3': 'PASO 2',
-        'intro_passo_4': 'PASO 3',
-        'intro_passo_5': 'PASO 4',
-        'intro_passo_6': 'DESPUÉS DEL REINICIO',
-        'intro_titulo_1': 'Empieza de nuevo solo el mapa que quieras',
-        'intro_texto_1': 'En el juego, reiniciar las misiones las borra en TODOS los mapas. Con este programa eliges '
-                         'qué mapas empiezan de nuevo, y el progreso de los demás se queda como está.\n\n'
-                         'La ventana tiene 4 pasos, de arriba abajo. Mira en 1 minuto cómo usarla.',
-        'intro_titulo_2': 'Elige la partida',
-        'intro_texto_2': 'El programa encuentra tu partida solo (Steam o Epic) y elige la que jugaste por última vez.'
-                         '\n\n'
-                         '¿Tienes más de una? Haz clic en "{trocar}" para elegir otra. Si no encuentra nada, usa '
-                         '"{escolher_pasta}".',
-        'intro_titulo_3': 'Haz una copia de la partida completa',
-        'intro_texto_3': 'Es opcional, pero recomendable, sobre todo la primera vez. El botón "{backup_save}" guarda '
-                         'una copia de TODOS los archivos de la partida, no solo las misiones.\n\n'
-                         'Se guardan hasta {limite_save} copias completas. La más antigua nunca se borra.',
-        'intro_titulo_4': 'Marca los mapas que quieres empezar de nuevo',
-        'intro_texto_4': 'Haz clic en la casilla (o en el nombre) de cada mapa. La barrita muestra cuánto has avanzado '
-                         'en las misiones de ese mapa.\n\n'
-                         'Los mapas con "{resetado}" ya están listos: sus misiones empiezan desde cero cuando entres '
-                         'en el mapa.',
-        'intro_titulo_5': 'Reiniciar',
-        'intro_texto_5': 'Cierra el juego, haz clic en el botón verde "{resetar}" y confirma. Antes, el programa hace '
-                         'solo una copia de las misiones (guarda hasta {limite_missoes}).\n\n'
-                         '¿Cambiaste de idea? Justo debajo del botón, usa "{restaurar}" (solo las misiones) o '
-                         '"{restaurar_save}" (la partida entera).',
-        'intro_titulo_6': 'Después del reinicio',
-        'intro_texto_6': 'Abre el juego normalmente. Si Steam Cloud o Epic Cloud pregunta qué versión usar, elige la '
-                         'LOCAL (de este ordenador). Entra en el mapa: las misiones empiezan desde cero.\n\n'
-                         '¿Quieres ver este tutorial otra vez? Haz clic en "{ajuda}", arriba en la ventana. ¡Buena '
-                         'caza!',
         'il_mantem': '✓ sigue igual',
         'il_recomeca': '↺ empieza de nuevo',
         'il_clique_caixinha': 'Haz clic en la casilla para marcar el mapa',
         'il_abra_jogo': 'Abre el juego normalmente',
         'il_local': '¿Preguntó la nube? Elige la versión LOCAL',
         'il_entre_mapa': 'Entra en el mapa: las misiones empiezan de cero',
+        # ---- 0.9.8
+        'passo_verif_titulo': 'Comprobación antes de empezar',
+        'link_verificar_de_novo': 'Comprobar de nuevo',
+        'status_bloqueado': '●  Windows está bloqueando el programa: mira el aviso amarillo de arriba',
+        'bt_novo_backup': '💾  Hacer una copia nueva',
+        'passo2_velho': 'Última copia hace {dias} días  ·  {tamanho}. Haz una nueva antes de modificar la partida.',
+        'link_marcar_todos': 'Marcar todos',
+        'link_desmarcar_todos': 'Desmarcar todos',
+        'desfazer': '¿Necesitas deshacer?',
+        'link_como_desfazer': '¿Cómo funciona?',
+        'desfazer_sub': '¿Cambiaste de idea o algo salió mal? Puedes volver atrás. Elige qué quieres recuperar:',
+        'bt_restaurar_missoes': '↺  Restaurar misiones',
+        'desc_restaurar_missoes': 'Devuelve SOLO las misiones a como estaban en una copia automática. Incluye la '
+                                  'copia original 🔒, de antes del primer uso.',
+        'bt_restaurar_save_curto': '↺  Restaurar partida completa',
+        'desc_restaurar_save': 'Devuelve la partida ENTERA (todo el juego) a como estaba en una copia completa hecha '
+                               'por ti.',
+        'espaco_backups': 'Las copias ocupan {tamanho}',
+        'agradecimento': 'Muchas gracias a los amigos que ayudaron con pruebas, comentarios y sugerencias',
+        'backup_original': 'Copia original (antes del primer uso)',
+        'rest_original_nota': '🔒 La copia original guarda tus misiones como estaban antes de usar el programa por '
+                              'primera vez. Nunca se borra.',
+        'backup_protegido_save': '🔒 protegida (hasta {dias} días)',
+        'limite_backups_save': 'Se guardan hasta {n} copias completas. La más antigua queda protegida (🔒) hasta '
+                               '{dias} días; después, la protección pasa a la siguiente. La copia más reciente nunca '
+                               'se borra.',
+        'aviso_ponto_2': 'Hace una copia sola antes de cada cambio y guarda PARA SIEMPRE la copia original de tus '
+                         'misiones, de antes del primer uso. Puedes deshacer cuando quieras.',
+
+        'conf_janela': 'Confirmar el reinicio',
+        'conf_titulo_um': '¿Reiniciar las misiones de 1 mapa?',
+        'conf_titulo_varios': '¿Reiniciar las misiones de {n} mapas?',
+        'conf_save': 'Partida: {save}',
+        'conf_hoje': 'hoy: {c} de {t} completadas',
+        'conf_zero': 'empieza desde cero',
+        'conf_mais': '+ {n} mapa(s) más',
+        'conf_outros': 'Los otros {n} mapa(s) no cambian.',
+        'conf_backup': 'Antes se hace una copia de las misiones, automáticamente.',
+        'conf_desfazer': '¿Cambias de idea después? Usa "{restaurar}" en el cuadro "¿Necesitas deshacer?".',
+        'conf_sim_um': '↺  Sí, reiniciar 1 mapa',
+        'conf_sim_varios': '↺  Sí, reiniciar {n} mapas',
+
+        'pronto_janela': '¡Listo!',
+        'pronto_titulo_um': '¡Listo! Se reiniciaron las misiones de 1 mapa.',
+        'pronto_titulo_varios': '¡Listo! Se reiniciaron las misiones de {n} mapas.',
+        'pronto_sub': 'Los demás mapas siguen como estaban, y se guardó una copia de seguridad.',
+        'pronto_agora': 'Qué hacer ahora',
+        'pronto_outros': 'Reiniciar otros mapas',
+        'pronto_desfazer': 'Deshacer este reinicio',
+
+        'apelido_janela': 'Copia de la partida completa',
+        'apelido_titulo': '¿Ponerle un nombre a esta copia?',
+        'apelido_texto': 'Opcional: un nombre te ayuda a reconocer esta copia después, al restaurar. Puedes dejarlo '
+                         'en blanco.',
+        'apelido_exemplo': 'Ejemplo: antes de reiniciar Yukon, antes de comprar el DLC…',
+        'apelido_fazer': '💾  Hacer copia',
+
+        'intro_ultimo_botao': '¡Empezar!',
+        'intro_passo_1': 'BIENVENIDO',
+        'intro_passo_2': 'PASO 1',
+        'intro_passo_3': 'PASO 2',
+        'intro_passo_4': 'PASO 3',
+        'intro_passo_5': 'PASO 4',
+        'intro_passo_6': 'PASO 5',
+        'intro_passo_7': 'DESPUÉS DEL REINICIO',
+        'intro_titulo_1': 'Empieza de nuevo solo el mapa que quieras',
+        'intro_texto_1': 'En el juego, reiniciar las misiones las borra en TODOS los mapas. Con este programa eliges '
+                         'qué mapas empiezan de nuevo, y el progreso de los demás se queda como está.\n\n'
+                         'La ventana tiene 5 pasos, de arriba abajo. Mira en 1 minuto cómo usarla.',
+        'intro_titulo_2': 'Comprobación antes de empezar',
+        'intro_texto_2': 'El programa comprueba solo si el juego, Steam u otro programa está usando los archivos de la '
+                         'partida. Si todo está bien, el paso lleva un ✓ verde.\n\n'
+                         'Si algo estorba, se pone amarillo: haz clic en "{detalhes}" para ver qué es y resolverlo, '
+                         'y después en "{verificar}".',
+        'intro_titulo_3': 'Elige la partida',
+        'intro_texto_3': 'El programa encuentra tu partida solo (Steam o Epic) y elige la que jugaste por última vez.'
+                         '\n\n'
+                         '¿Tienes más de una? Haz clic en "{trocar}" para elegir otra. Si no encuentra nada, usa '
+                         '"{escolher_pasta}".',
+        'intro_titulo_4': 'Haz una copia de la partida completa',
+        'intro_texto_4': 'Recomendable, sobre todo la primera vez: guarda una copia de TODOS los archivos de la '
+                         'partida. Puedes ponerle un nombre para reconocerla después.\n\n'
+                         'Si la última copia tiene más de {dias} días, el paso se pone amarillo para recordarte que '
+                         'hagas otra con "{novo_backup}".',
+        'intro_titulo_5': 'Marca los mapas que quieres empezar de nuevo',
+        'intro_texto_5': 'Haz clic en la casilla (o en el nombre) de cada mapa, o usa "Marcar todos". La barrita '
+                         'muestra cuánto has avanzado en las misiones de ese mapa.\n\n'
+                         'Los mapas con "{resetado}" ya están listos: sus misiones empiezan desde cero cuando entres '
+                         'en el mapa.',
+        'intro_titulo_6': 'Reiniciar',
+        'intro_texto_6': 'Cierra el juego, haz clic en el botón verde "{resetar}" y revisa en la pantalla de '
+                         'confirmación lo que va a cambiar. Antes, el programa hace solo una copia de las misiones.'
+                         '\n\n'
+                         'Justo debajo está el cuadro "{desfazer}", con los botones para volver atrás y el enlace '
+                         '"{como_desfazer}", que lo explica paso a paso.',
+        'intro_titulo_7': 'Después del reinicio',
+        'intro_texto_7': 'Abre el juego normalmente. Si Steam Cloud o Epic Cloud pregunta qué versión usar, elige la '
+                         'LOCAL (de este ordenador). Entra en el mapa: las misiones empiezan desde cero.\n\n'
+                         '¿Quieres ver este tutorial otra vez? Haz clic en "{ajuda}", arriba en la ventana. ¡Buena '
+                         'caza!',
+        'il_verif_1': 'Juego cerrado',
+        'il_verif_2': 'Nada está usando los archivos de la partida',
+        'il_verif_3': 'Steam abierto: normalmente no estorba',
+
+        'desfazer_janela': 'Cómo deshacer',
+        'desfazer_ultimo_botao': 'Entendido',
+        'desfazer_passo_1': 'CÓMO DESHACER',
+        'desfazer_passo_2': 'RESTAURAR MISIONES · 1',
+        'desfazer_passo_3': 'RESTAURAR MISIONES · 2',
+        'desfazer_passo_4': 'COPIA ORIGINAL',
+        'desfazer_passo_5': 'PARTIDA COMPLETA',
+        'desfazer_passo_6': 'DESPUÉS DE RESTAURAR',
+        'desfazer_titulo_1': 'Dos formas de volver atrás',
+        'desfazer_texto_1': 'En el cuadro "{desfazer}", debajo del botón de reiniciar:\n'
+                            '•  "{restaurar}": devuelve SOLO las misiones. Úsalo para deshacer un reinicio.\n'
+                            '•  "{restaurar_save}": devuelve la partida ENTERA (dinero, armas, animales, todo). Úsalo '
+                            'solo si algo salió muy mal.',
+        'desfazer_titulo_2': 'Elige la copia',
+        'desfazer_titulo_3': 'Revisa y confirma',
+        'desfazer_texto_3': 'Abajo, la tabla muestra cada mapa "Ahora" y "Después de restaurar". Las filas '
+                            'AMARILLAS son las que van a cambiar.\n\n'
+                            'Si está bien, haz clic en "Restaurar esta copia" y confirma. Antes se guarda la partida '
+                            'actual, así que puedes volver atrás de nuevo.',
+        'desfazer_titulo_4': 'Tu copia original 🔒',
+        'desfazer_texto_4': 'La primera vez que usas el programa, guarda tus misiones como estaban. Esa copia original '
+                            'se queda PARA SIEMPRE, no importa cuántos reinicios hagas después.\n\n'
+                            'Para recuperarlo todo como era: "{restaurar}" → elige la fila verde "🔒 Copia original", '
+                            'siempre arriba en la lista → "Restaurar esta copia".',
+        'desfazer_titulo_5': 'Restaurar la partida completa',
+        'desfazer_texto_5': 'Haz clic en "{restaurar_save}" y elige una copia completa (el nombre que le pusiste '
+                            'aparece en la lista).\n\n'
+                            'Atención: TODO lo que jugaste después de esa copia vuelve atrás, no solo las misiones. '
+                            'Antes se guarda la partida actual, por seguridad.',
+        'desfazer_titulo_6': 'Después de restaurar',
+        'desfazer_texto_6': 'Abre el juego normalmente. Si Steam Cloud o Epic Cloud pregunta qué versión usar, elige la '
+                            'LOCAL (de este ordenador). Si eliges la de la nube, la restauración se deshace.\n\n'
+                            'Listo: todo vuelve a estar como en la copia elegida.',
+        'il_amarelo': 'Amarillo = va a cambiar',
+        'il_original_sempre': '🔒 Siempre arriba, nunca se borra',
+        'il_apelido_exemplo': 'antes del DLC',
+        'il_save_aviso': 'Todo lo jugado después de esa copia vuelve atrás',
+        'il_restaurado': 'Todo vuelve como estaba en la copia',
+        'desfazer_texto_2': 'Haz clic en "{restaurar}". Se abre la lista de copias de las misiones: la 🔒 copia '
+                            'original siempre está arriba y, justo debajo, las demás, de la más reciente a la más '
+                            'antigua. Cada una dice por qué se hizo (ej.: "Antes de reiniciar Te Awaroa").\n\n'
+                            'Para deshacer el último reinicio, elige la primera justo debajo del 🔒.',
     },
 }

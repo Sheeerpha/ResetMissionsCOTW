@@ -29,7 +29,7 @@ jobs:
         run: python -X utf8 programa/testes.py
 
       - name: Build exe
-        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name ResetMissionsCOTW programa/cotw_app.py
+        run: python -m PyInstaller --noconfirm --clean --onefile --windowed --name ResetMissionsCOTW --icon programa/icone.ico --add-data "programa/icone.ico;." programa/cotw_app.py
 
       - name: Package
         shell: pwsh

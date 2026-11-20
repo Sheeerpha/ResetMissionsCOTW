@@ -20,7 +20,7 @@ import temas
 from idiomas import t
 from temas import px
 
-VERSAO = '0.9.7 (Beta)'
+VERSAO = '0.9.8 (Beta)'
 NOME_DO_PROGRAMA = 'ResetMissionsCOTW'
 TITULO = 'ResetMissionsCOTW (Beta)'
 AUTOR = 'Sheeerpha'
@@ -32,12 +32,21 @@ LINK_LIVEPIX = 'https://livepix.gg/sherpa'
 # Link do repositório no GitHub. '' = "será adicionado em breve".
 LINK_GITHUB = 'https://github.com/Sheeerpha/ResetMissionsCOTW'
 URL_PROTECAO_RANSOMWARE = 'windowsdefender://RansomwareProtection'
+# Easter egg do rodapé: amigos que ajudaram com testes, feedbacks e sugestões
+AMIGOS = ('Sr.ª V.', 'F. M.', 'B. Z.')
+CORACAO = '#e0475b'
 
 
 def caminho_do_programa():
     if getattr(sys, 'frozen', False):  # rodando como .exe
         return sys.executable
     return os.path.abspath(sys.argv[0])
+
+
+def caminho_recurso(nome):
+    """Arquivo que vai junto com o programa (dentro do .exe, ou ao lado do .py)."""
+    base = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base, nome)
 
 
 def abrir_link(link):
@@ -85,6 +94,10 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         temas.medir(self)
+        try:
+            self.iconbitmap(default=caminho_recurso('icone.ico'))   # ícone de todas as janelas
+        except tk.TclError:
+            pass
         larg = min(px(1000), self.winfo_screenwidth() - px(40))
         alt = min(px(740), self.winfo_screenheight() - px(90))
         self.geometry(f'{larg}x{alt}')
@@ -148,7 +161,7 @@ class App(tk.Tk):
         tag, link = resultado
         self.update_texto.config(text=t('update_disponivel', versao=tag))
         self.link_baixar.comando = lambda: abrir_link(link)
-        antes = self.linha_status if self.linha_status.winfo_manager() else self.passos[0][0]
+        antes = self.passos[0][0]
         self.faixa_update.pack(fill='x', padx=(self._recuo, 0), pady=(px(4), px(10)), before=antes)
 
     def ignorar_atualizacao(self):
@@ -221,6 +234,12 @@ class App(tk.Tk):
             self.link_github.pack(side='left', padx=px(18))
         self.pilula_apoio = comp.Pilula(centro, t('pilula_apoiar'), lambda: JanelaApoio(self))
         self.pilula_apoio.pack(side='left')
+        # Easter egg: coraçãozinho de agradecimento aos amigos que ajudaram
+        self.coracao = rotulo(centro, '♥', 'fraquinho', 10, cursor='heart')
+        self.coracao.pack(side='left', padx=(px(14), 0))
+        self.coracao.bind('<Enter>', lambda e: self.coracao.config(fg=CORACAO), add='+')
+        self.coracao.bind('<Leave>', lambda e: self.coracao.config(fg=temas.cor('fraquinho')), add='+')
+        comp.Dica(self.coracao, lambda: t('agradecimento') + '\n' + juntar_nomes(AMIGOS), atraso=150)
 
         # Topo: título e utilidades
         topo = ttk.Frame(self)
@@ -255,25 +274,18 @@ class App(tk.Tk):
                                       fundo=c['destaque_suave'])
         self.link_ignorar.pack(side='left', padx=px(16))
 
-        # Linha de status da "Verificação antes de começar"
-        self.linha_status = ttk.Frame(col)
-        self.linha_status.pack(fill='x', padx=(recuo, 0), pady=(px(4), px(12)))
-        self.status_verif = rotulo(self.linha_status, '', 'destaque', 10, cursor='hand2')
-        self.status_verif.pack(side='left')
-        self.status_verif.bind('<Button-1>', lambda e: self.abrir_verificacao())
-        self.link_detalhes = comp.Link(self.linha_status, t('link_detalhes'), self.abrir_verificacao)
-        self.link_detalhes.pack(side='left', padx=px(10))
         self.aviso_discreto = rotulo(col, '', 'aviso', 9, justify='left', anchor='w', wraplength=px(700))
 
         # Faixa do Windows Defender (só aparece se houver bloqueio)
         self._montar_faixa(col, recuo)
 
-        # Os 4 passos
+        # Os 5 passos
         self.passos = []
-        self._passo1(self._passo(col, 1))
-        self._passo2(self._passo(col, 2))
-        self._passo3(self._passo(col, 3))
-        self._passo4(self._passo(col, 4, ultimo=True))
+        self._passo_verificacao(self._passo(col, 1))
+        self._passo1(self._passo(col, 2))
+        self._passo2(self._passo(col, 3))
+        self._passo3(self._passo(col, 4))
+        self._passo4(self._passo(col, 5, ultimo=True))
         self.atualizar_passos()
 
     def _passo(self, col, n, ultimo=False):
@@ -295,13 +307,13 @@ class App(tk.Tk):
         return conteudo
 
     def _titulo_passo(self, pai, texto, extra=None):
+        """Título do passo; devolve a linha do título (para pôr links à direita)."""
         f = ttk.Frame(pai)
         f.pack(fill='x')
-        titulo = rotulo(f, texto.upper(), negrito=True, tamanho=11)
-        titulo.pack(side='left')
+        rotulo(f, texto.upper(), negrito=True, tamanho=11).pack(side='left')
         if extra:
             rotulo(f, extra, 'fraco', 10).pack(side='left', padx=(px(8), 0))
-        return titulo
+        return f
 
     def _montar_faixa(self, col, recuo):
         c = temas.CORES[temas.atual()]
@@ -326,7 +338,21 @@ class App(tk.Tk):
         self.faixa.columnconfigure(1, weight=1)
         self._recuo = recuo
 
-    # ---- passo 1: save
+    # ---- passo 1: verificação antes de começar
+    def _passo_verificacao(self, p):
+        self._titulo_passo(p, t('passo_verif_titulo'))
+        self.linha_status = ttk.Frame(p)
+        self.linha_status.pack(fill='x', pady=(px(4), 0))
+        self.status_verif = rotulo(self.linha_status, '', 'destaque', 10, cursor='hand2', wraplength=px(520),
+                                   justify='left')
+        self.status_verif.pack(side='left')
+        self.status_verif.bind('<Button-1>', lambda e: self.abrir_verificacao())
+        self.link_detalhes = comp.Link(self.linha_status, t('link_detalhes'), self.abrir_verificacao)
+        self.link_detalhes.pack(side='left', padx=(px(14), 0))
+        self.link_verificar = comp.Link(self.linha_status, t('link_verificar_de_novo'), self.verificar_de_novo)
+        self.link_verificar.pack(side='left', padx=(px(14), 0))
+
+    # ---- passo 2: save
     def _passo1(self, p):
         self._titulo_passo(p, t('passo1_titulo'))
         linha = ttk.Frame(p)
@@ -362,30 +388,36 @@ class App(tk.Tk):
         self.link_procurar.grid(row=1, column=2, sticky='w', padx=(px(12), px(14)), pady=(px(4), px(12)))
         self.painel_trocar.columnconfigure(1, weight=1)
 
-    # ---- passo 2: backup do save completo
+    # ---- passo 3: backup do save completo
     def _passo2(self, p):
         self._titulo_passo(p, t('passo2_titulo'), t('recomendado'))
         self.p2_sub = rotulo(p, t('passo2_sub'), 'fraco', 10, anchor='w', justify='left', wraplength=px(680))
         self.p2_sub.pack(fill='x', pady=(px(3), 0))
         self.p2_linha = ttk.Frame(p)
-        self.p2_resumo = rotulo(self.p2_linha, '', 'fraco', 10)
+        self.p2_resumo = rotulo(self.p2_linha, '', 'fraco', 10, anchor='w', justify='left', wraplength=px(440))
         self.p2_resumo.pack(side='left')
-        self.link_fazer_outro = comp.Link(self.p2_linha, t('link_fazer_outro'), self.fazer_backup_save)
-        self.link_fazer_outro.pack(side='left', padx=(px(14), 0))
+        self.bt_novo_backup = ttk.Button(self.p2_linha, text=t('bt_novo_backup'), command=self.pedir_backup_save)
+        self.bt_novo_backup.pack(side='left', padx=(px(16), 0))
+        self.link_fazer_outro = self.bt_novo_backup     # nome antigo
         self.bt_backup_save = ttk.Button(p, text=t('bt_backup_save'), style='Primario.TButton',
-                                         command=self.fazer_backup_save)
+                                         command=self.pedir_backup_save)
         self.p2_fim = ttk.Frame(p)
         self.p2_fim.pack(fill='x')
 
-    # ---- passo 3: mapas
+    # ---- passo 4: mapas
     def _passo3(self, p):
-        self._titulo_passo(p, t('passo3_titulo'))
+        cab = self._titulo_passo(p, t('passo3_titulo'))
+        self.link_desmarcar = comp.Link(cab, t('link_desmarcar_todos'), lambda: self.lista.selection_set(()),
+                                        tamanho=9)
+        self.link_desmarcar.pack(side='right')
+        self.link_marcar = comp.Link(cab, t('link_marcar_todos'), self.marcar_todos, tamanho=9)
+        self.link_marcar.pack(side='right', padx=(0, px(14)))
         self.p3_sub = rotulo(p, t('passo3_sub'), 'fraco', 10, anchor='w', justify='left', wraplength=px(680))
         self.p3_sub.pack(fill='x', pady=(px(3), 0))
         self.lista = ListaMapas(p, self.ao_marcar)
         self.lista.pack(fill='x', pady=(px(10), 0))
 
-    # ---- passo 4: resetar
+    # ---- passo 5: resetar (e o quadro "Precisa desfazer?")
     def _passo4(self, p):
         self._titulo_passo(p, t('passo4_titulo'))
         acao = ttk.Frame(p)
@@ -394,28 +426,60 @@ class App(tk.Tk):
         self.bt_reset.pack(side='left')
         self.p4_resumo = rotulo(acao, '', 'fraco', 10, anchor='w', justify='left', wraplength=px(500))
         self.p4_resumo.pack(side='left', padx=(px(16), 0), fill='x')
-        desfazer = ttk.Frame(p)
-        desfazer.pack(fill='x', pady=(px(14), 0))
-        rotulo(desfazer, t('desfazer'), 'fraco', 9).pack(side='left')
-        self.bt_restaurar = comp.Link(desfazer, t('link_restaurar_missoes'), self.janela_restaurar, tamanho=9)
-        self.bt_restaurar_save = comp.Link(desfazer, t('link_restaurar_save'), self.janela_restaurar_save, tamanho=9)
-        self.link_pasta_backups = comp.Link(desfazer, t('link_pasta_backups'), self.abrir_pasta_backups, tamanho=9)
-        for w in (self.bt_restaurar, self.bt_restaurar_save, self.link_pasta_backups):
-            w.pack(side='left', padx=(px(12), 0))
-        self.info = rotulo(p, '', 'fraquinho', 9, anchor='w', justify='left', wraplength=px(680))
-        self.info.pack(fill='x', pady=(px(6), 0))
+
+        c = temas.CORES[temas.atual()]
+        sup, fundo = c['sup'], c['fundo']
+        quadro = tk.Frame(p, bg=sup, highlightbackground=c['borda'], highlightthickness=1)
+        quadro.pack(fill='x', pady=(px(22), 0))
+        cab = tk.Frame(quadro, bg=sup)
+        cab.pack(fill='x', padx=px(16), pady=(px(14), px(2)))
+        rotulo(cab, '↩  ' + t('desfazer').upper(), negrito=True, tamanho=10, fundo=sup).pack(side='left')
+        self.link_como_desfazer = comp.Link(cab, t('link_como_desfazer'), self.mostrar_como_desfazer, forte=True,
+                                            fundo=sup, tamanho=9)
+        self.link_como_desfazer.pack(side='right')
+        rotulo(quadro, t('desfazer_sub'), 'fraco', 9, fundo=sup, wraplength=px(680), justify='left').pack(
+            fill='x', padx=px(16))
+        opcoes = tk.Frame(quadro, bg=sup)
+        opcoes.pack(fill='x', padx=px(16), pady=(px(10), px(4)))
+        opcoes.columnconfigure(0, weight=1, uniform='op')
+        opcoes.columnconfigure(1, weight=1, uniform='op')
+        itens = (('bt_restaurar', t('bt_restaurar_missoes'), t('desc_restaurar_missoes'), self.janela_restaurar),
+                 ('bt_restaurar_save', t('bt_restaurar_save_curto'), t('desc_restaurar_save'),
+                  self.janela_restaurar_save))
+        for coluna, (nome, texto, descricao, comando) in enumerate(itens):
+            caixa = tk.Frame(opcoes, bg=fundo, highlightbackground=c['borda'], highlightthickness=1)
+            caixa.grid(row=0, column=coluna, sticky='nsew', padx=(0, px(10)) if coluna == 0 else 0)
+            bt = ttk.Button(caixa, text=texto, command=comando)
+            bt.pack(anchor='w', padx=px(12), pady=(px(12), px(6)))
+            rotulo(caixa, descricao, 'fraco', 9, fundo=fundo, wraplength=px(310), justify='left').pack(
+                fill='x', padx=px(12), pady=(0, px(12)))
+            setattr(self, nome, bt)
+        rodape = tk.Frame(quadro, bg=sup)
+        rodape.pack(fill='x', padx=px(16), pady=(px(6), px(12)))
+        self.info = rotulo(rodape, '', 'fraquinho', 9, fundo=sup, wraplength=px(540), justify='left')
+        self.info.pack(side='left')
+        self.link_pasta_backups = comp.Link(rodape, t('link_pasta_backups'), self.abrir_pasta_backups, tamanho=9,
+                                            fundo=sup)
+        self.link_pasta_backups.pack(side='right')
 
     # --------------------------------------------------- estado dos passos
+    def _estado_verificacao(self):
+        r = self.verificacao
+        if self.bloqueado or (r is not None and r.impedimentos):
+            return 'aviso'
+        return 'feito' if r is not None else 'atual'
+
     def atualizar_passos(self):
         """Marca cada passo como feito (✓), atual (verde) ou esperando, e ajusta os textos."""
         s = self.save_atual
         circ = [c for _, c in self.passos]
-        # passo 1
+        circ[0].definir(self._estado_verificacao())
+        # passo 2: save
         if s is None:
-            circ[0].definir('atual')
+            circ[1].definir('atual')
             self.p1_resumo.config(text=t('nao_encontrei_save'), fg=temas.cor('aviso'))
         else:
-            circ[0].definir('feito')
+            circ[1].definir('feito')
             plat = s.plataforma if s.plataforma in ('Steam', 'Epic') else t('plat_outra')
             self.p1_resumo.config(text=t('passo1_resumo', plat=plat, id=id_curto(s.id), quando=s.quando_jogado()),
                                   fg=temas.cor('fraco'))
@@ -424,7 +488,7 @@ class App(tk.Tk):
                 self.link_trocar.pack(side='left', padx=(px(14), 0), before=self.link_escolher_pasta)
         else:
             self.link_trocar.pack_forget()
-        # passo 2
+        # passo 3: backup completo
         ultimo = None
         if s is not None and not self.bloqueado:
             try:
@@ -433,25 +497,32 @@ class App(tk.Tk):
                 backups = []
             ultimo = backups[0] if backups else None
         if ultimo is not None:
-            circ[1].definir('feito')
+            dias = (datetime.datetime.now() - ultimo.quando).days
+            velho = dias >= core.DIAS_PROTECAO_SAVE
+            circ[2].definir('atual' if velho else 'feito')
             self.p2_sub.pack_forget()
             self.bt_backup_save.pack_forget()
-            self.p2_resumo.config(text=t('passo2_feito', quando=quando_relativo(ultimo.quando),
-                                         tamanho=idiomas.tamanho(ultimo.tamanho)))
-            self.p2_linha.pack(fill='x', pady=(px(4), 0), before=self.p2_fim)
+            if velho:
+                self.p2_resumo.config(text=t('passo2_velho', dias=dias, tamanho=idiomas.tamanho(ultimo.tamanho)),
+                                      fg=temas.cor('aviso'))
+            else:
+                self.p2_resumo.config(text=t('passo2_feito', quando=quando_relativo(ultimo.quando),
+                                             tamanho=idiomas.tamanho(ultimo.tamanho)), fg=temas.cor('fraco'))
+            self.bt_novo_backup.config(style='Primario.TButton' if velho else 'TButton')
+            self.p2_linha.pack(fill='x', pady=(px(6), 0), before=self.p2_fim)
         else:
-            circ[1].definir('espera' if s is None or self.bloqueado else 'atual')
+            circ[2].definir('espera' if s is None or self.bloqueado else 'atual')
             self.p2_linha.pack_forget()
             self.p2_sub.pack(fill='x', pady=(px(3), 0), before=self.p2_fim)
             self.bt_backup_save.pack(anchor='w', pady=(px(10), 0), before=self.p2_fim)
-        # passos 3 e 4
+        # passos 4 e 5
         marcados = self.marcados()
         if s is None or self.bloqueado:
-            circ[2].definir('espera')
             circ[3].definir('espera')
+            circ[4].definir('espera')
         else:
-            circ[2].definir('feito' if marcados else 'atual')
-            circ[3].definir('atual' if marcados else 'espera')
+            circ[3].definir('feito' if marcados else 'atual')
+            circ[4].definir('atual' if marcados else 'espera')
         n = len(marcados)
         if n == 0:
             self.bt_reset.config(text=t('bt_resetar_nenhum'), style='TButton')
@@ -469,6 +540,14 @@ class App(tk.Tk):
             if not (self.mapas.get(k) and self.mapas[k].resetado):
                 out.append(k)
         return out
+
+    def marcar_todos(self):
+        self.lista.selection_set([i for i in self.lista.get_children()
+                                  if not (self.mapas.get(int(i)) and self.mapas[int(i)].resetado)])
+
+    def mostrar_como_desfazer(self):
+        if not any(isinstance(w, JanelaComoDesfazer) for w in self.winfo_children()):
+            JanelaComoDesfazer(self)
 
     def ao_marcar(self):
         self.atualizar_passos()
@@ -518,14 +597,22 @@ class App(tk.Tk):
         self.mostrar_status_verificacao(self.verificacao)
         return self.verificacao
 
+    def verificar_de_novo(self):
+        """Link "Verificar de novo" do passo 1."""
+        self.verificar_permissao()
+        self.verificar_agora()
+
     def mostrar_status_verificacao(self, r):
-        if r.impedimentos:
+        if self.bloqueado:
+            texto, cor = t('status_bloqueado'), temas.cor('aviso')
+        elif r.impedimentos:
             texto, cor = t('status_impede', n=len(r.impedimentos)), temas.cor('erro')
         elif r.avisos:
             texto, cor = t('status_avisos', n=len(r.avisos)), temas.cor('aviso')
         else:
             texto, cor = t('status_ok'), temas.cor('destaque')
         self.status_verif.config(text=texto, fg=cor)
+        self.passos[0][1].definir(self._estado_verificacao())
 
     def abrir_verificacao(self):
         if not any(isinstance(w, JanelaVerificacao) for w in self.winfo_children()):
@@ -587,9 +674,6 @@ class App(tk.Tk):
         self.bloqueado = erro is not None
         if erro is None:
             self.faixa.pack_forget()
-            if not self.linha_status.winfo_manager():
-                self.linha_status.pack(fill='x', padx=(self._recuo, 0), pady=(px(4), px(12)),
-                                       before=self.passos[0][0])
             core.migrar_pasta_antiga(self.raiz)
         else:
             registro.log_erro('Não foi possível gravar na pasta do programa', erro)
@@ -607,13 +691,14 @@ class App(tk.Tk):
                     bt.pack_forget()
             self.faixa_titulo.config(text=titulo.upper())
             self.faixa_texto.config(text=texto)
-            self.linha_status.pack_forget()
             self.faixa.pack(fill='x', padx=(self._recuo, 0), pady=(px(4), px(16)), before=self.passos[0][0])
         estado = ['disabled'] if self.bloqueado else ['!disabled']
         for bt in (self.bt_reset, self.bt_restaurar, self.bt_backup_save, self.bt_restaurar_save,
-                   self.link_fazer_outro):
+                   self.bt_novo_backup):
             bt.state(estado)
         self.atualizar_passos()
+        if self.verificacao is not None:
+            self.mostrar_status_verificacao(self.verificacao)
         return not self.bloqueado
 
     def mostrar_passo_a_passo(self):
@@ -758,6 +843,8 @@ class App(tk.Tk):
         partes.append(t('n_backups', n=n) if n else t('nenhum_backup_ainda'))
         n_save = len(core.listar_backups_save(s, self.raiz))
         partes.append(t('n_backups_save', n=n_save) if n_save else t('nenhum_backup_save'))
+        if n or n_save:
+            partes.append(t('espaco_backups', tamanho=idiomas.tamanho(core.tamanho_dos_backups(s, self.raiz))))
         self.info.config(text='  ·  '.join(partes), fg=temas.cor('fraquinho'))
         self.atualizar_passos()
 
@@ -775,6 +862,9 @@ class App(tk.Tk):
             messagebox.showwarning(TITULO, t('aviso_usar_faixa'), parent=parent)
             return False
         return self.checar_antes(parent)
+
+    # Confirmação, "Pronto!" e apelido do backup em janelas próprias (os testes usam as caixinhas simples).
+    janelas_visuais = True
 
     def resetar(self):
         if self.save_atual is None:
@@ -802,8 +892,14 @@ class App(tk.Tk):
                 return
             if resposta and not self.fazer_backup_save(perguntar_ok=False, ja_verificado=True):
                 return
-        if not messagebox.askyesno(TITULO, t('confirmar_reset', save=self.save_atual.nome_curto(),
-                                             detalhes=detalhes), icon='warning'):
+        if self.janelas_visuais:
+            janela = JanelaConfirmarReset(self, [self.mapas[k] for k in sel], ja)
+            self.wait_window(janela)
+            confirmado = janela.confirmado
+        else:
+            confirmado = messagebox.askyesno(TITULO, t('confirmar_reset', save=self.save_atual.nome_curto(),
+                                                       detalhes=detalhes), icon='warning')
+        if not confirmado:
             return
         registro.log(f'Reset pedido: {", ".join(core.nome_do_mapa(k) for k in sel)}')
         try:
@@ -819,7 +915,10 @@ class App(tk.Tk):
         for k in sel:
             if self.lista.exists(str(k)):
                 self.lista.see(str(k))
-        messagebox.showinfo(TITULO, t('reset_ok', nomes=nomes))
+        if self.janelas_visuais:
+            JanelaPronto(self, sel)
+        else:
+            messagebox.showinfo(TITULO, t('reset_ok', nomes=nomes))
 
     def abrir_backups(self):
         if self.save_atual is not None:
@@ -849,7 +948,21 @@ class App(tk.Tk):
         JanelaRestaurar(self, backups)
 
     # ------------------------------------------------------- save completo
-    def fazer_backup_save(self, perguntar_ok=True, parent=None, ja_verificado=False):
+    def pedir_backup_save(self, parent=None):
+        """Botões de backup completo: pergunta um apelido opcional e faz o backup."""
+        if self.save_atual is None:
+            messagebox.showinfo(TITULO, t('nenhum_save_escolhido'), parent=parent)
+            return False
+        apelido = ''
+        if self.janelas_visuais:
+            janela = JanelaApelido(self, parent=parent)
+            self.wait_window(janela)
+            if janela.apelido is None:
+                return False
+            apelido = janela.apelido
+        return self.fazer_backup_save(parent=parent, apelido=apelido)
+
+    def fazer_backup_save(self, perguntar_ok=True, parent=None, ja_verificado=False, apelido=''):
         """Copia a pasta inteira do save. Devolve True se deu certo."""
         if self.save_atual is None:
             messagebox.showinfo(TITULO, t('nenhum_save_escolhido'), parent=parent)
@@ -859,7 +972,7 @@ class App(tk.Tk):
         self.config(cursor='watch')
         self.update_idletasks()
         try:
-            b = core.fazer_backup_save_completo(self.save_atual, self.raiz)
+            b = core.fazer_backup_save_completo(self.save_atual, self.raiz, apelido=apelido)
         except (OSError, core.ErroSave) as e:
             self.config(cursor='')
             self.mostrar_erro(e, 'Backup do save completo', prefixo='nao_foi_possivel_backup_save', parent=parent)
@@ -1097,15 +1210,24 @@ class JanelaRestaurar(Janela):
                                       ('oque', 'col_motivo', 600, 'w')]:
             self.lista.heading(col, text=t(chave))
             self.lista.column(col, width=px(larg), anchor=anc, stretch=(col == 'oque'))
-        for i, b in enumerate(backups):
-            motivo = f'{b.titulo}     {t("backup_protegido")}' if b.protegido else b.titulo
-            self.lista.insert('', 'end', iid=str(i), values=(idiomas.data(b.quando), f'{b.quando:%H:%M:%S}',
-                                                              motivo))
+        self.lista.tag_configure('original', background=temas.cor('destaque_suave'),
+                                 foreground=temas.cor('destaque'), font=temas.fonte(10, 'bold'))
+        # O backup original (🔒, de antes do primeiro uso) fica sempre em cima, destacado.
+        ordem = sorted(range(len(backups)), key=lambda i: (not backups[i].protegido, i))
+        for i in ordem:
+            b = backups[i]
+            if b.protegido:
+                motivo, tags = f'🔒 {t("backup_original")}   ·   {b.titulo}', ('original',)
+            else:
+                motivo, tags = b.titulo, ()
+            self.lista.insert('', 'end', iid=str(i), tags=tags,
+                              values=(idiomas.data(b.quando), f'{b.quando:%H:%M:%S}', motivo))
         barra = ttk.Scrollbar(cima, orient='vertical', command=self.lista.yview)
         self.lista.configure(yscrollcommand=barra.set)
         self.lista.pack(side='left', fill='x', expand=True)
         barra.pack(side='left', fill='y')
         self.lista.bind('<<TreeviewSelect>>', lambda e: self.mostrar_detalhes())
+        rotulo(corpo, t('rest_original_nota'), 'destaque', 9, wraplength=px(860), justify='left').pack(fill='x')
         rotulo(corpo, t('limite_backups', n=core.LIMITE_MISSOES), 'fraquinho', 9).pack(fill='x')
 
         rotulo(corpo, t('rest_passo2'), negrito=True).pack(fill='x', pady=(px(12), 0))
@@ -1222,14 +1344,15 @@ class JanelaRestaurarSave(Janela):
             self.lista.heading(col, text=t(chave))
             self.lista.column(col, width=px(larg), anchor=anc, stretch=(col == 'oque'))
         for i, b in enumerate(backups):
-            motivo = f'{b.titulo}     {t("backup_protegido")}' if b.protegido else b.titulo
+            motivo = f'{b.titulo}     {t("backup_protegido_save", dias=core.DIAS_PROTECAO_SAVE)}' if b.protegido else b.titulo
             self.lista.insert('', 'end', iid=str(i), values=(idiomas.data(b.quando), f'{b.quando:%H:%M:%S}',
                                                               motivo, idiomas.tamanho(b.tamanho)))
         barra = ttk.Scrollbar(meio, orient='vertical', command=self.lista.yview)
         self.lista.configure(yscrollcommand=barra.set)
         self.lista.pack(side='left', fill='both', expand=True)
         barra.pack(side='left', fill='y')
-        rotulo(corpo, t('limite_backups', n=core.LIMITE_SAVE), 'fraquinho', 9).pack(fill='x')
+        rotulo(corpo, t('limite_backups_save', n=core.LIMITE_SAVE, dias=core.DIAS_PROTECAO_SAVE), 'fraquinho', 9,
+               wraplength=px(800), justify='left').pack(fill='x')
 
         bts = ttk.Frame(corpo)
         bts.pack(side='bottom', fill='x', pady=(px(12), 0), before=corpo.winfo_children()[0])
@@ -1266,6 +1389,165 @@ class JanelaRestaurarSave(Janela):
         self.app.recarregar()
         self.app.avisar_resultado(antes)
         messagebox.showinfo(TITULO, t('save_restaurado'))
+
+
+def _linha_com_icone(pai, estado, texto, simbolo='!', largura=None, fundo=None):
+    """Linha com um circulinho (✓ verde, ! amarelo ou número) e o texto ao lado."""
+    linha = tk.Frame(pai, bg=fundo or temas.cor('fundo'))
+    linha.pack(fill='x', pady=px(4))
+    circ = comp.Circulo(linha, simbolo, fundo=fundo, tam=px(22))
+    circ.definir(estado)
+    circ.itemconfigure(circ._txt, font=temas.fonte(9, 'bold'))
+    circ.pack(side='left', anchor='n', padx=(0, px(12)))
+    rotulo(linha, texto, wraplength=largura or px(460), justify='left', fundo=fundo).pack(side='left', fill='x')
+    return linha
+
+
+class JanelaConfirmarReset(Janela):
+    """Confirmação do reset: cada mapa com o progresso de hoje → "começa do zero"."""
+
+    MAXIMO_LINHAS = 8
+
+    def __init__(self, app, mapas, ignorados=()):
+        n = len(mapas)
+        super().__init__(app, t('conf_janela'))
+        self.confirmado = False
+        self.protocol('WM_DELETE_WINDOW', self.cancelar)
+        c = temas.CORES[temas.atual()]
+        sup = c['sup']
+
+        corpo = ttk.Frame(self, padding=(px(26), px(22), px(26), px(18)))
+        corpo.pack(fill='both', expand=True)
+        cab = ttk.Frame(corpo)
+        cab.pack(fill='x')
+        icone = comp.Circulo(cab, '↺', tam=px(40))
+        icone.definir('atual')
+        icone.itemconfigure(icone._txt, font=temas.fonte(15, 'bold'))
+        icone.pack(side='left', padx=(0, px(14)))
+        textos = ttk.Frame(cab)
+        textos.pack(side='left', fill='x')
+        self.titulo = (t('conf_titulo_um') if n == 1 else t('conf_titulo_varios', n=n)).upper()
+        rotulo(textos, self.titulo, negrito=True, tamanho=13).pack(anchor='w')
+        rotulo(textos, t('conf_save', save=app.save_atual.nome_curto()), 'fraco', 9).pack(anchor='w')
+
+        lista = tk.Frame(corpo, bg=sup, highlightbackground=c['borda'], highlightthickness=1)
+        lista.pack(fill='x', pady=(px(16), px(4)))
+        lista.columnconfigure(0, weight=1)
+        for i, m in enumerate(mapas[:self.MAXIMO_LINHAS]):
+            py_ = (px(10) if i == 0 else px(3), px(10) if i == min(n, self.MAXIMO_LINHAS) - 1 else px(3))
+            rotulo(lista, m.nome, negrito=True, fundo=sup).grid(row=i, column=0, sticky='w', padx=(px(14), px(10)),
+                                                                pady=py_)
+            rotulo(lista, t('conf_hoje', c=m.concluidas, t=m.total), 'fraco', 9, fundo=sup).grid(
+                row=i, column=1, sticky='e', pady=py_)
+            rotulo(lista, '→', 'destaque', 11, negrito=True, fundo=sup).grid(row=i, column=2, padx=px(10), pady=py_)
+            rotulo(lista, t('conf_zero'), 'destaque', 9, negrito=True, fundo=sup).grid(
+                row=i, column=3, sticky='w', padx=(0, px(14)), pady=py_)
+        if n > self.MAXIMO_LINHAS:
+            rotulo(lista, t('conf_mais', n=n - self.MAXIMO_LINHAS), 'fraco', 9, fundo=sup).grid(
+                row=self.MAXIMO_LINHAS, column=0, columnspan=4, sticky='w', padx=px(14), pady=(0, px(10)))
+        if ignorados:
+            rotulo(corpo, t('ignorados', nomes=', '.join(core.nome_do_mapa(k) for k in ignorados)), 'fraquinho',
+                   9, wraplength=px(500), justify='left').pack(fill='x')
+
+        outros = len([k for k in app.mapas if k not in {m.chave for m in mapas}])
+        checks = ttk.Frame(corpo)
+        checks.pack(fill='x', pady=(px(12), 0))
+        _linha_com_icone(checks, 'feito', t('conf_outros', n=outros))
+        _linha_com_icone(checks, 'feito', t('conf_backup'))
+        _linha_com_icone(checks, 'aviso', t('conf_desfazer', restaurar=idiomas.sem_icone(t('bt_restaurar_missoes'))))
+
+        bts = ttk.Frame(corpo)
+        bts.pack(fill='x', pady=(px(18), 0))
+        self.bt_sim = ttk.Button(bts, text=t('conf_sim_um') if n == 1 else t('conf_sim_varios', n=n),
+                                 style='Primario.TButton', command=self.confirmar)
+        self.bt_sim.pack(side='right')
+        ttk.Button(bts, text=t('bt_cancelar'), command=self.cancelar).pack(side='right', padx=(0, px(10)))
+        self.bind('<Escape>', lambda e: self.cancelar())
+        _centralizar(self, app)
+        self.bt_sim.focus_set()
+
+    def confirmar(self):
+        self.confirmado = True
+        self.destroy()
+
+    def cancelar(self):
+        self.confirmado = False
+        self.destroy()
+
+
+class JanelaPronto(Janela):
+    """Depois do reset: "Pronto!" e o que fazer agora."""
+
+    def __init__(self, app, chaves):
+        super().__init__(app, t('pronto_janela'))
+        n = len(chaves)
+        c = temas.CORES[temas.atual()]
+        corpo = ttk.Frame(self, padding=(px(30), px(24), px(30), px(20)))
+        corpo.pack(fill='both', expand=True)
+        icone = comp.Circulo(corpo, '', tam=px(56))
+        icone.definir('feito')
+        icone.pack(anchor='w')
+        self.titulo = (t('pronto_titulo_um') if n == 1 else t('pronto_titulo_varios', n=n)).upper()
+        rotulo(corpo, self.titulo, negrito=True, tamanho=14, wraplength=px(500), justify='left').pack(
+            anchor='w', pady=(px(14), px(4)))
+        nomes = juntar_nomes(core.nome_do_mapa(k) for k in chaves)
+        rotulo(corpo, f'{nomes}. ' + t('pronto_sub'), 'fraco', 10, wraplength=px(500), justify='left').pack(
+            anchor='w')
+
+        sup = c['sup']
+        agora = tk.Frame(corpo, bg=sup, highlightbackground=c['borda'], highlightthickness=1)
+        agora.pack(fill='x', pady=(px(18), 0))
+        dentro = tk.Frame(agora, bg=sup)
+        dentro.pack(fill='x', padx=px(16), pady=px(14))
+        rotulo(dentro, t('pronto_agora').upper(), negrito=True, tamanho=9, fundo=sup).pack(anchor='w',
+                                                                                          pady=(0, px(6)))
+        for i, chave in enumerate(('il_abra_jogo', 'il_local', 'il_entre_mapa'), start=1):
+            _linha_com_icone(dentro, 'atual' if i == 1 else 'espera', t(chave), simbolo=str(i), fundo=sup)
+
+        bts = ttk.Frame(corpo)
+        bts.pack(fill='x', pady=(px(20), 0))
+        ttk.Button(bts, text=t('pronto_outros'), style='Primario.TButton', command=self.destroy).pack(side='right')
+        ttk.Button(bts, text=t('pronto_desfazer'), command=self.desfazer).pack(side='left')
+        _centralizar(self, app)
+
+    def desfazer(self):
+        self.destroy()
+        self.app.janela_restaurar()
+
+
+class JanelaApelido(Janela):
+    """Antes do backup completo: um nome opcional para reconhecer o backup depois."""
+
+    def __init__(self, app, parent=None):
+        super().__init__(app, t('apelido_janela'), parent=parent)
+        self.apelido = None
+        self.protocol('WM_DELETE_WINDOW', self.cancelar)
+        corpo = ttk.Frame(self, padding=(px(26), px(22), px(26), px(18)))
+        corpo.pack(fill='both', expand=True)
+        rotulo(corpo, t('apelido_titulo').upper(), negrito=True, tamanho=13).pack(anchor='w')
+        rotulo(corpo, t('apelido_texto'), 'fraco', 10, wraplength=px(420), justify='left').pack(
+            anchor='w', pady=(px(6), px(12)))
+        self.var = tk.StringVar()
+        self.var.trace_add('write', lambda *a: len(self.var.get()) > 40 and self.var.set(self.var.get()[:40]))
+        self.campo = ttk.Entry(corpo, textvariable=self.var, width=46, font=temas.fonte(10))
+        self.campo.pack(fill='x')
+        rotulo(corpo, t('apelido_exemplo'), 'fraquinho', 9).pack(anchor='w', pady=(px(4), 0))
+        bts = ttk.Frame(corpo)
+        bts.pack(fill='x', pady=(px(18), 0))
+        ttk.Button(bts, text=t('apelido_fazer'), style='Primario.TButton', command=self.ok).pack(side='right')
+        ttk.Button(bts, text=t('bt_cancelar'), command=self.cancelar).pack(side='right', padx=(0, px(10)))
+        self.bind('<Return>', lambda e: self.ok())
+        self.bind('<Escape>', lambda e: self.cancelar())
+        _centralizar(self, parent or app)
+        self.campo.focus_set()
+
+    def ok(self):
+        self.apelido = self.var.get().strip()
+        self.destroy()
+
+    def cancelar(self):
+        self.apelido = None
+        self.destroy()
 
 
 class JanelaAviso(Janela):
@@ -1328,7 +1610,7 @@ class JanelaAviso(Janela):
         _centralizar(self, app)
 
     def fazer_backup(self):
-        self.app.fazer_backup_save(parent=self)
+        self.app.pedir_backup_save(parent=self)
 
     def fechar(self):
         self.destroy()
@@ -1340,13 +1622,15 @@ class JanelaAviso(Janela):
 
 
 class JanelaIntro(Janela):
-    """Tutorial em 6 telas, que acompanham os 4 passos da janela. Na primeira vez abre
+    """Tutorial em 7 telas, que acompanham os 5 passos da janela. Na primeira vez abre
     sozinho; depois, pelo "Como usar" do topo."""
 
-    TOTAL = 6
+    TOTAL = 7
+    PREFIXO = 'intro'             # chaves dos textos: intro_passo_N, intro_titulo_N, intro_texto_N
+    TITULO_JANELA = 'intro_titulo'
 
     def __init__(self, app):
-        super().__init__(app, t('intro_titulo'))
+        super().__init__(app, t(self.TITULO_JANELA))
         self.pagina = 1
         self.protocol('WM_DELETE_WINDOW', self.fechar)
         self.larg_il, self.alt_il = px(520), px(190)
@@ -1387,19 +1671,24 @@ class JanelaIntro(Janela):
         return {'limite_missoes': core.LIMITE_MISSOES, 'limite_save': core.LIMITE_SAVE,
                 'trocar': t('link_trocar'), 'escolher_pasta': t('link_escolher_pasta'),
                 'resetado': t('mapa_resetado_curto'), 'resetar': t('passo4_titulo'),
-                'restaurar': t('link_restaurar_missoes'), 'restaurar_save': t('link_restaurar_save'),
-                'backup_save': idiomas.sem_icone(t('bt_backup_save')), 'ajuda': t('link_como_usar')}
+                'restaurar': idiomas.sem_icone(t('bt_restaurar_missoes')),
+                'restaurar_save': idiomas.sem_icone(t('bt_restaurar_save_curto')),
+                'backup_save': idiomas.sem_icone(t('bt_backup_save')), 'ajuda': t('link_como_usar'),
+                'detalhes': t('link_detalhes'), 'verificar': t('link_verificar_de_novo'),
+                'como_desfazer': t('link_como_desfazer'), 'novo_backup': idiomas.sem_icone(t('bt_novo_backup')),
+                'dias': core.DIAS_PROTECAO_SAVE, 'desfazer': t('desfazer')}
 
     def mostrar(self):
         n = self.pagina
-        self.passo.config(text=t(f'intro_passo_{n}'))
-        self.titulo.config(text=t(f'intro_titulo_{n}').upper())
-        texto = idiomas.TEXTOS[idiomas.atual()][f'intro_texto_{n}']
+        p = self.PREFIXO
+        self.passo.config(text=t(f'{p}_passo_{n}'))
+        self.titulo.config(text=t(f'{p}_titulo_{n}').upper())
+        texto = idiomas.TEXTOS[idiomas.atual()][f'{p}_texto_{n}']
         self.texto.config(text=texto.format(**self.campos()))
         self.contador.config(text=t('intro_pagina', n=n, total=self.TOTAL))
         self.bt_voltar.state(['disabled'] if n == 1 else ['!disabled'])
         ultima = n == self.TOTAL
-        self.bt_proximo.config(text=t('intro_comecar') if ultima else t('intro_proximo'))
+        self.bt_proximo.config(text=t(f'{p}_ultimo_botao') if ultima else t('intro_proximo'))
         if ultima:
             self.bt_pular.pack_forget()
         elif not self.bt_pular.winfo_manager():
@@ -1411,7 +1700,7 @@ class JanelaIntro(Janela):
             x, y, r = px(5) + i * px(16), px(5), px(3.5) if i + 1 == n else px(3)
             cor = c['destaque'] if i + 1 == n else (c['fraco'] if i + 1 < n else c['fraquinho'])
             self.pontos.create_oval(x - r, y - r, x + r, y + r, fill=cor, outline=cor)
-        Ilustracoes(self.desenho, self.larg_il, self.alt_il).intro(n)
+        Ilustracoes(self.desenho, self.larg_il, self.alt_il).pagina(p, n)
 
     def proximo(self):
         if self.pagina == self.TOTAL:
@@ -1427,6 +1716,18 @@ class JanelaIntro(Janela):
 
     def fechar(self):
         idiomas.salvar_config(intro_vista=True)
+        self.destroy()
+
+
+class JanelaComoDesfazer(JanelaIntro):
+    """Tutorial ilustrado: como restaurar as missões, o backup original 🔒 e o save completo.
+    Abre pelo "Como funciona?" do quadro "Precisa desfazer?"."""
+
+    TOTAL = 6
+    PREFIXO = 'desfazer'
+    TITULO_JANELA = 'desfazer_janela'
+
+    def fechar(self):
         self.destroy()
 
 
@@ -1486,8 +1787,11 @@ class Ilustracoes:
         self.texto(x + larg, y, f'{c}/{total}', 'fraco', 9, anchor='e')
 
     # --- telas do tutorial
+    def pagina(self, prefixo, n):
+        getattr(self, f'_{prefixo}_{n}')()
+
     def intro(self, n):
-        getattr(self, f'_intro_{n}')()
+        self.pagina('intro', n)
 
     def _intro_1(self):
         w, h = self.w, self.h
@@ -1509,7 +1813,7 @@ class Ilustracoes:
                 self.texto(x + cw / 2, y + px(62), t('il_mantem'), 'fraco', 10, anchor='center')
             x += cw + gap
 
-    def _intro_2(self):
+    def _intro_3(self):
         x, y = px(36), px(34)
         agora = t('jogado_em', quando=idiomas.data_hora(datetime.datetime.now()))
         self.circulo(x, y, 'feito', 1)
@@ -1536,16 +1840,16 @@ class Ilustracoes:
         self.caixa(px0 - px(8), caixa_y + px(36), x + px(420), caixa_y + px(56), 'sup', 'borda')
         self.texto(px0, caixa_y + px(46), t('save_descricao', id='7656…0000', quando=agora, pasta='…').split('(')[0].strip(), tamanho=8)
 
-    def _intro_3(self):
+    def _intro_4(self):
         x, y = px(36), px(40)
-        self.circulo(x, y, 'atual', 2)
+        self.circulo(x, y, 'atual', 3)
         tit = self.texto(x + px(40), y + px(13), t('passo2_titulo').upper(), negrito=True, tamanho=11)
         self.texto(self.cv.bbox(tit)[2] + px(8), y + px(13), t('recomendado'), 'fraco', 10)
         self.texto(x + px(40), y + px(42), t('passo2_sub'), 'fraco', 9, largura=self.w - x - px(80))
         bx, by = self.botao(x + px(40), y + px(80), t('bt_backup_save'))
         self.anel(x + px(34), y + px(74), bx + px(6), by + px(6))
 
-    def _intro_4(self):
+    def _intro_5(self):
         x, y, larg = px(40), px(36), self.w - px(80)
         self.img(x - px(14), y - px(18), comp.img_ret(self.cv, larg + px(28), px(108), px(8), self.c['sup'],
                                                        self.c['sup'], self.c['borda'], 1.0))
@@ -1557,19 +1861,130 @@ class Ilustracoes:
         self.linha_mapa(x, y + px(64), larg, 'Intisuyu', 11, 94)
         self.texto(x - px(6), y + px(118), t('il_clique_caixinha'), 'destaque', 10, True)
 
-    def _intro_5(self):
-        x, y = px(36), px(34)
-        self.circulo(x, y, 'atual', 4)
-        self.texto(x + px(40), y + px(13), t('passo4_titulo').upper(), negrito=True, tamanho=11)
-        bx, by = self.botao(x + px(40), y + px(40), t('bt_resetar_um'), tamanho=11)
-        self.texto(bx + px(16), (y + px(40) + by) / 2, t('passo4_resumo', nomes='Te Awaroa National Park'),
-                   'fraco', 9, largura=self.w - bx - px(40))
-        ly = by + px(30)
-        fim = self.cv.bbox(self.texto(x + px(40), ly, t('desfazer'), 'fraco', 9))[2]
-        fim = self.cv.bbox(self.texto(fim + px(12), ly, t('link_restaurar_missoes'), 'destaque', 9))[2]
-        self.texto(fim + px(12), ly, t('link_restaurar_save'), 'fraco', 9)
-
     def _intro_6(self):
+        x, y = px(36), px(22)
+        self.circulo(x, y, 'atual', 5)
+        self.texto(x + px(40), y + px(13), t('passo4_titulo').upper(), negrito=True, tamanho=11)
+        bx, by = self.botao(x + px(40), y + px(36), t('bt_resetar_um'), tamanho=11)
+        self.texto(bx + px(16), (y + px(36) + by) / 2, t('passo4_resumo', nomes='Te Awaroa National Park'),
+                   'fraco', 9, largura=self.w - bx - px(40))
+        self.quadro_desfazer(x + px(40), by + px(14), self.w - x - px(70))
+
+    def quadro_desfazer(self, x, y, larg, destacar=None):
+        """Miniatura do quadro "Precisa desfazer?" com os dois botões."""
+        c = self.c
+        alt = px(78)
+        self.img(x, y, comp.img_ret(self.cv, larg, alt, px(6), c['sup'], c['sup'], c['borda'], 1.0))
+        self.texto(x + px(12), y + px(16), '↩  ' + t('desfazer').upper(), negrito=True, tamanho=8)
+        self.texto(x + larg - px(12), y + px(16), t('link_como_desfazer'), 'destaque', 8, anchor='e')
+        meio = (larg - px(36)) / 2
+        for i, chave in enumerate(('bt_restaurar_missoes', 'bt_restaurar_save_curto')):
+            bx = x + px(12) + i * (meio + px(12))
+            fim_x, fim_y = self.botao(bx, y + px(32), t(chave), principal=False, tamanho=8)
+            if destacar == i:
+                self.anel(bx - px(4), y + px(28), fim_x + px(4), fim_y + px(4))
+
+    def _intro_2(self):
+        x, y = px(36), px(30)
+        self.circulo(x, y, 'feito', 1)
+        self.texto(x + px(40), y + px(13), t('passo_verif_titulo').upper(), negrito=True, tamanho=11)
+        fim = self.cv.bbox(self.texto(x + px(40), y + px(40), t('status_ok'), 'destaque', 9))[2]
+        self.texto(fim + px(12), y + px(40), t('link_detalhes'), 'fraco', 9)
+        cy = y + px(66)
+        self.img(x + px(40), cy, comp.img_ret(self.cv, px(400), px(84), px(6), self.c['fundo'], self.c['sup'],
+                                               self.c['borda'], 1.0))
+        for i, (estado, chave) in enumerate((('feito', 'il_verif_1'), ('feito', 'il_verif_2'),
+                                            ('aviso', 'il_verif_3'))):
+            ly = cy + px(10) + i * px(24)
+            self.img(x + px(54), ly, comp.img_circulo(self.cv, estado, self.c['fundo'], px(16)))
+            if estado == 'aviso':
+                self.cv.create_text(x + px(62), ly + px(8), text='!', fill='#ffffff', font=temas.fonte(7, 'bold'))
+            self.texto(x + px(78), ly + px(8), t(chave), 'texto' if estado == 'feito' else 'aviso', 9)
+
+    # --- tutorial "Como desfazer"
+    def lista_backups(self, x, y, larg, linhas, selecionada=None, titulo=None):
+        """Miniatura da lista de backups. linhas = [(data, texto, destaque?)]."""
+        c = self.c
+        if titulo:
+            self.texto(x, y - px(12), titulo.upper(), negrito=True, tamanho=8)
+        alt = px(26) * len(linhas) + px(8)
+        self.img(x, y, comp.img_ret(self.cv, larg, alt, px(6), c['sup'], c['sup'], c['borda'], 1.0))
+        for i, (data, texto, original) in enumerate(linhas):
+            ly = y + px(4) + i * px(26)
+            if original:
+                self.caixa(x + px(2), ly, x + larg - px(2), ly + px(24), 'destaque_suave', None)
+            elif i == selecionada:
+                self.caixa(x + px(2), ly, x + larg - px(2), ly + px(24), 'selecao', None)
+            self.texto(x + px(12), ly + px(12), data, 'fraco', 8)
+            self.texto(x + px(92), ly + px(12), texto, 'destaque' if original else 'texto', 8, negrito=original)
+            if i == selecionada:
+                self.anel(x, ly - px(1), x + larg, ly + px(25))
+        return y + alt
+
+    def _desfazer_1(self):
+        larg = self.w - px(80)
+        self.quadro_desfazer(px(40), px(26), larg)
+        meio = (larg - px(36)) / 2
+        for i, chave in enumerate(('desc_restaurar_missoes', 'desc_restaurar_save')):
+            self.texto(px(52) + i * (meio + px(12)), px(122), t(chave), 'fraco', 8, anchor='nw', largura=meio)
+
+    def _desfazer_2(self):
+        hoje = datetime.date.today()
+        d = lambda dias: idiomas.data(datetime.datetime.combine(hoje - datetime.timedelta(days=dias),
+                                                                 datetime.time()))
+        fim = self.lista_backups(px(36), px(36), self.w - px(72), [
+            (d(9), '🔒 ' + t('backup_original'), True),
+            (d(0), t('titulo_reset', nomes='Te Awaroa National Park'), False),
+            (d(2), t('titulo_reset', nomes='Yukon Valley'), False)], selecionada=1, titulo=t('rest_titulo'))
+        self.botao(px(36), fim + px(14), t('bt_restaurar_este'), tamanho=8)
+
+    def _desfazer_3(self):
+        c = self.c
+        x, y, larg = px(30), px(28), self.w - px(60)
+        cols = (x + px(12), x + px(220), x + px(330))
+        self.texto(x, y - px(12), t('rest_passo2').split('(')[0].strip().upper(), negrito=True, tamanho=8)
+        self.img(x, y, comp.img_ret(self.cv, larg, px(112), px(6), c['sup'], c['sup'], c['borda'], 1.0))
+        for col, chave in zip(cols, ('col_mapa', 'col_agora', 'col_depois')):
+            self.texto(col, y + px(14), t(chave), 'fraco', 8, True)
+        linhas = (('Te Awaroa National Park', t('mapa_resetado_curto'), '16/23', True),
+                  ('Yukon Valley', '22/52', '22/52', False),
+                  ('Intisuyu', '11/94', '11/94', False))
+        for i, (nome, agora, depois, muda) in enumerate(linhas):
+            ly = y + px(30) + i * px(26)
+            if muda:
+                self.caixa(x + px(2), ly, x + larg - px(2), ly + px(24), 'diferente_fundo', None)
+            self.texto(cols[0], ly + px(12), nome, tamanho=8, negrito=muda)
+            self.texto(cols[1], ly + px(12), agora, 'fraco', 8)
+            self.texto(cols[2], ly + px(12), depois, 'texto', 8, negrito=muda)
+        self.texto(x, y + px(130), t('il_amarelo'), 'aviso', 9, True)
+
+    def _desfazer_4(self):
+        hoje = datetime.date.today()
+        d = lambda dias: idiomas.data(datetime.datetime.combine(hoje - datetime.timedelta(days=dias),
+                                                                 datetime.time()))
+        fim = self.lista_backups(px(36), px(36), self.w - px(72), [
+            (d(9), '🔒 ' + t('backup_original'), True),
+            (d(0), t('titulo_reset', nomes='Te Awaroa National Park'), False),
+            (d(2), t('titulo_reset', nomes='Yukon Valley'), False)], selecionada=0, titulo=t('rest_titulo'))
+        self.texto(px(36), fim + px(22), t('il_original_sempre'), 'destaque', 9, True)
+
+    def _desfazer_5(self):
+        hoje = datetime.date.today()
+        d = lambda dias: idiomas.data(datetime.datetime.combine(hoje - datetime.timedelta(days=dias),
+                                                                 datetime.time()))
+        fim = self.lista_backups(px(36), px(36), self.w - px(72), [
+            (d(0), t('titulo_save_manual') + '  —  "' + t('il_apelido_exemplo') + '"  ·  13,1 MB', False),
+            (d(1), t('titulo_save_manual') + '  ·  13,0 MB', False)], selecionada=0, titulo=t('rest_save_titulo'))
+        self.texto(px(36), fim + px(22), t('il_save_aviso'), 'aviso', 9, True, largura=self.w - px(72))
+
+    def _desfazer_6(self):
+        x, y = px(48), px(30)
+        for i, chave in enumerate(('il_abra_jogo', 'il_local', 'il_restaurado')):
+            yy = y + i * px(48)
+            self.circulo(x, yy, 'atual' if i == 0 else 'espera', i + 1)
+            self.texto(x + px(42), yy + px(13), t(chave), tamanho=11, negrito=(i == 1))
+
+    def _intro_7(self):
         x, y = px(48), px(30)
         for i, chave in enumerate(('il_abra_jogo', 'il_local', 'il_entre_mapa')):
             yy = y + i * px(48)

@@ -1,5 +1,5 @@
 ﻿==========================================================================
-  ResetMissionsCOTW  -  versión 0.9.7 (Beta)
+  ResetMissionsCOTW  -  versión 0.9.8 (Beta)
   Reinicio de misiones por mapa  -  theHunter: Call of the Wild
   Hecho por Sheeerpha  -  gratuito y de código abierto
 ==========================================================================
@@ -18,7 +18,7 @@ RESUMEN EN 30 SEGUNDOS
     1. Extrae el .zip
     2. Cierra el juego
     3. Abre ResetMissionsCOTW.exe
-    4. Sigue los 4 pasos de la ventana, de arriba abajo
+    4. Sigue los 5 pasos de la ventana, de arriba abajo
     5. Abre el juego y entra en el mapa: las misiones empiezan desde cero
 
   Esta es una versión de prueba (Beta). El programa no es oficial y puede
@@ -63,12 +63,18 @@ RESUMEN EN 30 SEGUNDOS
 ==========================================================================
 
 Al abrirlo, aparece el aviso "Antes de empezar" (siempre) y, solo la
-primera vez, un tutorial rápido de 6 pantallas (se puede saltar).
+primera vez, un tutorial rápido de 7 pantallas (se puede saltar).
 
-La ventana tiene 4 PASOS NUMERADOS, de arriba abajo. El paso que falta
+La ventana tiene 5 PASOS NUMERADOS, de arriba abajo. El paso que falta
 tiene el número en verde; los que ya están hechos llevan un ✓.
 
-PASO 1 - ELIGE LA PARTIDA
+PASO 1 - COMPROBACIÓN ANTES DE EMPEZAR
+    El programa comprueba solo si el juego, Steam u otro programa está
+    usando los archivos de la partida. Si todo está bien, el paso lleva un
+    ✓ verde. Si se pone amarillo, haz clic en "detalles" para ver qué es y
+    resolverlo, y después en "Comprobar de nuevo".
+
+PASO 2 - ELIGE LA PARTIDA
     El programa encuentra tu partida solo (Steam o Epic) y elige la que
     jugaste por última vez. Normalmente no tienes que hacer nada.
     * ¿Tienes más de una (dos cuentas, o Steam y Epic)? Haz clic en
@@ -76,25 +82,28 @@ PASO 1 - ELIGE LA PARTIDA
     * ¿No encontró la partida? Haz clic en "Elegir carpeta" y selecciónala.
       Normalmente es: Documentos\Avalanche Studios\COTW\Saves\<número>
 
-PASO 2 - HAZ UNA COPIA DE SEGURIDAD DE LA PARTIDA COMPLETA (recomendado)
-    Haz clic en "Copia de seguridad de la partida completa". Guarda una
-    copia de TODOS los archivos de la partida, no solo las misiones. Tarda
-    unos segundos. Es opcional, pero hazla al menos la primera vez.
+PASO 3 - HAZ UNA COPIA DE SEGURIDAD DE LA PARTIDA COMPLETA (recomendado)
+    Haz clic en "Copia de seguridad de la partida completa" (o "Hacer una
+    copia nueva"). Guarda una copia de TODOS los archivos de la partida, no
+    solo las misiones. Puedes ponerle un nombre (ej.: "antes del DLC") para
+    reconocerla después. Si la última copia tiene más de 3 días, el paso se
+    pone amarillo para recordarte que hagas otra.
 
-PASO 3 - MARCA LOS MAPAS QUE QUIERES EMPEZAR DE NUEVO
-    Haz clic en la casilla (o en el nombre) de cada mapa. Puedes marcar
-    varios.
+PASO 4 - MARCA LOS MAPAS QUE QUIERES EMPEZAR DE NUEVO
+    Haz clic en la casilla (o en el nombre) de cada mapa, o usa "Marcar
+    todos".
     * La barrita y el número (ej.: 53/76) muestran cuántas misiones de ese
       mapa has completado. Deja el ratón sobre el nombre para ver también
       cuántas están en curso.
     * "↺ reiniciado" = ese mapa ya se reinició y está listo.
 
-PASO 4 - REINICIAR
-    Haz clic en el botón verde "Reiniciar" y confirma.
-    Antes de cambiar nada, el programa hace solo una copia de las misiones.
-    Los demás mapas no cambian.
+PASO 5 - REINICIAR
+    Haz clic en el botón verde "Reiniciar". Una pantalla muestra cada mapa
+    elegido ("hoy: 53 de 76 completadas → empieza desde cero"). Revísala y
+    haz clic en "Sí, reiniciar". Antes de cambiar nada, el programa hace
+    solo una copia de las misiones. Los demás mapas no cambian.
 
-DESPUÉS DEL REINICIO
+DESPUÉS DEL REINICIO (la pantalla "¡Listo!" te lo recuerda)
     1. Abre el juego normalmente.
     2. Si Steam Cloud o Epic Cloud pregunta qué versión usar, elige la
        LOCAL (la de este ordenador).
@@ -106,27 +115,41 @@ DESPUÉS DEL REINICIO
  PARTE 3 - CÓMO DESHACER
 ==========================================================================
 
-Justo debajo del botón "Reiniciar" está la línea "¿Necesitas deshacer?":
+Justo debajo del botón "Reiniciar" está el cuadro "¿NECESITAS DESHACER?",
+con dos botones. El enlace "¿Cómo funciona?" abre un tutorial con dibujos.
 
-  * "Restaurar misiones"
-    Devuelve las misiones de todos los mapas a como estaban en una copia.
-    La ventana muestra en amarillo lo que va a cambiar antes de confirmar.
+  * "Restaurar misiones"  ->  devuelve SOLO las misiones.
+    1. Haz clic en "Restaurar misiones".
+    2. Elige la copia en la lista. La primera justo debajo del 🔒 es la más
+       reciente (ej.: "Antes de reiniciar Te Awaroa").
+    3. Revisa la tabla de abajo: las filas AMARILLAS son las que van a
+       cambiar.
+    4. Haz clic en "Restaurar esta copia" y confirma.
 
-  * "Restaurar partida completa"
-    Devuelve la partida ENTERA a como estaba en una copia completa.
-    Atención: todo lo que jugaste después de esa copia se pierde.
+  * "Restaurar partida completa"  ->  devuelve la partida ENTERA.
+    Elige una copia completa (el nombre que le pusiste aparece en la
+    lista). Atención: todo lo que jugaste después de esa copia se pierde.
     (Antes se guarda la partida actual, por seguridad.)
 
   * "Carpeta de copias"
     Abre la carpeta con las copias. Dentro de Backups_SAVE hay un archivo
     que explica cómo restaurar a mano, si lo prefieres.
 
+TU COPIA ORIGINAL 🔒 (SIEMPRE GUARDADA)
+    La primera vez que usas el programa, guarda tus misiones como estaban.
+    Esa copia original se queda PARA SIEMPRE, no importa cuántos reinicios
+    o restauraciones hagas después.
+    Para volver todo a como era antes de usar el programa:
+      "Restaurar misiones" -> elige la fila verde "🔒 Copia original",
+      siempre arriba en la lista -> "Restaurar esta copia" -> confirma.
+
 Dónde están las copias:
     Documentos\.BKP_ResetMissions_Saves_COTW   (carpeta oculta)
-    -> Backups_MISSIONS : hasta 50 copias de las misiones
-    -> Backups_SAVE     : hasta 5 copias de la partida completa
-    Al pasar el límite, la más antigua se borra sola, MENOS la primera de
-    todas (🔒), que siempre se conserva.
+    -> Backups_MISSIONS : hasta 50 copias de las misiones. Al pasar de ahí,
+       la más antigua se borra sola, MENOS la copia original 🔒.
+    -> Backups_SAVE     : hasta 5 copias de la partida completa. La más
+       antigua queda protegida hasta 3 días; después, la protección pasa a
+       la siguiente. La copia más reciente nunca se borra.
 
 
 ==========================================================================
@@ -141,7 +164,7 @@ Dónde están las copias:
     Atención: si después mueves el programa a otra carpeta, tendrás que
     permitirlo de nuevo.
 
-"● ... problema(s) impide(n) cambios" (línea de estado arriba)
+"● ... problema(s) impide(n) cambios" (paso 1, arriba)
     Algo está usando los archivos de la partida (el juego, Steam,
     OneDrive...). Haz clic en "detalles". La pantalla muestra qué es y
     ofrece botones como "Cerrar Steam" o "Corregir". El programa NUNCA
@@ -150,7 +173,7 @@ Dónde están las copias:
     Esta comprobación ocurre solo en tu ordenador: nada va a internet.
 
 "No se encontró la partida automáticamente"
-    Usa "Elegir carpeta" en el paso 1 (ver la Parte 2).
+    Usa "Elegir carpeta" en el paso 2 (ver la Parte 2).
 
 El juego preguntó qué versión de la partida usar (nube)
     Elige LOCAL. Si eliges la de la nube, el reinicio se deshace.

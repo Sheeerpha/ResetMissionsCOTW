@@ -19,7 +19,7 @@ if (-not (Test-Path .venv)) {
 .venv\Scripts\python.exe -X utf8 testes.py
 if ($LASTEXITCODE -ne 0) { Write-Host 'Os testes falharam; o .exe NÃO foi gerado.'; exit 1 }
 
-.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --onefile --windowed --name ResetMissionsCOTW cotw_app.py
+.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --onefile --windowed --name ResetMissionsCOTW --icon icone.ico --add-data "icone.ico;." cotw_app.py
 if ($LASTEXITCODE -ne 0) { Write-Host 'Falha ao gerar o .exe.'; exit 1 }
 
 $pasta = Join-Path $projeto $nome

@@ -1,5 +1,5 @@
 ﻿==========================================================================
-  ResetMissionsCOTW  -  versão 0.9.7 (Beta)
+  ResetMissionsCOTW  -  versão 0.9.8 (Beta)
   Reset de missões por mapa  -  theHunter: Call of the Wild
   Feito por Sheeerpha  -  gratuito e de código aberto
 ==========================================================================
@@ -18,7 +18,7 @@ RESUMO EM 30 SEGUNDOS
     1. Extraia o .zip
     2. Feche o jogo
     3. Abra o ResetMissionsCOTW.exe
-    4. Siga os 4 passos da janela, de cima para baixo
+    4. Siga os 5 passos da janela, de cima para baixo
     5. Abra o jogo e entre no mapa: as missões começam do zero
 
   Esta é uma versão de teste (Beta). O programa não é oficial e pode ter
@@ -61,12 +61,18 @@ RESUMO EM 30 SEGUNDOS
 ==========================================================================
 
 Ao abrir, aparece o aviso "Antes de começar" (toda vez) e, só na primeira
-vez, um tutorial rápido de 6 telas (dá para pular).
+vez, um tutorial rápido de 7 telas (dá para pular).
 
-A janela tem 4 PASSOS NUMERADOS, de cima para baixo. O passo que falta
+A janela tem 5 PASSOS NUMERADOS, de cima para baixo. O passo que falta
 fazer fica com o número em verde; o que já está feito ganha um ✓.
 
-PASSO 1 - ESCOLHA O SAVE
+PASSO 1 - VERIFICAÇÃO ANTES DE COMEÇAR
+    O programa confere sozinho se o jogo, o Steam ou outro programa está
+    usando os arquivos do save. Com tudo certo, o passo ganha um ✓ verde.
+    Se ficar amarelo, clique em "detalhes" para ver o que é e resolver, e
+    depois em "Verificar de novo".
+
+PASSO 2 - ESCOLHA O SAVE
     O programa encontra o seu save sozinho (Steam ou Epic) e já escolhe o
     que você jogou por último. Normalmente você não precisa fazer nada.
     * Tem mais de um save (duas contas, ou Steam e Epic)? Clique em
@@ -74,24 +80,27 @@ PASSO 1 - ESCOLHA O SAVE
     * Ele não achou o save? Clique em "Escolher pasta" e aponte a pasta.
       Normalmente é: Documentos\Avalanche Studios\COTW\Saves\<número>
 
-PASSO 2 - FAÇA UM BACKUP DO SAVE COMPLETO (recomendado)
-    Clique em "Fazer backup do save completo". Ele guarda uma cópia de
-    TODOS os arquivos do save, não só das missões. Leva poucos segundos.
-    É opcional, mas faça pelo menos na primeira vez.
+PASSO 3 - FAÇA UM BACKUP DO SAVE COMPLETO (recomendado)
+    Clique em "Fazer backup do save completo" (ou "Fazer novo backup").
+    Ele guarda uma cópia de TODOS os arquivos do save, não só das missões.
+    Você pode dar um nome ao backup (ex.: "antes do DLC") para reconhecer
+    depois. Se o último backup tiver mais de 3 dias, o passo fica amarelo
+    para lembrar você de fazer outro.
 
-PASSO 3 - MARQUE OS MAPAS QUE QUER RECOMEÇAR
-    Clique na caixinha (ou no nome) de cada mapa. Pode marcar vários.
+PASSO 4 - MARQUE OS MAPAS QUE QUER RECOMEÇAR
+    Clique na caixinha (ou no nome) de cada mapa, ou use "Marcar todos".
     * A barrinha e o número (ex.: 53/76) mostram quantas missões daquele
       mapa você já concluiu. Pare o mouse em cima do nome para ver também
       quantas estão em andamento.
     * "↺ resetado" = esse mapa já foi resetado e está pronto.
 
-PASSO 4 - RESETAR
-    Clique no botão verde "Resetar" e confirme.
-    Antes de mudar qualquer coisa, o programa faz sozinho um backup das
-    missões. Os outros mapas não mudam.
+PASSO 5 - RESETAR
+    Clique no botão verde "Resetar". Uma tela mostra cada mapa escolhido
+    ("hoje: 53 de 76 concluídas → começa do zero"). Confira e clique em
+    "Sim, resetar". Antes de mudar qualquer coisa, o programa faz sozinho
+    um backup das missões. Os outros mapas não mudam.
 
-DEPOIS DO RESET
+DEPOIS DO RESET (a tela "Pronto!" lembra você)
     1. Abra o jogo normalmente.
     2. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar,
        escolha a LOCAL (a deste computador).
@@ -103,14 +112,18 @@ DEPOIS DO RESET
  PARTE 3 - COMO DESFAZER
 ==========================================================================
 
-Logo abaixo do botão "Resetar" tem a linha "Precisa desfazer?":
+Logo abaixo do botão "Resetar" fica o quadro "PRECISA DESFAZER?", com dois
+botões. O link "Como funciona?" abre um tutorial com desenhos.
 
-  * "Restaurar missões"
-    Volta as missões de todos os mapas para como estavam num backup.
-    A janela mostra, em amarelo, o que vai mudar antes de você confirmar.
+  * "Restaurar missões"  ->  volta SÓ as missões.
+    1. Clique em "Restaurar missões".
+    2. Escolha o backup na lista. O primeiro logo abaixo do 🔒 é o mais
+       recente (ex.: "Antes de resetar Te Awaroa").
+    3. Confira na tabela de baixo: as linhas AMARELAS são as que vão mudar.
+    4. Clique em "Restaurar este backup" e confirme.
 
-  * "Restaurar save completo"
-    Volta o save INTEIRO para como estava num backup completo.
+  * "Restaurar save completo"  ->  volta o save INTEIRO.
+    Escolha um backup completo (o nome que você deu aparece na lista).
     Atenção: tudo o que você jogou depois daquele backup é perdido.
     (O save atual é guardado antes, por segurança.)
 
@@ -118,12 +131,21 @@ Logo abaixo do botão "Resetar" tem a linha "Precisa desfazer?":
     Abre a pasta onde ficam as cópias. Dentro de Backups_SAVE há um
     arquivo explicando como restaurar à mão, se preferir.
 
+O SEU BACKUP ORIGINAL 🔒 (SEMPRE GUARDADO)
+    Na primeira vez que você usa o programa, ele guarda as suas missões
+    como estavam. Esse backup original fica PARA SEMPRE, não importa
+    quantos resets ou restaurações você faça depois.
+    Para voltar tudo como era antes de usar o programa:
+      "Restaurar missões" -> escolha a linha verde "🔒 Backup original",
+      sempre no topo da lista -> "Restaurar este backup" -> confirme.
+
 Onde ficam os backups:
     Documentos\.BKP_ResetMissions_Saves_COTW   (pasta oculta)
-    -> Backups_MISSIONS : até 50 backups das missões
-    -> Backups_SAVE     : até 5 backups do save completo
-    Passando do limite, o mais antigo sai sozinho, MENOS o primeiro de
-    todos (🔒), que é sempre mantido.
+    -> Backups_MISSIONS : até 50 backups das missões. Passando disso, o
+       mais antigo sai sozinho, MENOS o backup original 🔒.
+    -> Backups_SAVE     : até 5 backups do save completo. O mais antigo
+       fica protegido por até 3 dias; depois disso, a proteção passa para
+       o próximo. O backup mais recente nunca é apagado.
 
 
 ==========================================================================
@@ -138,7 +160,7 @@ Onde ficam os backups:
     Atenção: se depois você mover o programa para outra pasta, precisa
     liberar de novo.
 
-"● ... problema(s) impede(m) alterações" (linha de status no topo)
+"● ... problema(s) impede(m) alterações" (passo 1, no topo)
     Algo está usando os arquivos do save (o jogo, o Steam, o OneDrive...).
     Clique em "detalhes". A tela mostra o que é e oferece botões como
     "Fechar Steam" ou "Corrigir". O programa NUNCA fecha nada sozinho nem à
@@ -146,7 +168,7 @@ Onde ficam os backups:
     Essa verificação acontece só no seu computador: nada vai para a internet.
 
 "Não encontrei o save sozinho"
-    Use "Escolher pasta" no passo 1 (veja a Parte 2).
+    Use "Escolher pasta" no passo 2 (veja a Parte 2).
 
 O jogo perguntou qual versão do save usar (nuvem)
     Escolha a LOCAL. Se escolher a da nuvem, o reset é desfeito.

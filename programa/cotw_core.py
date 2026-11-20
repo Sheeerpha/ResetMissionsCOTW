@@ -30,7 +30,8 @@ BACKUPS_MISSOES = 'Backups_MISSIONS'              # backups do arquivo de missõ
 BACKUPS_SAVE = 'Backups_SAVE'                     # backups da pasta do save inteira
 PASTA_ARQUIVOS_SAVE = 'save'                      # dentro de cada backup completo: a cópia da pasta do save
 LIMITE_MISSOES = 50   # backups de missões guardados por save (o mais antigo nunca é apagado)
-LIMITE_SAVE = 5       # backups do save completo guardados por save (o mais antigo nunca é apagado)
+LIMITE_SAVE = 5       # backups do save completo guardados por save
+DIAS_PROTECAO_SAVE = 3   # o backup completo protegido (🔒) tem no máximo 3 dias: depois passa para o próximo
 
 B = 5             # o ADF começa no byte 5 do conteúdo descomprimido
 INST = B + 0x68   # instância raiz (MissionManager_1)
@@ -822,9 +823,12 @@ class BackupSave:
     falhas_limpeza: list = field(default_factory=list)  # backups antigos que não puderam ser apagados
     sobra_nao_apagada: str = None     # pasta temporária que ficou para trás (é guardada na próxima vez)
 
+    apelido: str = ''                 # nome opcional dado pelo usuário (ex.: "antes do DLC")
+
     @property
     def titulo(self):
-        return titulo_do_backup_save(self.tipo, self.origem)
+        base = titulo_do_backup_save(self.tipo, self.origem)
+        return f'{base}  —  "{self.apelido}"' if self.apelido else base
 
     @property
     def pasta_arquivos(self):
@@ -877,7 +881,7 @@ def _escrever_instrucoes(base, save):
             f.write(t('instrucoes_save', pasta_jogo=save.pasta, subpasta=PASTA_ARQUIVOS_SAVE))
 
 
-def fazer_backup_save_completo(save, raiz, tipo='manual', origem=None, manter=()):
+def fazer_backup_save_completo(save, raiz, tipo='manual', origem=None, manter=(), apelido=''):
     """Copia a pasta inteira do save (com os 'slots') para Backups_SAVE e confere a cópia."""
     if jogo_aberto():
         raise ErroSave(t('erro_jogo_aberto'))
@@ -903,13 +907,37 @@ def fazer_backup_save_completo(save, raiz, tipo='manual', origem=None, manter=()
     tamanho = sum(os.path.getsize(c) for c in arquivos.values())
     info = {'criado_em': agora.isoformat(timespec='seconds'), 'tipo': tipo,
             'origem': origem.isoformat(timespec='seconds') if origem else None,
-            'pasta_do_save': save.pasta, 'tamanho': tamanho, 'arquivos': len(arquivos)}
+            'pasta_do_save': save.pasta, 'tamanho': tamanho, 'arquivos': len(arquivos),
+            'apelido': (apelido or '').strip()[:60]}
     with open(os.path.join(destino, 'info.json'), 'w', encoding='utf-8') as f:
         json.dump(info, f, ensure_ascii=False, indent=2)
     registro.log(f'Backup do save completo criado: {destino} ({len(arquivos)} arquivos)')
-    falhas = _limpar_backups(listar_backups_save(save, raiz), LIMITE_SAVE, manter=manter)
-    return BackupSave(destino, agora, tipo, origem, tamanho, len(arquivos), falhas_limpeza=falhas)
+    falhas = _renovar_protegido_save(listar_backups_save(save, raiz), manter=manter)
+    falhas += _limpar_backups(listar_backups_save(save, raiz), LIMITE_SAVE, manter=manter)
+    return BackupSave(destino, agora, tipo, origem, tamanho, len(arquivos), falhas_limpeza=falhas,
+                      apelido=info['apelido'])
 
+
+def _renovar_protegido_save(lista, manter=(), agora=None):
+    """Backups do save completo: o mais antigo (🔒) pode ter no máximo DIAS_PROTECAO_SAVE dias.
+    Passou disso, ele é apagado e a proteção passa para o próximo mais antigo.
+    Segurança: o backup mais novo nunca é apagado (nunca fica sem nenhum backup completo),
+    nem um que está em 'manter' (por exemplo, o que está sendo restaurado)."""
+    falhas = FalhasNaLimpeza()
+    agora = agora or datetime.datetime.now()
+    limite = agora - datetime.timedelta(days=DIAS_PROTECAO_SAVE)
+    ordem = sorted(lista, key=lambda b: b.quando)
+    while len(ordem) > 1 and ordem[0].quando < limite and ordem[0].pasta not in manter:
+        b = ordem.pop(0)
+        try:
+            apagar_pasta(b.pasta)
+            registro.log(f'Backup completo com mais de {DIAS_PROTECAO_SAVE} dias apagado '
+                         f'(a proteção passou para o próximo): {b.pasta}')
+        except OSError as e:
+            falhas.append((b.pasta, e))
+            registro.log(f'Não foi possível apagar o backup completo antigo {b.pasta}: {e!r}', 'ERRO')
+            break
+    return falhas
 
 def listar_backups_save(save, raiz):
     base = pasta_backups_save_completo(save, raiz)
@@ -930,6 +958,7 @@ def listar_backups_save(save, raiz):
                 b.origem = datetime.datetime.fromisoformat(info['origem'])
             b.tamanho = int(info.get('tamanho') or 0)
             b.arquivos = int(info.get('arquivos') or 0)
+            b.apelido = str(info.get('apelido') or '')
         except Exception:
             pass
         if b.quando is None:
@@ -1028,8 +1057,21 @@ def limpar_excesso_de_backups(save, raiz):
     """Aplica os limites de backups (útil ao abrir o programa). Devolve as falhas."""
     falhas = FalhasNaLimpeza()
     falhas += _limpar_backups(listar_backups(save, raiz), LIMITE_MISSOES)
+    falhas += _renovar_protegido_save(listar_backups_save(save, raiz))
     falhas += _limpar_backups(listar_backups_save(save, raiz), LIMITE_SAVE)
     return falhas
+
+
+def tamanho_dos_backups(save, raiz):
+    """Espaço usado por todos os backups deste save (missões + save completo), em bytes."""
+    total = 0
+    for atual, _, arquivos in os.walk(pasta_do_save_no_programa(save, raiz)):
+        for a in arquivos:
+            try:
+                total += os.path.getsize(os.path.join(atual, a))
+            except OSError:
+                pass
+    return total
 
 
 def restaurar_save_completo(save, backup, raiz):

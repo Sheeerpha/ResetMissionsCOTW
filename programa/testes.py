@@ -21,6 +21,7 @@ idiomas.salvar_config(aviso_visto=True, intro_vista=True)
 import cotw_app as _app
 _app.App.mostrar_aviso_ao_abrir = False
 _app.App.verificar_atualizacao_ao_abrir = False   # os testes não consultam a internet
+_app.App.janelas_visuais = False   # confirmação e "Pronto!" pelas caixinhas simples (que os testes simulam)
 # A sugestão de backup completo antes do reset responde "Não" (continuar), salvo nos testes dela
 import tkinter.messagebox as _mb
 _mb.askyesnocancel = lambda *a, **k: False
@@ -792,7 +793,7 @@ def limite_de_5_backups_do_save_e_pastas_temporarias_ignoradas():
         save = core.descrever_pasta(pasta)
         raiz = os.path.join(tmp, 'b')
         base = core.pasta_backups_save_completo(save, raiz)
-        inicio = datetime.datetime(2026, 1, 1, 10, 0)
+        inicio = datetime.datetime.now() - datetime.timedelta(days=1)   # recentes (regra dos 3 dias)
         pastas = [_backup_falso(base, f's{i}', inicio + datetime.timedelta(hours=i), pasta, completo=True)
                   for i in range(5)]
         # restaurar o 2º mais antigo, com o limite cheio: ele não pode ser apagado pela limpeza
@@ -908,11 +909,12 @@ def aviso_aparece_sempre_e_introducao_so_na_primeira_vez():
                 app.mostrar_intro()         # (e não abre duas)
                 assert len(janelas(cotw_app.JanelaIntro)) == 1
                 app.destroy()
-        assert paginas[0][0] == '1 de 6' and paginas[-1][0] == '6 de 6', paginas
+        assert paginas[0][0] == '1 de 7' and paginas[-1][0] == '7 de 7', paginas
         assert paginas[-1][2] == 'Começar!' and paginas[0][2] == 'Próximo  →', paginas
-        assert '"↺ resetado"' in paginas[3][3], paginas[3][3]
-        assert 'Fazer backup do save completo' in paginas[2][3] and '5 backups' in paginas[2][3], paginas[2][3]
-        assert '"Restaurar missões"' in paginas[4][3] and '50' in paginas[4][3], paginas[4][3]
+        assert paginas[1][1] == 'VERIFICAÇÃO ANTES DE COMEÇAR' and '"detalhes"' in paginas[1][3], paginas[1]
+        assert 'Fazer novo backup' in paginas[3][3] and '3 dias' in paginas[3][3], paginas[3][3]
+        assert '"↺ resetado"' in paginas[4][3], paginas[4][3]
+        assert '"Como funciona?"' in paginas[5][3] and '"Precisa desfazer?"' in paginas[5][3], paginas[5][3]
         assert not any('{' in p[3] for p in paginas), 'sobrou campo sem preencher'
     finally:
         idiomas.salvar_config(intro_vista=True)
@@ -1028,7 +1030,7 @@ def limpeza_de_15_backups_com_somente_leitura_volta_para_5():
         save = core.descrever_pasta(pasta)
         raiz = os.path.join(tmp, 'b')
         base = core.pasta_backups_save_completo(save, raiz)
-        inicio = datetime.datetime(2026, 1, 1, 10, 0)
+        inicio = datetime.datetime.now() - datetime.timedelta(days=1)   # recentes (regra dos 3 dias)
         pastas = [_backup_falso(base, f's{i:02d}', inicio + datetime.timedelta(hours=i), pasta, completo=True)
                   for i in range(15)]
         marcar_somente_leitura(base)                      # como no PC do usuário que relatou o erro
@@ -1048,7 +1050,7 @@ def limpeza_que_falha_avisa_e_registra_no_log():
         save = core.descrever_pasta(pasta)
         raiz = os.path.join(tmp, 'b')
         base = core.pasta_backups_save_completo(save, raiz)
-        inicio = datetime.datetime(2026, 1, 1, 10, 0)
+        inicio = datetime.datetime.now() - datetime.timedelta(days=1)   # recentes (regra dos 3 dias)
         pastas = [_backup_falso(base, f's{i}', inicio + datetime.timedelta(hours=i), pasta, completo=True)
                   for i in range(7)]
         travado = segurar_arquivo(os.path.join(pastas[1], 'save', core.NOME_ARQUIVO), 30)
@@ -1493,6 +1495,203 @@ def faixa_de_versao_nova_na_janela():
     assert sem == '' and com == 'pack' and depois_tema == 'pack' and fim == '', (sem, com, depois_tema, fim)
     assert texto == 'Nova versão disponível: v0.9.8-beta', texto
     assert abertos == [link] and ignorados == ['v0.9.8-beta'], (abertos, ignorados)
+
+# ---------------------------------------------------------------------------
+# 0.9.8: regra dos 3 dias, apelido, janelas novas, tutorial de desfazer
+# ---------------------------------------------------------------------------
+
+def _envelhecer(pasta_backup, dias):
+    """Muda a data registrada de um backup completo (para testar a regra dos 3 dias)."""
+    import datetime, json
+    arq = os.path.join(pasta_backup, 'info.json')
+    info = json.load(open(arq, encoding='utf-8'))
+    info['criado_em'] = (datetime.datetime.now() - datetime.timedelta(days=dias)).isoformat(timespec='seconds')
+    json.dump(info, open(arq, 'w', encoding='utf-8'))
+
+
+@teste
+def backup_completo_protegido_passa_para_o_proximo_depois_de_3_dias():
+    import datetime
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = save_falso(tmp)
+        save = core.descrever_pasta(pasta)
+        raiz = os.path.join(tmp, 'b')
+        base = core.pasta_backups_save_completo(save, raiz)
+        agora = datetime.datetime.now()
+        idades = {'s10d': datetime.timedelta(days=10), 's5d': datetime.timedelta(days=5),
+                  's2d': datetime.timedelta(days=2), 's1h': datetime.timedelta(hours=1)}
+        pastas = {n: _backup_falso(base, n, agora - d, pasta, completo=True) for n, d in idades.items()}
+        assert core.limpar_excesso_de_backups(save, raiz) == []
+        lista = core.listar_backups_save(save, raiz)
+        assert [b.pasta for b in lista] == [pastas['s1h'], pastas['s2d']], [b.pasta for b in lista]
+        assert lista[-1].protegido and lista[-1].pasta == pastas['s2d']       # a proteção passou para o próximo
+        # o único backup nunca é apagado, mesmo velho
+        _envelhecer(pastas['s1h'], 20)
+        _envelhecer(pastas['s2d'], 30)
+        core.limpar_excesso_de_backups(save, raiz)
+        (unico,) = core.listar_backups_save(save, raiz)
+        assert unico.pasta == pastas['s1h'] and unico.protegido
+        # o backup que está sendo restaurado (o mais antigo) segura a limpeza
+        v1 = _backup_falso(base, 'v1', agora - datetime.timedelta(days=9), pasta, completo=True)
+        v2 = _backup_falso(base, 'v2', agora - datetime.timedelta(days=8), pasta, completo=True)
+        assert core._renovar_protegido_save(core.listar_backups_save(save, raiz), manter=(unico.pasta,)) == []
+        assert {x.pasta for x in core.listar_backups_save(save, raiz)} == {unico.pasta, v1, v2}
+        # um backup novo: os antigos com mais de 3 dias saem, o novo fica
+        b = core.fazer_backup_save_completo(save, raiz, apelido='antes do DLC')
+        assert [x.pasta for x in core.listar_backups_save(save, raiz)] == [b.pasta]
+        # backups das missões: o original continua para sempre
+        core.resetar_mapas(save, [10], raiz)
+        (orig,) = core.listar_backups(save, raiz)
+        assert orig.protegido
+
+
+@teste
+def apelido_e_espaco_dos_backups():
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        raiz = os.path.join(tmp, 'b')
+        assert core.tamanho_dos_backups(save, raiz) == 0
+        b = core.fazer_backup_save_completo(save, raiz, apelido='  antes do DLC  ')
+        (lst,) = core.listar_backups_save(save, raiz)
+        assert lst.apelido == 'antes do DLC' and lst.titulo == 'Backup feito por você  —  "antes do DLC"', lst.titulo
+        assert b.apelido == 'antes do DLC'
+        assert core.tamanho_dos_backups(save, raiz) >= b.tamanho > 0
+
+
+@teste
+def janela_tem_5_passos_marcar_todos_e_aviso_de_backup_velho():
+    import cotw_app, diagnostico
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        res = {'r': diagnostico.Resultado()}
+        app, pilha = _app_de_teste(tmp, save, [mock.patch.object(diagnostico, 'verificar', lambda s, r: res['r'])])
+        with pilha:
+            assert len(app.passos) == 5
+            assert app.passos[0][1].estado == 'feito'
+            res['r'] = diagnostico.Resultado([diagnostico.Item('jogo', 'impede', 'x')])
+            app.verificar_agora()
+            assert app.passos[0][1].estado == 'aviso'
+            res['r'] = diagnostico.Resultado()
+            app.verificar_de_novo()
+            assert app.passos[0][1].estado == 'feito'
+            # marcar todos: só os que não estão resetados
+            app.lista.selection_set('21')
+            app.resetar()
+            app.marcar_todos()
+            marcados = set(app.lista.selection())
+            assert '21' not in marcados and len(marcados) == len(app.mapas) - 1
+            assert app.bt_reset.cget('text') == f'Resetar {len(marcados)} mapas'
+            app.link_desmarcar.invoke()
+            assert app.lista.selection() == ()
+            # backup completo: feito agora, e depois "velho"
+            assert app.fazer_backup_save()
+            assert app.p2_resumo.cget('text').startswith('Backup feito hoje')
+            assert str(app.bt_novo_backup.cget('style')) == 'TButton'
+            (b,) = core.listar_backups_save(save, app.raiz)
+            _envelhecer(b.pasta, 4)
+            app.recarregar()
+            assert app.p2_resumo.cget('text').startswith('Último backup há 4 dias'), app.p2_resumo.cget('text')
+            assert str(app.bt_novo_backup.cget('style')) == 'Primario.TButton'
+            assert 'Backups ocupam' in app.info.cget('text')
+            # coraçãozinho do rodapé
+            assert app.coracao.cget('text') == '♥'
+            assert cotw_app.juntar_nomes(cotw_app.AMIGOS) == 'Sr.ª V., F. M. e B. Z.'
+            app.destroy()
+
+
+@teste
+def reset_com_confirmacao_visual_e_tela_de_pronto():
+    import cotw_app
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        app, pilha = _app_de_teste(tmp, save)
+        vistos = {}
+        with pilha:
+            app.janelas_visuais = True
+            janelas = lambda tipo: [w for w in app.winfo_children() if isinstance(w, tipo)]
+
+            def cancelar():
+                (j,) = janelas(cotw_app.JanelaConfirmarReset)
+                vistos['titulo_cancelado'] = j.titulo
+                j.cancelar()
+
+            def confirmar():
+                (j,) = janelas(cotw_app.JanelaConfirmarReset)
+                vistos['titulo'], vistos['botao'] = j.titulo, j.bt_sim.cget('text')
+                j.confirmar()
+            antes = md5(save.arquivo)
+            app.lista.selection_set(['10', '3'])
+            app.after(300, cancelar)
+            app.resetar()
+            assert md5(save.arquivo) == antes, 'cancelar não pode alterar o save'
+            app.after(300, confirmar)
+            app.resetar()
+            (pronto,) = janelas(cotw_app.JanelaPronto)
+            vistos['pronto'] = pronto.titulo
+            assert app.mapas[10].resetado and app.mapas[3].resetado
+            app.destroy()
+    assert vistos['titulo_cancelado'] == 'RESETAR AS MISSÕES DE 2 MAPAS?', vistos
+    assert vistos['botao'] == '↺  Sim, resetar 2 mapas', vistos
+    assert vistos['pronto'] == 'PRONTO! AS MISSÕES DE 2 MAPAS FORAM RESETADAS.', vistos
+
+
+@teste
+def apelido_pedido_antes_do_backup_completo():
+    import cotw_app
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        app, pilha = _app_de_teste(tmp, save)
+        with pilha:
+            app.janelas_visuais = True
+
+            def responder(texto):
+                (j,) = [w for w in app.winfo_children() if isinstance(w, cotw_app.JanelaApelido)]
+                if texto is None:
+                    j.cancelar()
+                else:
+                    j.var.set(texto)
+                    j.ok()
+            app.after(300, lambda: responder(None))
+            assert app.pedir_backup_save() is False
+            assert core.listar_backups_save(save, app.raiz) == []
+            app.after(300, lambda: responder('antes de resetar Yukon'))
+            assert app.pedir_backup_save() is True
+            (b,) = core.listar_backups_save(save, app.raiz)
+            app.destroy()
+    assert b.apelido == 'antes de resetar Yukon'
+
+
+@teste
+def tutorial_de_desfazer_e_backup_original_em_cima():
+    import cotw_app
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        app, pilha = _app_de_teste(tmp, save)
+        with pilha:
+            app.lista.selection_set('21')
+            app.resetar()
+            app.lista.selection_set('10')
+            app.resetar()
+            jan = cotw_app.JanelaRestaurar(app, core.listar_backups(save, app.raiz))
+            primeira = jan.lista.get_children()[0]
+            linha = jan.lista.item(primeira)
+            jan.destroy()
+            app.mostrar_como_desfazer()
+            app.mostrar_como_desfazer()          # não abre duas
+            (tut,) = [w for w in app.winfo_children() if isinstance(w, cotw_app.JanelaComoDesfazer)]
+            paginas = []
+            for _ in range(tut.TOTAL):
+                paginas.append((tut.contador.cget('text'), tut.titulo.cget('text'), tut.texto.cget('text'),
+                                tut.bt_proximo.cget('text')))
+                tut.proximo()
+            assert not tut.winfo_exists()
+            app.destroy()
+    assert 'original' in linha['tags'] and linha['values'][2].startswith('🔒 Backup original'), linha
+    assert paginas[-1][0] == '6 de 6' and paginas[-1][3] == 'Entendi', paginas[-1]
+    assert paginas[3][1] == 'O SEU BACKUP ORIGINAL 🔒' and 'PARA SEMPRE' in paginas[3][2], paginas[3]
+    assert '"Restaurar missões"' in paginas[3][2], paginas[3][2]
+    assert not any('{' in p[2] for p in paginas), 'sobrou campo sem preencher'
 
 print()
 if pulados:

@@ -1,4 +1,4 @@
-﻿"""Peças visuais da janela: caixinhas, círculos dos passos, barrinhas de progresso,
+"""Peças visuais da janela: caixinhas, círculos dos passos, barrinhas de progresso,
 links, a "pílula" de Apoiar, dicas ao passar o mouse e a área com rolagem.
 
 O Tk desenha círculos e cantos arredondados serrilhados. Por isso as formas são
@@ -290,15 +290,16 @@ class Pilula(tk.Canvas):
 class Dica:
     """Texto que aparece ao parar o mouse em cima de um widget."""
 
-    def __init__(self, widget, texto):
+    def __init__(self, widget, texto, atraso=450):
         self.widget, self.texto, self.janela, self._espera = widget, texto, None, None
+        self.atraso = atraso
         widget.bind('<Enter>', self._agendar, add='+')
         widget.bind('<Leave>', self._esconder, add='+')
         widget.bind('<Button-1>', self._esconder, add='+')
 
     def _agendar(self, _=None):
         self._cancelar()
-        self._espera = self.widget.after(450, self._mostrar)
+        self._espera = self.widget.after(self.atraso, self._mostrar)
 
     def _cancelar(self):
         if self._espera:
