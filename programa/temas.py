@@ -27,6 +27,7 @@ CORES = {
         'quente': '#c2620a', 'quente_suave': '#fdf1e3', 'quente_borda': '#f3d3ad', 'quente_hover': '#a9550a',
         'hover': '#f0f0ec', 'selecao': '#dcebe3',
         'diferente_fundo': '#fdf3e2',
+        'voltar': '#c47a12', 'voltar_hover': '#a9680f',
     },
     'escuro': {
         'fundo': '#121314', 'sup': '#1a1c1e', 'borda': '#2b2e32',
@@ -39,6 +40,7 @@ CORES = {
         'quente': '#f0a050', 'quente_suave': '#2b2016', 'quente_borda': '#5a3d1f', 'quente_hover': '#f5b26f',
         'hover': '#222528', 'selecao': '#21352b',
         'diferente_fundo': '#3a2f17',
+        'voltar': '#e5a33d', 'voltar_hover': '#efb556',
     },
 }
 # nomes antigos, usados em algumas janelas
@@ -133,12 +135,20 @@ def aplicar(raiz):
                    lightcolor=[('active', hover), ('pressed', hover)],
                    darkcolor=[('active', hover), ('pressed', hover)])
     botao('TButton', sup, texto, c['hover'], borda)
+    botao('Fundo.TButton', fundo, texto, c['hover'], borda)    # botão neutro dentro de um cartão branco
     botao('Primario.TButton', c['destaque'], c['destaque_texto'], c['destaque_hover'], c['destaque'], True)
     botao('Grande.TButton', c['destaque'], c['destaque_texto'], c['destaque_hover'], c['destaque'], True,
           pad=(22, 10))
     botao('Quente.TButton', c['quente'], '#ffffff' if _atual == 'claro' else '#1a1208', c['quente_hover'],
           c['quente'], True, pad=(12, 5))
     botao('Aviso.TButton', c['aviso'], '#ffffff' if _atual == 'claro' else '#1a1208', c['aviso'], c['aviso'], True)
+    # "Voltar missões": laranja (o destaque do modo voltar)
+    botao('Voltar.TButton', c['voltar'], '#ffffff' if _atual == 'claro' else '#1a1208', c['voltar_hover'],
+          c['voltar'], True, pad=(22, 10))
+    estilo.configure('Voltar.Horizontal.TScale', background=c['voltar'], troughcolor=c['trilho'],
+                     bordercolor=sup, lightcolor=c['voltar'], darkcolor=c['voltar'], sliderlength=16,
+                     sliderthickness=14, borderwidth=0, troughrelief='flat', gripcount=0)
+    estilo.map('Voltar.Horizontal.TScale', background=[('active', c['voltar_hover'])])
 
     estilo.configure('TCombobox', fieldbackground=sup, background=sup, foreground=texto, arrowcolor=c['fraco'],
                      bordercolor=borda, lightcolor=sup, darkcolor=sup, padding=4)
@@ -154,6 +164,11 @@ def aplicar(raiz):
                indicatorforeground=[('selected', c['destaque'])],
                indicatorbackground=[('disabled', fundo)],
                background=[('active', fundo)])
+    estilo.configure('TCheckbutton', background=fundo, foreground=c['fraco'], indicatorbackground=sup,
+                     indicatorforeground=c['destaque_texto'], upperbordercolor=c['fraquinho'],
+                     lowerbordercolor=c['fraquinho'], indicatormargin=(0, 0, 6, 0), font=fonte(9))
+    estilo.map('TCheckbutton', background=[('active', fundo)], foreground=[('active', texto)],
+               indicatorbackground=[('selected', c['destaque'])])
     estilo.configure('Sup.TRadiobutton', background=sup)
     estilo.map('Sup.TRadiobutton', background=[('active', sup)])
     estilo.configure('Treeview', background=sup, fieldbackground=sup, foreground=texto, rowheight=24,

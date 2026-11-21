@@ -1,5 +1,5 @@
 ﻿==========================================================================
-  ResetMissionsCOTW  -  versão 0.9.8 (Beta)
+  ResetMissionsCOTW  -  versão 0.9.9 (Beta)
   Reset de missões por mapa  -  theHunter: Call of the Wild
   Feito por Sheeerpha  -  gratuito e de código aberto
 ==========================================================================
@@ -8,18 +8,22 @@
 RESUMO EM 30 SEGUNDOS
 ---------------------
   No jogo, resetar as missões apaga as de TODOS os mapas de uma vez.
-  Este programa reseta só os mapas que VOCÊ escolher.
+  Este programa mexe só no mapa que VOCÊ escolher, de dois jeitos:
 
-  O que muda:     só as missões dos mapas que você marcar.
-  O que NÃO muda: os outros mapas, perfil, dinheiro, habilidades, armas,
-                  animais, troféus e todo o resto do save.
+    * RESETAR TUDO: zera todas as missões do mapa (como personagem novo).
+    * VOLTAR MISSÕES DA HISTÓRIA: volta só algumas missões e você refaz
+      a partir dali (ótimo para uma missão que travou ou bugou).
+
+  O que NÃO muda: os outros mapas, nível, XP, dinheiro, habilidades,
+  armas, animais, troféus e todo o resto do save.
 
   Em resumo:
     1. Extraia o .zip
     2. Feche o jogo
     3. Abra o ResetMissionsCOTW.exe
-    4. Siga os 5 passos da janela, de cima para baixo
-    5. Abra o jogo e entre no mapa: as missões começam do zero
+    4. Siga os passos da esquerda, de cima para baixo (cada um libera o
+       próximo) e escolha o que fazer no painel do mapa
+    5. Abra o jogo e entre no mapa
 
   Esta é uma versão de teste (Beta). O programa não é oficial e pode ter
   falhas. Por isso ele faz backup antes de tudo e deixa você desfazer.
@@ -60,65 +64,95 @@ RESUMO EM 30 SEGUNDOS
  PARTE 2 - USANDO O PROGRAMA
 ==========================================================================
 
-Ao abrir, aparece o aviso "Antes de começar" (toda vez) e, só na primeira
-vez, um tutorial rápido de 7 telas (dá para pular).
+Ao abrir, aparece o aviso "Antes de começar" e o tutorial "Como usar".
+Outros dois tutoriais abrem sozinhos na hora certa: "Resetar tudo × Voltar
+missões" (quando você chega na escolha do mapa) e "Como desfazer" (depois
+de cada mudança). Eles aparecem toda vez até você marcar a caixinha "Não
+mostrar mais sozinho"; depois continuam nos links da janela ("Como usar",
+"Qual escolher?" e "Como funciona?").
 
-A janela tem 5 PASSOS NUMERADOS, de cima para baixo. O passo que falta
-fazer fica com o número em verde; o que já está feito ganha um ✓.
+À ESQUERDA ficam os passos 1 a 4. Cada passo só libera o próximo (os
+travados mostram um 🔒). Feito, o passo ganha um ✓ verde.
+À DIREITA fica o painel do mapa (passo 5), com a imagem do mapa no topo.
 
-PASSO 1 - VERIFICAÇÃO ANTES DE COMEÇAR
+PASSO 1 - VERIFICAÇÃO
     O programa confere sozinho se o jogo, o Steam ou outro programa está
-    usando os arquivos do save. Com tudo certo, o passo ganha um ✓ verde.
-    Se ficar amarelo, clique em "detalhes" para ver o que é e resolver, e
-    depois em "Verificar de novo".
+    usando os arquivos do save.
+    * Algo que IMPEDE (ex.: jogo aberto): o passo fica travado. Clique em
+      "Ver o que fazer", resolva e depois em "Verificar de novo".
+    * Só um AVISO (ex.: Steam aberta): leia em "detalhes" e clique em
+      "Li o aviso e quero continuar".
 
-PASSO 2 - ESCOLHA O SAVE
-    O programa encontra o seu save sozinho (Steam ou Epic) e já escolhe o
-    que você jogou por último. Normalmente você não precisa fazer nada.
-    * Tem mais de um save (duas contas, ou Steam e Epic)? Clique em
-      "Trocar" e escolha. O programa só mexe no save escolhido.
-    * Ele não achou o save? Clique em "Escolher pasta" e aponte a pasta.
+PASSO 2 - SEU SAVE
+    O programa encontra o seu save sozinho (Steam ou Epic) e mostra o
+    NÍVEL, o XP, o DINHEIRO e as missões do personagem, para você ter
+    certeza de que é o seu. O selo "MAIS RECENTE" marca o save jogado por
+    último. Se estiver certo, clique em "Sim, é este save".
+    * Tem mais de um save? Clique em "Trocar" e escolha.
+    * Ele não achou o save? Clique em "Escolher pasta".
       Normalmente é: Documentos\Avalanche Studios\COTW\Saves\<número>
 
-PASSO 3 - FAÇA UM BACKUP DO SAVE COMPLETO (recomendado)
-    Clique em "Fazer backup do save completo" (ou "Fazer novo backup").
-    Ele guarda uma cópia de TODOS os arquivos do save, não só das missões.
-    Você pode dar um nome ao backup (ex.: "antes do DLC") para reconhecer
-    depois. Se o último backup tiver mais de 3 dias, o passo fica amarelo
-    para lembrar você de fazer outro.
+PASSO 3 - BACKUP COMPLETO (obrigatório)
+    Se você ainda não tem nenhum, clique em "Fazer backup do save completo":
+    ele guarda uma cópia de TODOS os arquivos do save. Você pode dar um nome
+    (ex.: "antes do DLC").
+    Se o último backup tiver mais de 2 dias, o passo fica amarelo e sugere
+    fazer um novo. Dá para seguir com o antigo em "Continuar com o de X dias".
 
-PASSO 4 - MARQUE OS MAPAS QUE QUER RECOMEÇAR
-    Clique na caixinha (ou no nome) de cada mapa, ou use "Marcar todos".
-    * A barrinha e o número (ex.: 53/76) mostram quantas missões daquele
-      mapa você já concluiu. Pare o mouse em cima do nome para ver também
-      quantas estão em andamento.
-    * "↺ resetado" = esse mapa já foi resetado e está pronto.
+PASSO 4 - ESCOLHA O MAPA
+    Clique no mapa na lista. A barrinha mostra quanto da história você já
+    fez (ex.: "História 5/8"). "↺ resetado" = mapa já resetado.
 
-PASSO 5 - RESETAR
-    Clique no botão verde "Resetar". Uma tela mostra cada mapa escolhido
-    ("hoje: 53 de 76 concluídas → começa do zero"). Confira e clique em
-    "Sim, resetar". Antes de mudar qualquer coisa, o programa faz sozinho
-    um backup das missões. Os outros mapas não mudam.
+PASSO 5 - O QUE FAZER NESTE MAPA?
+    No topo aparece "Você está em:" com o NOME da missão da história em que
+    você está. Escolha um dos dois cartões:
 
-DEPOIS DO RESET (a tela "Pronto!" lembra você)
+    RESETAR TUDO
+      Zera TODAS as missões do mapa (história e secundárias). Para resetar
+      vários mapas de uma vez, marque as caixinhas na lista (ou "Marcar
+      todos"). Clique no botão verde "Resetar" e confirme.
+
+    VOLTAR MISSÕES DA HISTÓRIA
+      Use os botões − e + (ou arraste o controle) para escolher quantas
+      missões voltar. O programa mostra o NOME da missão em que você vai
+      recomeçar e destaca em laranja, na linha do tempo, tudo o que volta.
+      * 0 = recomeça só a missão em que você está, do começo (para uma
+        missão travada).
+      * Secundárias LIGADAS às missões que voltam voltam junto (o programa
+        mostra os nomes antes). As outras secundárias não mudam.
+      * Ao refazer as missões, o jogo pode dar XP e dinheiro de novo.
+      * Se uma missão mudou numa atualização do jogo depois que você a fez,
+        o programa não deixa voltar até ela (por segurança).
+      Clique no botão laranja "Voltar N missões" e confirme.
+
+    Na dúvida, clique em "Qual escolher? Veja a diferença" (tutorial).
+
+    Antes de mudar qualquer coisa, o programa faz sozinho um backup das
+    missões. Os outros mapas nunca mudam.
+
+    Os nomes das missões vêm do jogo instalado no seu PC (nada do jogo vai
+    dentro do programa). Se o jogo não for encontrado, aparece "Missão 5 da
+    história" e você pode usar "Escolher a pasta do jogo".
+
+DEPOIS (a tela "Pronto!" lembra você)
     1. Abra o jogo normalmente.
     2. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar,
        escolha a LOCAL (a deste computador).
-       (Se escolher a da nuvem, o reset é desfeito.)
-    3. Entre no mapa: as missões começam do zero.
+       (Se escolher a da nuvem, a mudança é desfeita.)
+    3. Entre no mapa: a missão já estará ativa para você refazer.
 
 
 ==========================================================================
  PARTE 3 - COMO DESFAZER
 ==========================================================================
 
-Logo abaixo do botão "Resetar" fica o quadro "PRECISA DESFAZER?", com dois
-botões. O link "Como funciona?" abre um tutorial com desenhos.
+Embaixo da janela fica o quadro "PRECISA DESFAZER?", SEMPRE liberado. O
+link "Como funciona?" abre um tutorial com desenhos.
 
   * "Restaurar missões"  ->  volta SÓ as missões.
     1. Clique em "Restaurar missões".
     2. Escolha o backup na lista. O primeiro logo abaixo do 🔒 é o mais
-       recente (ex.: "Antes de resetar Te Awaroa").
+       recente (ex.: "Antes de voltar missões em Revontuli Coast (4)").
     3. Confira na tabela de baixo: as linhas AMARELAS são as que vão mudar.
     4. Clique em "Restaurar este backup" e confirme.
 
@@ -133,8 +167,7 @@ botões. O link "Como funciona?" abre um tutorial com desenhos.
 
 O SEU BACKUP ORIGINAL 🔒 (SEMPRE GUARDADO)
     Na primeira vez que você usa o programa, ele guarda as suas missões
-    como estavam. Esse backup original fica PARA SEMPRE, não importa
-    quantos resets ou restaurações você faça depois.
+    como estavam. Esse backup original fica PARA SEMPRE.
     Para voltar tudo como era antes de usar o programa:
       "Restaurar missões" -> escolha a linha verde "🔒 Backup original",
       sempre no topo da lista -> "Restaurar este backup" -> confirme.
@@ -144,7 +177,7 @@ Onde ficam os backups:
     -> Backups_MISSIONS : até 50 backups das missões. Passando disso, o
        mais antigo sai sozinho, MENOS o backup original 🔒.
     -> Backups_SAVE     : até 5 backups do save completo. O mais antigo
-       fica protegido por até 3 dias; depois disso, a proteção passa para
+       fica protegido por até 2 dias; depois disso, a proteção passa para
        o próximo. O backup mais recente nunca é apagado.
 
 
@@ -152,26 +185,26 @@ Onde ficam os backups:
  PARTE 4 - SE APARECER ALGUM AVISO
 ==========================================================================
 
-"O Windows está impedindo o programa de salvar arquivos" (aviso amarelo)
-    Só acontece se a proteção "Acesso Controlado a Pastas" do Windows
-    Defender estiver ligada. Clique em "Como liberar (passo a passo)": o
+"Não consegui gravar na pasta Documentos" / "O Windows está impedindo..."
+    Acontece quando a proteção "Acesso Controlado a Pastas" do Windows
+    Defender está ligada. Clique em "Como liberar (passo a passo)": o
     programa mostra 5 passos com desenhos e um botão para copiar o caminho
-    do programa. Leva cerca de 1 minuto e só precisa ser feito uma vez.
-    Atenção: se depois você mover o programa para outra pasta, precisa
-    liberar de novo.
+    do programa. Leva cerca de 1 minuto.
+    Atenção: cada versão nova (ou o programa em outra pasta) precisa ser
+    liberada de novo.
 
-"● ... problema(s) impede(m) alterações" (passo 1, no topo)
+"● ... problema(s) impede(m) alterações" (passo 1)
     Algo está usando os arquivos do save (o jogo, o Steam, o OneDrive...).
-    Clique em "detalhes". A tela mostra o que é e oferece botões como
+    Clique em "Ver o que fazer". A tela mostra o que é e oferece botões como
     "Fechar Steam" ou "Corrigir". O programa NUNCA fecha nada sozinho nem à
     força: só quando você clica. O jogo você fecha pelo menu do próprio jogo.
     Essa verificação acontece só no seu computador: nada vai para a internet.
 
 "Não encontrei o save sozinho"
-    Use "Escolher pasta" no passo 2 (veja a Parte 2).
+    Use "Escolher pasta" no passo 2.
 
 O jogo perguntou qual versão do save usar (nuvem)
-    Escolha a LOCAL. Se escolher a da nuvem, o reset é desfeito.
+    Escolha a LOCAL. Se escolher a da nuvem, a mudança é desfeita.
 
 
 ==========================================================================
@@ -183,9 +216,11 @@ O jogo perguntou qual versão do save usar (nuvem)
   * Tema claro/escuro: abre igual ao do Windows. Para trocar, clique em
     "Tema escuro" / "Tema claro", no topo da janela.
   * "Como usar", no topo da janela, mostra o tutorial de novo.
-  * Versão nova: quando sair uma, aparece uma faixa verde no topo da janela
-    com o link "Baixar". O programa só consulta a página do projeto no GitHub
-    (no máximo 1 vez por dia), não envia dados pessoais e não baixa nada sozinho.
+  * Versão nova: toda vez que o programa abre, ele confere se saiu uma; se
+    sim, aparece uma faixa verde no topo com o link "Baixar". Ele só
+    consulta a página do projeto no GitHub, não envia dados pessoais e não
+    baixa nada sozinho.
+  * As imagens dos mapas são desenhos próprios do programa (não são do jogo).
   * Funciona no Windows 10 e 11. Não precisa instalar nada.
   * Testado na versão Steam. Na Epic deve funcionar, mas ainda não foi
     testado.

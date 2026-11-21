@@ -22,6 +22,8 @@ import cotw_app as _app
 _app.App.mostrar_aviso_ao_abrir = False
 _app.App.verificar_atualizacao_ao_abrir = False   # os testes não consultam a internet
 _app.App.janelas_visuais = False   # confirmação e "Pronto!" pelas caixinhas simples (que os testes simulam)
+_app.App.ler_nomes_do_jogo = False   # os testes não leem a pasta do jogo
+_app.App.tutoriais_automaticos = False   # tutoriais não abrem sozinhos (há um teste próprio para isso)
 # A sugestão de backup completo antes do reset responde "Não" (continuar), salvo nos testes dela
 import tkinter.messagebox as _mb
 _mb.askyesnocancel = lambda *a, **k: False
@@ -397,7 +399,7 @@ def faixa_de_aviso_aparece_quando_o_windows_bloqueia():
             app.update()
             visivel = app.faixa.winfo_manager() == 'pack'
             texto = app.faixa_texto.cget('text')
-            desativado = app.bt_reset.instate(['disabled'])
+            desativado = app.bt_restaurar.instate(['disabled'])
             # Acesso Controlado DESLIGADO: a faixa não pode culpá-lo nem mostrar os botões dele
             cfa.update(ligado=False, evento=False)
             app.verificar_permissao()
@@ -407,7 +409,7 @@ def faixa_de_aviso_aparece_quando_o_windows_bloqueia():
             bloqueio['ativo'] = False
             app.testar_de_novo()
             some = app.faixa.winfo_manager() == ''
-            ativado = app.bt_reset.instate(['!disabled'])
+            ativado = app.bt_restaurar.instate(['!disabled'])
             app.destroy()
         assert visivel and 'Acesso Controlado a Pastas' in texto and desativado
         assert 'Acesso Controlado' not in texto_sem_cfa and all(m == '' for m in botoes_cfa), (texto_sem_cfa, botoes_cfa)
@@ -527,7 +529,8 @@ def janela_com_steam_e_epic():
         assert 'também tem save da Steam' in r1[4], r1
         assert r2[0] == p['steam_novo'] and r2[1] == 2, r2
         assert 'Há 2 saves da Steam' in r2[2] and 'também tem save da Epic' in r2[2], r2
-        assert perguntas and perguntas[0].startswith('Save: Steam - conta 76561190000000002 (jogado em'), perguntas
+        assert perguntas and perguntas[0].startswith('Antes de mexer nas missões'), perguntas   # backup obrigatório
+        assert perguntas[-1].startswith('Save: Steam - conta 76561190000000002 (jogado em'), perguntas
         assert credito == f'Feito por Sheeerpha  ·  v{cotw_app.VERSAO}', credito
         assert ('☕  Buy Me a Coffee', cotw_app.LINK_BUYMEACOFFEE) in estados, estados
         assert ('💠  LivePix (Pix)', cotw_app.LINK_LIVEPIX) in estados, estados
@@ -665,6 +668,7 @@ def janela_alterna_tema_sem_perder_o_save():
                 claro = (app.bt_tema.cget('text'), cotw_app.ttk.Style().theme_use())
                 app.lista.selection_set('21')
                 app.resetar()
+                app.avisos_aceitos = app.save_confirmado = True   # passos 1 e 2 confirmados
                 app.alternar_tema()
                 app.update()
                 estilo = cotw_app.ttk.Style()
@@ -830,19 +834,24 @@ def backups_da_v15_vao_para_a_pasta_nova():
 
 
 @teste
-def sugestao_de_backup_completo_antes_do_reset():
+def backup_completo_obrigatorio_antes_do_reset():
+    """0.9.9: sem backup completo, o programa pede para fazer; sem ele, não reseta."""
     import cotw_app
     from unittest import mock
-    for resposta, espera_backup, espera_reset in ((True, 1, True), (False, 0, True), (None, 0, False)):
+    for resposta, espera_backup, espera_reset in ((True, 1, True), (False, 0, False)):
         with tempfile.TemporaryDirectory() as tmp:
             save = core.descrever_pasta(save_falso(tmp))
             perguntas = []
+
+            def perguntar(titulo, m, **k):
+                if m.startswith('Antes de mexer nas missões'):
+                    perguntas.append(m)
+                    return resposta
+                return True
             with mock.patch.object(core, 'encontrar_saves', lambda: [save]), \
                  mock.patch.object(core, 'pasta_do_programa_padrao', lambda: os.path.join(tmp, 'b')), \
                  mock.patch.object(core, 'migrar_pasta_antiga', lambda raiz: None), \
-                 mock.patch.object(cotw_app.messagebox, 'askyesnocancel',
-                                   lambda t, m, **k: perguntas.append(m) or resposta), \
-                 mock.patch.object(cotw_app.messagebox, 'askyesno', lambda *a, **k: True), \
+                 mock.patch.object(cotw_app.messagebox, 'askyesno', perguntar), \
                  mock.patch.object(cotw_app.messagebox, 'showinfo', lambda *a, **k: None):
                 app = cotw_app.App()
                 app.withdraw()
@@ -865,8 +874,9 @@ def sugestao_de_backup_completo_antes_do_reset():
 def aviso_aparece_sempre_e_introducao_so_na_primeira_vez():
     import cotw_app
     from unittest import mock
-    idiomas.salvar_config(intro_vista=False)
+    idiomas.salvar_config(intro_vista=False, nao_mostrar_intro=False)
     cotw_app.App.mostrar_aviso_ao_abrir = True
+    cotw_app.App.tutoriais_automaticos = True
     try:
         with tempfile.TemporaryDirectory() as tmp:
             save = core.descrever_pasta(save_falso(tmp))
@@ -897,10 +907,22 @@ def aviso_aparece_sempre_e_introducao_so_na_primeira_vez():
                     intro.proximo()
                 assert not intro.winfo_exists()
                 assert idiomas.ler_config()['intro_vista'] is True
-                # abrir o programa de novo: o aviso aparece outra vez, a introdução não
+                # abrir o programa de novo: o aviso e a introdução aparecem outra vez (sem a caixinha marcada)
                 app.mostrar_boas_vindas()
                 (aviso2,) = janelas(cotw_app.JanelaAviso)
                 aviso2.fechar()
+                app.update()
+                app.after(300)
+                app.update()
+                (intro2,) = janelas(cotw_app.JanelaIntro)
+                assert intro2.caixa_nao_mostrar.winfo_manager() == 'pack' and not intro2.var_nao_mostrar.get()
+                intro2.caixa_nao_mostrar.invoke()                     # "Não mostrar mais"
+                assert idiomas.ler_config()['nao_mostrar_intro'] is True
+                intro2.fechar()
+                # agora o aviso aparece, a introdução não
+                app.mostrar_boas_vindas()
+                (aviso3,) = janelas(cotw_app.JanelaAviso)
+                aviso3.fechar()
                 app.update()
                 app.after(300)
                 app.update()
@@ -912,13 +934,15 @@ def aviso_aparece_sempre_e_introducao_so_na_primeira_vez():
         assert paginas[0][0] == '1 de 7' and paginas[-1][0] == '7 de 7', paginas
         assert paginas[-1][2] == 'Começar!' and paginas[0][2] == 'Próximo  →', paginas
         assert paginas[1][1] == 'VERIFICAÇÃO ANTES DE COMEÇAR' and '"detalhes"' in paginas[1][3], paginas[1]
-        assert 'Fazer novo backup' in paginas[3][3] and '3 dias' in paginas[3][3], paginas[3][3]
-        assert '"↺ resetado"' in paginas[4][3], paginas[4][3]
-        assert '"Como funciona?"' in paginas[5][3] and '"Precisa desfazer?"' in paginas[5][3], paginas[5][3]
+        assert paginas[2][1] == 'CONFIRME O SEU SAVE' and '"Sim, é este save"' in paginas[2][3], paginas[2]
+        assert 'Obrigatório' in paginas[3][3] and '2 dias' in paginas[3][3], paginas[3][3]
+        assert '"Marcar todos"' in paginas[4][3], paginas[4][3]
+        assert '"Qual escolher? Veja a diferença"' in paginas[5][3], paginas[5][3]
         assert not any('{' in p[3] for p in paginas), 'sobrou campo sem preencher'
     finally:
-        idiomas.salvar_config(intro_vista=True)
+        idiomas.salvar_config(intro_vista=True, nao_mostrar_intro=False)
         cotw_app.App.mostrar_aviso_ao_abrir = False
+        cotw_app.App.tutoriais_automaticos = False
 
 
 @teste
@@ -1457,7 +1481,7 @@ def aviso_de_versao_nova():
              mock.patch.object(atualizacao, 'consultar', consultar):
             hoje = datetime.date(2026, 11, 20)
             assert atualizacao.verificar('0.9.7 (Beta)', hoje) == nova
-            assert atualizacao.verificar('0.9.7 (Beta)', hoje) == nova and len(consultas) == 1   # 1 vez por dia
+            assert atualizacao.verificar('0.9.7 (Beta)', hoje) == nova and len(consultas) == 2   # toda vez que abre
             assert atualizacao.verificar('0.9.8 (Beta)', hoje) is None                           # já está na nova
             atualizacao.ignorar('v0.9.8-beta')
             assert atualizacao.verificar('0.9.7 (Beta)', hoje) is None                           # "Agora não"
@@ -1510,24 +1534,25 @@ def _envelhecer(pasta_backup, dias):
 
 
 @teste
-def backup_completo_protegido_passa_para_o_proximo_depois_de_3_dias():
+def backup_completo_protegido_passa_para_o_proximo_depois_de_2_dias():
     import datetime
+    assert core.DIAS_PROTECAO_SAVE == 2 and core.DIAS_BACKUP_VELHO == 2
     with tempfile.TemporaryDirectory() as tmp:
         pasta = save_falso(tmp)
         save = core.descrever_pasta(pasta)
         raiz = os.path.join(tmp, 'b')
         base = core.pasta_backups_save_completo(save, raiz)
         agora = datetime.datetime.now()
-        idades = {'s10d': datetime.timedelta(days=10), 's5d': datetime.timedelta(days=5),
-                  's2d': datetime.timedelta(days=2), 's1h': datetime.timedelta(hours=1)}
+        idades = {'s10d': datetime.timedelta(days=10), 's3d': datetime.timedelta(days=3),
+                  's1d': datetime.timedelta(days=1), 's1h': datetime.timedelta(hours=1)}
         pastas = {n: _backup_falso(base, n, agora - d, pasta, completo=True) for n, d in idades.items()}
         assert core.limpar_excesso_de_backups(save, raiz) == []
         lista = core.listar_backups_save(save, raiz)
-        assert [b.pasta for b in lista] == [pastas['s1h'], pastas['s2d']], [b.pasta for b in lista]
-        assert lista[-1].protegido and lista[-1].pasta == pastas['s2d']       # a proteção passou para o próximo
+        assert [b.pasta for b in lista] == [pastas['s1h'], pastas['s1d']], [b.pasta for b in lista]
+        assert lista[-1].protegido and lista[-1].pasta == pastas['s1d']       # a proteção passou para o próximo
         # o único backup nunca é apagado, mesmo velho
         _envelhecer(pastas['s1h'], 20)
-        _envelhecer(pastas['s2d'], 30)
+        _envelhecer(pastas['s1d'], 30)
         core.limpar_excesso_de_backups(save, raiz)
         (unico,) = core.listar_backups_save(save, raiz)
         assert unico.pasta == pastas['s1h'] and unico.protegido
@@ -1578,6 +1603,10 @@ def janela_tem_5_passos_marcar_todos_e_aviso_de_backup_velho():
             # marcar todos: só os que não estão resetados
             app.lista.selection_set('21')
             app.resetar()
+            # passos em sequência: o 4 (mapas) e o 5 só liberam depois de confirmar o save
+            assert not app.liberado(4) and app.cartoes[3].estado == 'travado'
+            app.confirmar_save()
+            assert app.liberado(4) and app.cartoes[1].estado == 'feito'
             app.marcar_todos()
             marcados = set(app.lista.selection())
             assert '21' not in marcados and len(marcados) == len(app.mapas) - 1
@@ -1588,11 +1617,15 @@ def janela_tem_5_passos_marcar_todos_e_aviso_de_backup_velho():
             assert app.fazer_backup_save()
             assert app.p2_resumo.cget('text').startswith('Backup feito hoje')
             assert str(app.bt_novo_backup.cget('style')) == 'TButton'
-            (b,) = core.listar_backups_save(save, app.raiz)
-            _envelhecer(b.pasta, 4)
+            for b in core.listar_backups_save(save, app.raiz):   # o do reset (obrigatório) e o feito agora
+                _envelhecer(b.pasta, 4)
             app.recarregar()
-            assert app.p2_resumo.cget('text').startswith('Último backup há 4 dias'), app.p2_resumo.cget('text')
+            assert app.p2_resumo.cget('text').startswith('Seu último backup completo tem 4 dias'), \
+                app.p2_resumo.cget('text')
             assert str(app.bt_novo_backup.cget('style')) == 'Primario.TButton'
+            assert not app.liberado(4) and app.cartoes[2].estado == 'aviso'       # backup velho: sugere outro
+            app.link_continuar_velho.invoke()                                     # "Continuar com o de 4 dias"
+            assert app.liberado(4) and app.cartoes[2].estado == 'feito'
             assert 'Backups ocupam' in app.info.cget('text')
             # coraçãozinho do rodapé
             assert app.coracao.cget('text') == '♥'
@@ -1692,6 +1725,304 @@ def tutorial_de_desfazer_e_backup_original_em_cima():
     assert paginas[3][1] == 'O SEU BACKUP ORIGINAL 🔒' and 'PARA SEMPRE' in paginas[3][2], paginas[3]
     assert '"Restaurar missões"' in paginas[3][2], paginas[3][2]
     assert not any('{' in p[2] for p in paginas), 'sobrou campo sem preencher'
+
+# ---------------------------------------------------------------------------
+# 0.9.9: voltar missões da história, nível/XP/dinheiro, nomes do jogo, passos em sequência
+# ---------------------------------------------------------------------------
+
+def _raw(caminho):
+    return core.Save.abrir(caminho).raw
+
+
+@teste
+@so_com_amostras
+def voltar_missoes_muda_so_as_missoes_escolhidas():
+    import struct
+    import voltar
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        raiz = os.path.join(tmp, 'b')
+        antes = core.Save.abrir(save.arquivo)
+        plano = voltar.planejar(antes, 11)                   # Rancho del Arroyo
+        assert plano is not None and plano.maximo >= 2, plano
+        n = 2
+        ids = set(plano.conjunto(n))
+        assert plano.alvo(n).id in ids and plano.alvo(n).tipo == 'M'
+        b = voltar.voltar_missoes(save, 11, n, raiz)
+        depois = core.Save.abrir(save.arquivo)
+        assert len(depois.raw) == len(antes.raw) and depois.chaves == antes.chaves
+        # missões fora do conjunto e outros mapas: iguais byte a byte
+        mudou = set()
+        for k in antes.chaves:
+            a, d = voltar.missoes_no_save(antes, k), voltar.missoes_no_save(depois, k)
+            for mid, pos in a.items():
+                ra = [bytes(antes.raw[q:q + core.NODE]) for q, _i, _n in voltar.arvore(antes.raw, pos)]
+                rd = [bytes(depois.raw[q:q + core.NODE]) for q, _i, _n in voltar.arvore(depois.raw, d[mid])]
+                if ra != rd:
+                    mudou.add((k, mid))
+        assert mudou and all(k == 11 and mid in ids for k, mid in mudou), mudou
+        # as missões voltadas ficaram iguais ao modelo
+        modelo = voltar.dados()['11']['modelos']
+        for mid in ids:
+            arv = voltar.arvore(depois.raw, voltar.missoes_no_save(depois, 11)[mid])
+            estados = [list(struct.unpack_from('<iBB', depois.raw, q + 4)) for q, _i, _n in arv]
+            assert estados == [modelo[str(mid)][5 * k + 1:5 * k + 4] for k in range(len(arv))], mid
+            assert all(struct.unpack_from('<H', depois.raw, q + 40)[0] == 0 for q, _i, _n in arv)
+        # backup com o motivo certo, e restaurar devolve o arquivo de antes
+        (bk,) = core.listar_backups(save, raiz)
+        assert bk.tipo == 'voltar' and bk.n == 2 and bk.titulo == 'Antes de voltar missões em Rancho del Arroyo (2)'
+        assert md5(bk.arquivo) == md5(COMPLETO)
+        core.restaurar_backup(save, bk, raiz)
+        assert md5(save.arquivo) == md5(COMPLETO)
+        assert b.pasta == bk.pasta
+
+
+@teste
+@so_com_amostras
+def voltar_recusa_missao_que_mudou_numa_atualizacao():
+    import copy
+    import voltar
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        s = core.Save.abrir(save.arquivo)
+        plano = voltar.planejar(s, 11)
+        alvo = plano.alvo(1)
+        dados = copy.deepcopy(voltar.dados())
+        dados['11']['modelos'][str(alvo.id)] += [999999, 0, 0, 0, 0]   # o "jogo novo" tem uma etapa a mais
+        with mock.patch.object(voltar, '_dados', dados):
+            assert voltar.problemas(s, plano, 1) == [(alvo.id, 'mudou')]
+            assert voltar.maximo_seguro(s, plano) == 0
+            try:
+                voltar.voltar_missoes(save, 11, 1, os.path.join(tmp, 'b'))
+                assert False, 'deveria recusar'
+            except core.ErroSave as e:
+                assert 'atualização do jogo' in str(e), e
+        assert md5(save.arquivo) == md5(COMPLETO) and core.listar_backups(save, os.path.join(tmp, 'b')) == []
+
+
+@teste
+def tabelas_de_missoes_so_tem_numeros():
+    import voltar
+    d = voltar.dados()
+    assert set(d) == {str(k) for k in core.MAPAS if k != 15}, sorted(d)
+    for k, m in d.items():
+        for mid, tipo, vis, deps, h in m['missoes']:
+            assert isinstance(mid, int) and tipo in 'MS' and vis in (0, 1) and isinstance(h, int)
+            assert all(isinstance(x, int) for x in deps)
+        for arv in m['modelos'].values():
+            assert all(isinstance(x, int) for x in arv) and len(arv) % 5 == 0
+
+
+def _perfil_falso(caminho, nivel, xp, dinheiro):
+    """thp_player_profile_adf mínimo (cabeçalho SAVE + zlib + ADF com PlayerProfileData_22)."""
+    import struct
+    import zlib
+    nomes = [b'PlayerProfileData_22', b'Level', b'Xp', b'Cash', b'perfil']
+    tam_inst = 160
+    off_inst = 64
+    inst = bytearray(tam_inst)
+    struct.pack_into('<I', inst, 12, nivel)
+    struct.pack_into('<I', inst, 16, xp)
+    struct.pack_into('<I', inst, 156, dinheiro)
+    tab_inst = struct.pack('<IIIIQ', 0xAAAA, 0x1234, off_inst, tam_inst, 4)
+    u32 = 0x075e4e4f
+    tipo = struct.pack('<4IQHHIII', 1, tam_inst, 4, 0x1234, 0, 0, 0, 0, 0, 3)
+    for i, off in ((1, 12), (2, 16), (3, 156)):
+        tipo += struct.pack('<QIIIIQ', i, u32, 4, off, 0, 0)
+    texto_nomes = bytes(len(n) for n in nomes) + b''.join(n + b'\0' for n in nomes)
+    o_inst = off_inst + tam_inst
+    o_tipo = o_inst + len(tab_inst)
+    o_nomes = o_tipo + len(tipo)
+    total = o_nomes + len(texto_nomes)
+    cab = struct.pack('<4s10I', b' FDA', 4, 1, o_inst, 1, o_tipo, 0, 0, len(nomes), o_nomes, total)
+    adf = cab + bytes(off_inst - len(cab)) + inst + tab_inst + tipo + texto_nomes
+    raw = b'\x01\x01\x00\x00\x00' + adf
+    arq = (b'SAVE' + struct.pack('<I', 0x00335D13) + struct.pack('<Q', len(raw)) + b'COMP' + b'\x01\x01\x00\x00'
+           + struct.pack('<Q', len(raw)) + zlib.compress(raw, 1))
+    open(caminho, 'wb').write(arq)
+
+
+@teste
+def perfil_le_nivel_xp_e_dinheiro_pelos_nomes():
+    import perfil
+    with tempfile.TemporaryDirectory() as tmp:
+        assert perfil.ler(tmp) is None                       # sem o arquivo: não mostra
+        _perfil_falso(os.path.join(tmp, perfil.ARQUIVO), 60, 293384, 2343449)
+        assert perfil.ler(tmp) == {'nivel': 60, 'xp': 293384, 'dinheiro': 2343449}
+        open(os.path.join(tmp, perfil.ARQUIVO), 'wb').write(b'lixo')
+        assert perfil.ler(tmp) is None                       # arquivo estranho: não quebra
+
+
+def _jogo_falso(pasta, textos):
+    """Pasta de jogo mínima com o arquivo de traduções (10 idiomas; textos = {hash: (en, es, pt)})."""
+    import struct
+    arquivos = os.path.join(pasta, 'archives_win64')
+    os.makedirs(arquivos)
+    texto = bytearray()
+    pares = []
+    for i in range(10):
+        lista = []
+        for h, (en, es, pt) in sorted(textos.items()):
+            s = {0: en, 3: es, 7: pt}.get(i, en)
+            lista.append((h, len(texto)))
+            texto += s.encode('utf-8') + b'\0'
+        pares.append(lista)
+    base = 64
+    corpo = bytearray(32)                                     # Languages (16) + Text (16)
+    off_langs = len(corpo)
+    corpo += bytes(32 * 10)
+    off_pares = []
+    for lista in pares:
+        off_pares.append(len(corpo))
+        for h, o in lista:
+            corpo += struct.pack('<Ii', h, o)
+    off_texto = len(corpo)
+    corpo += texto
+    struct.pack_into('<IxxxxQ', corpo, 0, off_langs, 10)
+    struct.pack_into('<IxxxxQ', corpo, 16, off_texto, len(texto))
+    for i, o in enumerate(off_pares):
+        struct.pack_into('<IxxxxQ', corpo, off_langs + 32 * i, o, len(pares[i]))
+    o_inst = base + len(corpo)
+    cab = struct.pack('<4s10I', b' FDA', 4, 1, o_inst, 0, 0, 0, 0, 0, 0, 0)
+    adf = cab + bytes(base - len(cab)) + corpo + struct.pack('<IIIIQ', 0, 0, base, len(corpo), 0)
+    arc = bytes(4096) + adf
+    open(os.path.join(arquivos, 'game0.arc'), 'wb').write(arc)
+    tab = b'TAB\0' + struct.pack('<HHI', 2, 1, 0x1000) + struct.pack('<III', 0x1111, 0, 10) + \
+        struct.pack('<III', 0xb8d20a3c, 4096, len(adf))
+    open(os.path.join(arquivos, 'game0.tab'), 'wb').write(tab)
+
+
+@teste
+def nomes_das_missoes_vem_do_jogo_instalado():
+    import jogo
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        pasta = os.path.join(tmp, 'theHunterCotW')
+        _jogo_falso(pasta, {0x895b4dae: ('HAERE MAI!', '¡HAERE MAI!', 'HAERE MAI!'),
+                            0x12345678: ('TARGET PRACTICE', 'TIRO AL BLANCO', 'TIRO AO ALVO')})
+        assert jogo.pasta_valida(pasta) == pasta and jogo.pasta_valida(os.path.join(pasta, 'archives_win64')) == pasta
+        assert jogo.pasta_valida(tmp) is None
+        with mock.patch.object(idiomas, 'ARQUIVO_PREF', os.path.join(tmp, 'cfg', 'config.json')):
+            nomes = jogo.carregar_nomes([0x12345678, 0x895b4dae], pasta)
+            assert nomes['pt'][0x12345678] == 'TIRO AO ALVO' and nomes['en'][0x12345678] == 'TARGET PRACTICE'
+            assert nomes['es'][0x895b4dae] == '¡HAERE MAI!'
+            assert os.path.isfile(os.path.join(tmp, 'cfg', jogo.CACHE))
+            # segunda vez: vem do cache (mesmo resultado, sem reler o arquivo grande)
+            with mock.patch.object(jogo, '_ler_traducoes', mock.Mock(side_effect=AssertionError('releu'))):
+                assert jogo.carregar_nomes([0x12345678, 0x895b4dae], pasta)['pt'][0x12345678] == 'TIRO AO ALVO'
+            # sem jogo: sem nomes, sem erro
+            with mock.patch.object(jogo, 'encontrar_jogo', lambda: None):
+                assert jogo.carregar_nomes([0x12345678]) is None
+
+
+@teste
+@so_com_amostras
+def janela_voltar_missoes_com_nome_e_quantidade():
+    import cotw_app
+    import voltar
+    from unittest import mock
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        perguntas = []
+        app, pilha = _app_de_teste(tmp, save)
+        with pilha, mock.patch.object(cotw_app.messagebox, 'askyesno',
+                                      lambda t, m, **k: perguntas.append(m) or True):
+            app.avisos_aceitos = True
+            assert app.fazer_backup_save(perguntar_ok=False, ja_verificado=True)
+            app.confirmar_save()
+            assert app.liberado(4)
+            app.trocar_modo('voltar')
+            app.ao_focar(11)
+            app.update()
+            plano = voltar.planejar(core.Save.abrir(save.arquivo), 11)
+            assert app.bt_voltar.winfo_manager() == 'pack' and app.bt_voltar.instate(['!disabled'])
+            assert app.bt_voltar.cget('text') == '⏪  Voltar 1 missão em Rancho del Arroyo', app.bt_voltar.cget('text')
+            app.mudar_n(2)
+            assert app.valor_n.cget('text') == '2'
+            assert app.destino_pos.cget('text').startswith(f'missão {plano.posicao(plano.alvo(2))} de '), \
+                app.destino_pos.cget('text')
+            app.mudar_n(999)                                  # não passa do máximo
+            assert int(app.valor_n.cget('text')) == voltar.maximo_seguro(app.dados_save, plano)
+            app.mudar_n(2)
+            app.voltar_missoes()
+            (bk,) = core.listar_backups(save, app.raiz)
+            assert bk.tipo == 'voltar' and bk.n == 2
+            assert any('Voltar 2 missão(ões) da história em Rancho del Arroyo' in p for p in perguntas), perguntas
+            app.destroy()
+
+
+@teste
+def tutorial_resetar_tudo_ou_voltar_missoes():
+    import cotw_app
+    with tempfile.TemporaryDirectory() as tmp:
+        save = core.descrever_pasta(save_falso(tmp))
+        app, pilha = _app_de_teste(tmp, save)
+        with pilha:
+            app.mostrar_modos()
+            app.mostrar_modos()                              # não abre duas
+            janelas = [w for w in app.winfo_children() if isinstance(w, cotw_app.JanelaModos)]
+            assert len(janelas) == 1
+            tut = janelas[0]
+            paginas = []
+            for _ in range(cotw_app.JanelaModos.TOTAL):
+                paginas.append((tut.contador.cget('text'), tut.titulo.cget('text'), tut.texto.cget('text'),
+                                tut.bt_proximo.cget('text')))
+                tut.proximo()
+            assert not tut.winfo_exists()
+            app.destroy()
+    assert paginas[0][0] == '1 de 4' and paginas[-1][3] == 'Entendi', paginas
+    assert '"Resetar tudo"' in paginas[0][2] and '"Restaurar missões"' in paginas[-1][2], paginas
+    assert not any('{' in p[2] for p in paginas), 'sobrou campo sem preencher'
+
+
+@teste
+def tutoriais_abrem_sozinhos_ate_marcar_nao_mostrar_mais():
+    import cotw_app
+    cotw_app.App.tutoriais_automaticos = True
+    # o "Como usar" não abre aqui (senão o de modos espera ele fechar, o que também é testado abaixo)
+    idiomas.salvar_config(nao_mostrar_modos=False, nao_mostrar_desfazer=False, nao_mostrar_intro=True)
+    try:
+        with tempfile.TemporaryDirectory() as tmp:
+            save = core.descrever_pasta(save_falso(tmp))
+            app, pilha = _app_de_teste(tmp, save)
+            with pilha:
+                janelas = lambda tipo: [w for w in app.winfo_children() if isinstance(w, tipo)]
+                app.avisos_aceitos = True
+                assert app.fazer_backup_save(perguntar_ok=False, ja_verificado=True)
+                assert janelas(cotw_app.JanelaModos) == []          # passo 4 ainda travado
+                apelido = cotw_app.JanelaApelido(app)               # outra janela aberta: o tutorial espera
+                app.confirmar_save()                                # libera o passo 4
+                app.after(700)
+                app.update()
+                assert janelas(cotw_app.JanelaModos) == []
+                apelido.cancelar()
+                app.after(1000)
+                app.update()
+                (modos,) = janelas(cotw_app.JanelaModos)
+                modos.caixa_nao_mostrar.invoke()
+                assert idiomas.ler_config()['nao_mostrar_modos'] is True
+                modos.fechar()
+                app.atualizar_passos()                              # só uma vez por abertura
+                app.after(700)
+                app.update()
+                assert janelas(cotw_app.JanelaModos) == []
+                # depois de uma mudança: "Como desfazer" abre sozinho, até marcar a caixinha
+                app._desfazer_depois_da_mudanca()
+                (desf,) = janelas(cotw_app.JanelaComoDesfazer)
+                desf.caixa_nao_mostrar.invoke()
+                desf.fechar()
+                app._desfazer_depois_da_mudanca()
+                assert janelas(cotw_app.JanelaComoDesfazer) == []
+                # os links continuam abrindo os tutoriais
+                app.link_qual.invoke()
+                app.link_como_desfazer.invoke()
+                assert len(janelas(cotw_app.JanelaModos)) == 1 and len(janelas(cotw_app.JanelaComoDesfazer)) == 1
+                app.destroy()
+    finally:
+        cotw_app.App.tutoriais_automaticos = False
+        idiomas.salvar_config(nao_mostrar_modos=False, nao_mostrar_desfazer=False, nao_mostrar_intro=False)
+
 
 print()
 if pulados:

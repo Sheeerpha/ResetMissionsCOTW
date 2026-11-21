@@ -1,7 +1,7 @@
 """Aviso de versão nova.
 
 Ao abrir, o programa pergunta à página pública de Releases do GitHub qual é a última
-versão publicada (no máximo 1 vez por dia). Se for mais nova que esta, a janela mostra
+versão publicada (toda vez que abre). Se for mais nova que esta, a janela mostra
 um aviso com o link para baixar. Nada é baixado nem trocado sozinho.
 
 - Não envia nenhum dado pessoal: é só uma consulta à página pública do projeto.
@@ -46,17 +46,16 @@ def link_seguro(link):
 
 
 def verificar(versao_local, hoje=None):
-    """Devolve (tag, link) se houver versão mais nova e ainda não ignorada; senão None."""
+    """Devolve (tag, link) se houver versão mais nova e ainda não ignorada; senão None.
+    Consulta o GitHub TODA vez que o programa abre (desde a 0.9.9: antes era 1 vez por dia, e uma
+    versão publicada no mesmo dia não era avisada)."""
     cfg = idiomas.ler_config()
     hoje = (hoje or datetime.date.today()).isoformat()
-    if cfg.get('atualizacao_consultada_em') == hoje:
-        tag, link = cfg.get('atualizacao_tag', ''), cfg.get('atualizacao_link', '')
-    else:
-        try:
-            tag, link = consultar()
-        except Exception:
-            return None          # sem internet, GitHub fora do ar etc.: tenta na próxima vez
-        idiomas.salvar_config(atualizacao_consultada_em=hoje, atualizacao_tag=tag, atualizacao_link=link)
+    try:
+        tag, link = consultar()
+    except Exception:
+        return None          # sem internet, GitHub fora do ar etc.: tenta na próxima vez
+    idiomas.salvar_config(atualizacao_consultada_em=hoje, atualizacao_tag=tag, atualizacao_link=link)
     if not mais_nova(tag, versao_local) or cfg.get('atualizacao_ignorada') == tag:
         return None
     return tag, link_seguro(link)

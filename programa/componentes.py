@@ -174,6 +174,13 @@ def img_ret(widget, largura, altura, raio, cor, fundo, borda=None, espessura=1.0
     return guardar_imagem(widget, ('ret', largura, altura, raio, cor, fundo, borda, espessura), fazer)
 
 
+def _existe(widget):
+    try:
+        return bool(widget.winfo_exists())
+    except tk.TclError:
+        return False
+
+
 # -------------------------------------------------------------------- peças
 class Circulo(tk.Canvas):
     """Círculo numerado de um passo."""
@@ -335,28 +342,45 @@ class Dica:
 
 class AreaRolavel(ttk.Frame):
     """Área com rolagem vertical (só aparece a barra quando o conteúdo não cabe).
-    O conteúdo fica numa coluna centralizada de largura máxima 'largura'."""
+    O conteúdo fica numa coluna centralizada de largura máxima 'largura' (None = largura toda).
+    A rodinha do mouse rola a área que está embaixo do ponteiro (pode haver várias na janela)."""
 
-    def __init__(self, pai, largura=800):
+    _areas = []
+
+    def __init__(self, pai, largura=800, fundo=None, margem=32):
         super().__init__(pai)
-        self.largura = largura
-        fundo = temas.cor('fundo')
+        self.largura, self.margem = largura, margem
+        fundo = fundo or temas.cor('fundo')
         self.canvas = tk.Canvas(self, bg=fundo, highlightthickness=0, bd=0)
         self.barra = ttk.Scrollbar(self, orient='vertical', command=self.canvas.yview)
         self.canvas.configure(yscrollcommand=self._rolou)
-        self.dentro = ttk.Frame(self.canvas)
+        self.dentro = tk.Frame(self.canvas, bg=fundo)
         self._janela = self.canvas.create_window(0, 0, anchor='nw', window=self.dentro)
         self.canvas.pack(side='left', fill='both', expand=True)
         self.dentro.bind('<Configure>', lambda e: self._ajustar())
         self.canvas.bind('<Configure>', lambda e: self._ajustar())
-        self.bind_all('<MouseWheel>', self._roda)   # substitui o da janela anterior (ao trocar tema/idioma)
+        AreaRolavel._areas = [a for a in AreaRolavel._areas if _existe(a)] + [self]
+        self.bind_all('<MouseWheel>', AreaRolavel._roda_global)
 
     def _ajustar(self):
         w = self.canvas.winfo_width()
-        larg = min(self.largura, max(w - 32, 300))
+        larg = w if self.largura is None else min(self.largura, max(w - self.margem, 300))
         self.canvas.itemconfigure(self._janela, width=larg)
         self.canvas.coords(self._janela, max((w - larg) // 2, 0), 0)
         self.canvas.configure(scrollregion=(0, 0, w, self.dentro.winfo_reqheight()))
+
+    @staticmethod
+    def _roda_global(evento):
+        try:
+            w = evento.widget.winfo_containing(evento.x_root, evento.y_root)
+        except (tk.TclError, AttributeError, KeyError):
+            return
+        while w is not None:
+            if isinstance(w, AreaRolavel) and _existe(w):
+                if w.barra.winfo_manager():
+                    w.canvas.yview_scroll(int(-evento.delta / 120), 'units')
+                    return
+            w = getattr(w, 'master', None)
 
     def _rolou(self, primeiro, ultimo):
         self.barra.set(primeiro, ultimo)
@@ -365,15 +389,6 @@ class AreaRolavel(ttk.Frame):
             self.barra.pack_forget()
         elif not cabe and not self.barra.winfo_manager():
             self.barra.pack(side='right', fill='y', before=self.canvas)
-
-    def _roda(self, evento):
-        try:
-            if str(evento.widget.winfo_toplevel()) != str(self.winfo_toplevel()):
-                return
-        except (tk.TclError, AttributeError, KeyError):
-            return
-        if self.barra.winfo_manager():
-            self.canvas.yview_scroll(int(-evento.delta / 120), 'units')
 
     def mostrar(self, widget):
         """Rola até o widget ficar visível."""

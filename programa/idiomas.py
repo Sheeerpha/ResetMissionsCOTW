@@ -41,6 +41,11 @@ def idioma_do_langid(langid):
     return {0x16: 'pt', 0x0A: 'es'}.get(langid & 0x3FF, PADRAO)
 
 
+def pasta_config():
+    """%LOCALAPPDATA%\\ResetMissionsCOTW (preferências e cache, fora de Documentos)."""
+    return os.path.dirname(ARQUIVO_PREF)
+
+
 def ler_config():
     """Preferências do usuário (idioma, tema). Devolve {} se não houver."""
     try:
@@ -447,7 +452,6 @@ TEXTOS = {
         'bt_resetar_nenhum': 'Resetar',
         'bt_resetar_um': 'Resetar 1 mapa',
         'bt_resetar_varios': 'Resetar {n} mapas',
-        'passo4_nenhum': 'Marque pelo menos um mapa no passo 3.',
         'passo4_resumo': '{nomes}. Os outros mapas não mudam.',
         'conjuncao_e': ' e ',
         'link_restaurar_missoes': 'Restaurar missões',
@@ -552,7 +556,6 @@ TEXTOS = {
         'link_verificar_de_novo': 'Verificar de novo',
         'status_bloqueado': '●  O Windows está bloqueando o programa: veja o aviso amarelo acima',
         'bt_novo_backup': '💾  Fazer novo backup',
-        'passo2_velho': 'Último backup há {dias} dias  ·  {tamanho}. Faça um novo antes de alterar o save.',
         'link_marcar_todos': 'Marcar todos',
         'link_desmarcar_todos': 'Desmarcar todos',
         'desfazer': 'Precisa desfazer?',
@@ -626,26 +629,6 @@ TEXTOS = {
                          'do save. Com tudo certo, o passo fica com ✓ verde.\n\n'
                          'Se algo atrapalhar, ele fica amarelo: clique em "{detalhes}" para ver o que é e resolver, '
                          'e depois em "{verificar}".',
-        'intro_titulo_3': 'Escolha o save',
-        'intro_texto_3': 'O programa encontra o seu save sozinho (Steam ou Epic) e já escolhe o que você jogou por '
-                         'último.\n\n'
-                         'Tem mais de um save? Clique em "{trocar}" para escolher outro. Se ele não encontrar nada, '
-                         'use "{escolher_pasta}".',
-        'intro_titulo_4': 'Faça um backup do save completo',
-        'intro_texto_4': 'Recomendado, principalmente na primeira vez: guarda uma cópia de TODOS os arquivos do '
-                         'save. Você pode dar um nome ao backup, para reconhecer depois.\n\n'
-                         'Se o último backup tiver mais de {dias} dias, o passo fica amarelo para lembrar você de '
-                         'fazer outro em "{novo_backup}".',
-        'intro_titulo_5': 'Marque os mapas que quer recomeçar',
-        'intro_texto_5': 'Clique na caixinha (ou no nome) de cada mapa, ou use "Marcar todos". A barrinha mostra '
-                         'quanto você já avançou nas missões daquele mapa.\n\n'
-                         'Mapas com "{resetado}" já estão prontos: as missões começam do zero quando você entrar '
-                         'no mapa.',
-        'intro_titulo_6': 'Resetar',
-        'intro_texto_6': 'Feche o jogo, clique no botão verde "{resetar}" e confira na tela de confirmação o que '
-                         'vai mudar. Antes, o programa faz um backup das missões sozinho.\n\n'
-                         'Logo abaixo fica o quadro "{desfazer}", com os botões para voltar atrás e o link '
-                         '"{como_desfazer}", que ensina passo a passo.',
         'intro_titulo_7': 'Depois do reset',
         'intro_texto_7': 'Abra o jogo normalmente. Se o Steam Cloud ou a Epic Cloud perguntar qual versão usar, '
                          'escolha a LOCAL (deste computador). Entre no mapa: as missões começam do zero.\n\n'
@@ -697,6 +680,174 @@ TEXTOS = {
                             'sempre em cima e, logo abaixo, os outros, do mais recente para o mais antigo. Cada um diz '
                             'por que foi feito (ex.: "Antes de resetar Te Awaroa").\n\n'
                             'Para desfazer o último reset, escolha o primeiro logo abaixo do 🔒.',
+
+        # ---- 0.9.9: passos em sequência, nível/XP/dinheiro, painel do mapa, "Voltar missões da história".
+        # (algumas chaves abaixo substituem textos antigos de mesmo nome)
+        'p1_titulo': 'Verificação',
+        'p2_titulo': 'Seu save',
+        'p3_titulo': 'Backup completo',
+        'p4_titulo': 'Escolha o mapa',
+        'p5_titulo_um': 'O que fazer neste mapa?',
+        'p5_titulo_varios': 'O que fazer nestes mapas?',
+        'p5_travado': 'Complete os passos 1 a 4',
+        'p5_travado_sub': 'Cada passo libera o próximo. Assim nada importante fica para trás.',
+        'p5_travado_texto': 'Siga os passos da esquerda, de cima para baixo: confira a verificação, confirme o '
+                            'seu save, faça (ou confirme) o backup completo e escolha um mapa. Depois disso, '
+                            'este painel mostra as opções para o mapa escolhido.',
+        'p5_escolha': 'Escolha um mapa',
+        'p5_escolha_sub_resetar': 'Marque um ou mais mapas na lista ao lado.',
+        'p5_escolha_sub_voltar': 'Clique num mapa da lista ao lado.',
+        'voltar_escolha_mapa': 'Clique num mapa da lista ao lado para ver em que missão da história você está e '
+                               'quantas dá para voltar.',
+        'bt_li_aviso': 'Li o aviso e quero continuar',
+        'bt_ver_o_que_fazer': 'Ver o que fazer',
+        'status_avisos_aceitos': '●  Avisos lidos: pode continuar',
+        'selo_mais_recente': 'MAIS RECENTE',
+        'selo_nao_recente': 'não é o mais recente',
+        'bt_e_este_save': 'Sim, é este save',
+        'save_confirmado': 'Save confirmado',
+        'st_nivel': 'Nível',
+        'st_xp': 'XP',
+        'st_dinheiro': 'Dinheiro',
+        'st_missoes': 'Missões',
+        'p3_obrigatorio': 'Obrigatório antes de mexer nas missões: uma cópia de TODO o save, para você poder '
+                          'voltar atrás se precisar.',
+        'passo2_velho': 'Seu último backup completo tem {dias} dias  ·  {tamanho}. Recomendamos fazer um novo.',
+        'p3_velho_aceito': 'Usando o backup de {dias} dias  ·  {tamanho}',
+        'link_continuar_backup_velho': 'Continuar com o de {dias} dias',
+        'link_fazer_novo': 'Fazer novo backup',
+        'backup_obrigatorio': 'Antes de mexer nas missões é preciso ter um backup do save completo (passo 3).\n\n'
+                              'Fazer o backup agora?',
+        'passo4_nenhum': 'Marque pelo menos um mapa na lista (passo 4).',
+        'hist_n': 'História {c}/{t}',
+        'missoes_c_de_t': '{c} de {t} missões concluídas',
+        'voce_esta_em': 'Você está em: {nome}  ·  missão {n} de {t} da história',
+        'historia_concluida': 'História concluída ✓  ·  {t} missões',
+        'historia_concluida_curto': 'História concluída',
+        'mapa_zerado_banner': 'Missões já resetadas: o jogo recria tudo quando você entrar no mapa.',
+        'mapas_marcados_resumo': '{n} mapas marcados  ·  {c} missões concluídas no total',
+        'modo_resetar': 'Resetar tudo',
+        'modo_resetar_sub': 'Zera todas as missões deste mapa (história e secundárias).',
+        'modo_resetar_sub_varios': 'Zera todas as missões dos mapas marcados (história e secundárias).',
+        'modo_voltar': 'Voltar missões da história',
+        'modo_voltar_sub': 'Volta algumas missões e você refaz a partir dali.',
+        'link_qual_escolher': 'Qual escolher? Veja a diferença',
+        'quantas_voltar': 'Quantas missões voltar?',
+        'de_no_maximo': 'de no máximo {n}',
+        'recomecar_em': 'Você vai recomeçar em',
+        'missao_n_de': 'missão {n} de {t} da história',
+        'tambem_voltam': 'Também voltam {n} secundárias ligadas a essas missões:',
+        'tambem_volta_uma': 'Também volta 1 secundária ligada a essas missões:',
+        'nenhuma_secundaria': 'Nenhuma secundária volta junto.',
+        'outras_nao_mudam': 'As outras secundárias e os outros mapas não mudam.',
+        'historia_de': 'História de {mapa}',
+        'n_de_t_concluidas': '{c} de {t} concluídas',
+        'tag_recomeca': 'recomeça aqui',
+        'tag_volta': 'volta',
+        'tag_voce_esta': 'você está aqui',
+        'missao_historia_n': 'Missão {n} da história',
+        'missao_sem_nome': 'Missão secundária',
+        'voltar_sem_dados': 'Este mapa ainda não tem as informações necessárias para voltar missões. Use '
+                            '"Resetar tudo" se quiser recomeçar.',
+        'voltar_comeco': 'Você ainda está na primeira missão da história deste mapa: não há missões para voltar.',
+        'voltar_mudou': 'As missões deste mapa mudaram numa atualização do jogo depois que você as fez, por isso '
+                        'não dá para voltar com segurança. Use "Resetar tudo" se quiser recomeçar.',
+        'voltar_limite': 'Dá para voltar no máximo {n}: antes disso há missões que mudaram numa atualização do jogo.',
+        'voltar_zerado': 'As missões deste mapa já estão zeradas: não há o que voltar.',
+        'nomes_sem_jogo': 'Os nomes das missões vêm do jogo instalado no seu PC, que não foi encontrado.',
+        'link_escolher_jogo': 'Escolher a pasta do jogo',
+        'titulo_escolher_jogo': 'Escolha a pasta do jogo (a que tem a pasta archives_win64)',
+        'pasta_jogo_invalida': 'Esta pasta não parece ser a do jogo. Escolha a pasta "theHunterCotW", que tem '
+                               'dentro a pasta "archives_win64".',
+        'bt_voltar_nenhum': '⏪  Voltar missões',
+        'bt_voltar_1': '⏪  Voltar 1 missão em {mapa}',
+        'bt_voltar_n': '⏪  Voltar {n} missões em {mapa}',
+        'bt_recomecar_atual': '↺  Recomeçar a missão atual em {mapa}',
+        'nao_mostrar_mais': 'Não mostrar mais sozinho (continua no link da janela)',
+        'zero_explica': '0 = recomeça só a missão em que você está, do começo (bom para missão travada).',
+        'do_comeco': '  ·  do começo',
+        'confv_titulo_0': 'Recomeçar a missão atual?',
+        'titulo_recomecar': 'Antes de recomeçar a missão atual em {mapa}',
+        'acao_voltar_aviso': 'Um backup é feito antes. Ao refazer as missões, o jogo pode dar XP e dinheiro de novo.',
+        'acao_resetar_aviso': 'Um backup é feito antes. Os outros mapas não mudam.',
+        'mapas_marcados': 'Mapas marcados',
+        'chip_mapa': '{nome}  ·  {c}/{t} missões',
+        'nenhum_mapa_marcado': 'Marque um ou mais mapas na lista ao lado (nas caixinhas).',
+        'oque_acontece': 'O que acontece',
+        'oque_acontece_txt': 'Todas as missões desses mapas voltam ao começo, como num personagem novo. Você '
+                             'recomeça a história do zero quando entrar no mapa.',
+        'oque_nao_muda': 'O que NÃO muda',
+        'oque_nao_muda_txt': 'Os outros mapas, seu nível, XP, dinheiro, armas e troféus. Um backup das missões é '
+                             'feito antes, e você pode desfazer quando quiser.',
+        'dica_voltar': 'Quer só refazer algumas missões em vez de tudo? Escolha "Voltar missões da história".',
+        'desfazer_sempre': 'Sempre liberado  ·  o backup original 🔒 nunca é apagado',
+        'confv_titulo': 'Voltar {n} missões?',
+        'confv_titulo_1': 'Voltar 1 missão?',
+        'confv_de': 'Hoje você está em',
+        'confv_para': 'Vai recomeçar em',
+        'confv_sec': 'Também voltam (ligadas a essas missões): {nomes}.',
+        'confv_outros': 'As outras missões e os outros mapas não mudam.',
+        'confv_xp': 'Ao refazer as missões, o jogo pode dar XP e dinheiro de novo.',
+        'confv_sim': 'Voltar missões',
+        'prontov_titulo': 'Pronto! Missões voltadas',
+        'prontov_sub': 'Em {mapa}, você recomeça em: {nome}.',
+        'prontov_entre': 'Entre no mapa: a missão já estará ativa para você refazer.',
+        'titulo_voltar': 'Antes de voltar missões em {mapa} ({n})',
+        'erro_voltar_mudou': 'As missões deste mapa mudaram numa atualização do jogo. Por segurança, nada foi '
+                             'alterado.',
+        'erro_voltar_invalido': 'Não dá para voltar essa quantidade de missões neste mapa (o save pode ter mudado). '
+                                'Nada foi alterado.',
+        'nao_foi_possivel_voltar': 'Não foi possível voltar as missões. Nada foi alterado.\n\n{texto}',
+        'confirmar_voltar': 'Voltar {n} missão(ões) da história em {mapa}?\n\nVocê vai recomeçar em: {nome}.\n\n'
+                            'Um backup das missões é feito antes.',
+        'voltar_ok': 'Pronto! Em {mapa}, você recomeça em: {nome}.',
+        'il_backup_dias': 'Se o seu último backup tiver mais de {dias} dias, o programa sugere fazer um novo.',
+        'il_dois_caminhos': 'Dois caminhos: recomeçar o mapa inteiro, ou voltar só algumas missões.',
+        'il_exemplo_voltar': 'Estava na missão 5, voltou 2: recomeça na 3. As missões 3, 4 e 5 voltam.',
+        'il_sec_ligada': 'Secundária ligada: volta junto',
+        'il_sec_solta': 'Outra secundária: não muda',
+        'il_seguro_backup': 'Um backup das missões é feito antes, sempre.',
+        'il_seguro_desfazer': 'Mudou de ideia? "Restaurar missões" devolve como estava.',
+        'il_seguro_xp': 'Ao refazer as missões, o jogo pode dar XP e dinheiro de novo.',
+        'modos_janela': 'Resetar tudo ou voltar missões?',
+        'modos_ultimo_botao': 'Entendi',
+        'modos_passo_1': 'A DIFERENÇA',
+        'modos_passo_2': 'EXEMPLO',
+        'modos_passo_3': 'SECUNDÁRIAS',
+        'modos_passo_4': 'SEGURANÇA',
+        'modos_titulo_1': 'Recomeçar tudo ou só um pedaço',
+        'modos_texto_1': '"Resetar tudo" zera TODAS as missões do mapa (história e secundárias), como num '
+                         'personagem novo.\n\n"Voltar missões da história" volta só algumas missões: as anteriores '
+                         'continuam feitas e você refaz a partir dali. Ótimo para uma missão que travou ou para '
+                         'rever uma parte da história.',
+        'modos_titulo_2': 'Escolha quantas missões voltar',
+        'modos_texto_2': 'Use os botões − e + ou arraste o controle. O programa mostra o nome da missão em que '
+                         'você vai recomeçar e destaca em laranja, na linha do tempo, tudo o que volta.\n\n'
+                         'O máximo é o que você já fez naquele mapa.',
+        'modos_titulo_3': 'Secundárias ligadas voltam junto',
+        'modos_texto_3': 'Algumas secundárias só existem depois de certas missões da história. Se essas missões '
+                         'voltarem, as secundárias ligadas a elas voltam junto, para o jogo não ficar confuso.\n\n'
+                         'As outras secundárias e os outros mapas não mudam. O programa mostra os nomes antes.',
+        'modos_titulo_4': 'Sempre com backup',
+        'modos_texto_4': 'Antes de voltar ou resetar, um backup das missões é feito sozinho. Se mudar de ideia, use '
+                         '"{restaurar}" no quadro "{desfazer}".\n\nAo refazer as missões, o jogo pode dar XP e '
+                         'dinheiro de novo.',
+        'intro_titulo_3': 'Confirme o seu save',
+        'intro_texto_3': 'O programa encontra o seu save sozinho (Steam ou Epic) e mostra o nível, o XP e o dinheiro '
+                         'do personagem, para você ter certeza de que é o seu. O selo "MAIS RECENTE" indica o save '
+                         'jogado por último.\n\nSe estiver certo, clique em "{e_este}". Se não, use "{trocar}" ou '
+                         '"{escolher_pasta}".',
+        'intro_titulo_4': 'Backup do save completo',
+        'intro_texto_4': 'Obrigatório antes de mexer nas missões: guarda uma cópia de TODOS os arquivos do save. '
+                         'Você pode dar um apelido para reconhecer depois.\n\nSe o último backup tiver mais de '
+                         '{dias_velho} dias, o programa sugere fazer um novo (mas deixa continuar).',
+        'intro_titulo_5': 'Escolha o mapa',
+        'intro_texto_5': 'Clique no mapa na lista. A barrinha mostra quanto da história você já fez ("História '
+                         '5/8").\n\nPara resetar vários mapas de uma vez, use as caixinhas ou "Marcar todos".',
+        'intro_titulo_6': 'Escolha o que fazer',
+        'intro_texto_6': 'No painel do mapa há dois caminhos: "Resetar tudo" (zera todas as missões) ou "Voltar '
+                         'missões da história" (volta só algumas, e você vê o nome da missão em que vai '
+                         'recomeçar).\n\nNa dúvida, clique em "{qual_escolher}". Antes de alterar, feche o jogo.',
     },
 
     # =====================================================================
@@ -1019,7 +1170,6 @@ TEXTOS = {
         'bt_resetar_nenhum': 'Reset',
         'bt_resetar_um': 'Reset 1 map',
         'bt_resetar_varios': 'Reset {n} maps',
-        'passo4_nenhum': 'Tick at least one map in step 3.',
         'passo4_resumo': '{nomes}. Other maps do not change.',
         'conjuncao_e': ' and ',
         'link_restaurar_missoes': 'Restore missions',
@@ -1120,7 +1270,6 @@ TEXTOS = {
         'link_verificar_de_novo': 'Check again',
         'status_bloqueado': '●  Windows is blocking the program: see the yellow notice above',
         'bt_novo_backup': '💾  Make a new backup',
-        'passo2_velho': 'Last backup {dias} days ago  ·  {tamanho}. Make a new one before changing the save.',
         'link_marcar_todos': 'Tick all',
         'link_desmarcar_todos': 'Untick all',
         'desfazer': 'Need to undo?',
@@ -1190,26 +1339,6 @@ TEXTOS = {
                          'files. When everything is fine, the step gets a green ✓.\n\n'
                          'If something gets in the way, it turns yellow: click "{detalhes}" to see what it is and '
                          'fix it, then "{verificar}".',
-        'intro_titulo_3': 'Choose the save',
-        'intro_texto_3': 'The program finds your save on its own (Steam or Epic) and picks the one you played last.'
-                         '\n\n'
-                         'Have more than one save? Click "{trocar}" to pick another. If it finds nothing, use '
-                         '"{escolher_pasta}".',
-        'intro_titulo_4': 'Back up the full save',
-        'intro_texto_4': 'Recommended, especially the first time: it keeps a copy of ALL the save files. You can give '
-                         'the backup a name to recognize it later.\n\n'
-                         'If the last backup is more than {dias} days old, the step turns yellow to remind you to '
-                         'make another one with "{novo_backup}".',
-        'intro_titulo_5': 'Tick the maps you want to start over',
-        'intro_texto_5': 'Click the box (or the name) of each map, or use "Tick all". The small bar shows how far you '
-                         'have got in the missions of that map.\n\n'
-                         'Maps marked "{resetado}" are ready: their missions start from scratch when you enter the '
-                         'map.',
-        'intro_titulo_6': 'Reset',
-        'intro_texto_6': 'Close the game, click the green "{resetar}" button and check on the confirmation screen what '
-                         'will change. The program first backs up the missions on its own.\n\n'
-                         'Right below is the "{desfazer}" box, with the buttons to go back and the "{como_desfazer}" '
-                         'link, which teaches it step by step.',
         'intro_titulo_7': 'After the reset',
         'intro_texto_7': 'Open the game normally. If Steam Cloud or Epic Cloud asks which version to use, choose the '
                          'LOCAL one (this computer). Enter the map: its missions start from scratch.\n\n'
@@ -1260,6 +1389,172 @@ TEXTOS = {
                             'at the top and, right below, the others, from the most recent to the oldest. Each one says '
                             'why it was made (e.g. "Before resetting Te Awaroa").\n\n'
                             'To undo the last reset, choose the first one right below the 🔒.',
+
+        # ---- 0.9.9
+        'p1_titulo': 'Check',
+        'p2_titulo': 'Your save',
+        'p3_titulo': 'Full backup',
+        'p4_titulo': 'Choose the map',
+        'p5_titulo_um': 'What to do on this map?',
+        'p5_titulo_varios': 'What to do on these maps?',
+        'p5_travado': 'Complete steps 1 to 4',
+        'p5_travado_sub': 'Each step unlocks the next one, so nothing important is skipped.',
+        'p5_travado_texto': 'Follow the steps on the left, from top to bottom: check the verification, confirm '
+                            'your save, make (or confirm) the full backup and choose a map. After that, this panel '
+                            'shows the options for the chosen map.',
+        'p5_escolha': 'Choose a map',
+        'p5_escolha_sub_resetar': 'Tick one or more maps in the list on the left.',
+        'p5_escolha_sub_voltar': 'Click a map in the list on the left.',
+        'voltar_escolha_mapa': 'Click a map in the list on the left to see which story mission you are on and how '
+                               'many you can go back.',
+        'bt_li_aviso': 'I read the warning, continue',
+        'bt_ver_o_que_fazer': 'See what to do',
+        'status_avisos_aceitos': '●  Warnings read: you can continue',
+        'selo_mais_recente': 'MOST RECENT',
+        'selo_nao_recente': 'not the most recent',
+        'bt_e_este_save': 'Yes, this is my save',
+        'save_confirmado': 'Save confirmed',
+        'st_nivel': 'Level',
+        'st_xp': 'XP',
+        'st_dinheiro': 'Money',
+        'st_missoes': 'Missions',
+        'p3_obrigatorio': 'Required before changing missions: a copy of the WHOLE save, so you can go back if '
+                          'needed.',
+        'passo2_velho': 'Your last full backup is {dias} days old  ·  {tamanho}. We recommend making a new one.',
+        'p3_velho_aceito': 'Using the {dias}-day-old backup  ·  {tamanho}',
+        'link_continuar_backup_velho': 'Continue with the {dias}-day-old one',
+        'link_fazer_novo': 'Make a new backup',
+        'backup_obrigatorio': 'Before changing missions you need a full save backup (step 3).\n\n'
+                              'Make the backup now?',
+        'passo4_nenhum': 'Tick at least one map in the list (step 4).',
+        'hist_n': 'Story {c}/{t}',
+        'missoes_c_de_t': '{c} of {t} missions completed',
+        'voce_esta_em': 'You are on: {nome}  ·  story mission {n} of {t}',
+        'historia_concluida': 'Story completed ✓  ·  {t} missions',
+        'historia_concluida_curto': 'Story completed',
+        'mapa_zerado_banner': 'Missions already reset: the game rebuilds them when you enter the map.',
+        'mapas_marcados_resumo': '{n} maps ticked  ·  {c} missions completed in total',
+        'modo_resetar': 'Reset everything',
+        'modo_resetar_sub': 'Clears all missions on this map (story and side).',
+        'modo_resetar_sub_varios': 'Clears all missions on the ticked maps (story and side).',
+        'modo_voltar': 'Go back story missions',
+        'modo_voltar_sub': 'Goes back a few missions and you replay from there.',
+        'link_qual_escolher': 'Which one? See the difference',
+        'quantas_voltar': 'How many missions back?',
+        'de_no_maximo': 'up to {n}',
+        'recomecar_em': 'You will restart at',
+        'missao_n_de': 'story mission {n} of {t}',
+        'tambem_voltam': '{n} side missions linked to these also go back:',
+        'tambem_volta_uma': '1 side mission linked to these also goes back:',
+        'nenhuma_secundaria': 'No side mission goes back with them.',
+        'outras_nao_mudam': 'Other side missions and other maps do not change.',
+        'historia_de': '{mapa} story',
+        'n_de_t_concluidas': '{c} of {t} completed',
+        'tag_recomeca': 'restart here',
+        'tag_volta': 'goes back',
+        'tag_voce_esta': 'you are here',
+        'missao_historia_n': 'Story mission {n}',
+        'missao_sem_nome': 'Side mission',
+        'voltar_sem_dados': 'This map does not have the information needed to go back missions yet. Use "Reset '
+                            'everything" if you want to start over.',
+        'voltar_comeco': 'You are still on the first story mission of this map: there is nothing to go back.',
+        'voltar_mudou': 'The missions on this map changed in a game update after you played them, so going back is '
+                        'not safe. Use "Reset everything" if you want to start over.',
+        'voltar_limite': 'You can go back at most {n}: before that there are missions that changed in a game update.',
+        'voltar_zerado': 'The missions on this map are already reset: there is nothing to go back.',
+        'nomes_sem_jogo': 'Mission names come from the game installed on your PC, which was not found.',
+        'link_escolher_jogo': 'Choose the game folder',
+        'titulo_escolher_jogo': 'Choose the game folder (the one with the archives_win64 folder)',
+        'pasta_jogo_invalida': 'This does not look like the game folder. Choose the "theHunterCotW" folder, which '
+                               'has the "archives_win64" folder inside.',
+        'bt_voltar_nenhum': '⏪  Go back missions',
+        'bt_voltar_1': '⏪  Go back 1 mission on {mapa}',
+        'bt_voltar_n': '⏪  Go back {n} missions on {mapa}',
+        'bt_recomecar_atual': '↺  Restart the current mission on {mapa}',
+        'nao_mostrar_mais': 'Don\'t show automatically again (still available from the link in the window)',
+        'zero_explica': '0 = restarts only the mission you are on, from the beginning (good for a stuck mission).',
+        'do_comeco': '  ·  from the start',
+        'confv_titulo_0': 'Restart the current mission?',
+        'titulo_recomecar': 'Before restarting the current mission on {mapa}',
+        'acao_voltar_aviso': 'A backup is made first. When you replay missions, the game may give XP and money again.',
+        'acao_resetar_aviso': 'A backup is made first. Other maps do not change.',
+        'mapas_marcados': 'Ticked maps',
+        'chip_mapa': '{nome}  ·  {c}/{t} missions',
+        'nenhum_mapa_marcado': 'Tick one or more maps in the list on the left (the boxes).',
+        'oque_acontece': 'What happens',
+        'oque_acontece_txt': 'All missions on these maps go back to the start, like a new character. You start the '
+                             'story from scratch when you enter the map.',
+        'oque_nao_muda': 'What does NOT change',
+        'oque_nao_muda_txt': 'Other maps, your level, XP, money, weapons and trophies. A missions backup is made '
+                             'first, and you can undo whenever you want.',
+        'dica_voltar': 'Only want to replay some missions instead of everything? Choose "Go back story missions".',
+        'desfazer_sempre': 'Always available  ·  the original backup 🔒 is never deleted',
+        'confv_titulo': 'Go back {n} missions?',
+        'confv_titulo_1': 'Go back 1 mission?',
+        'confv_de': 'Today you are on',
+        'confv_para': 'You will restart at',
+        'confv_sec': 'Also going back (linked to these missions): {nomes}.',
+        'confv_outros': 'Other missions and other maps do not change.',
+        'confv_xp': 'When you replay missions, the game may give XP and money again.',
+        'confv_sim': 'Go back missions',
+        'prontov_titulo': 'Done! Missions went back',
+        'prontov_sub': 'On {mapa}, you restart at: {nome}.',
+        'prontov_entre': 'Enter the map: the mission will already be active for you to replay.',
+        'titulo_voltar': 'Before going back missions on {mapa} ({n})',
+        'erro_voltar_mudou': 'The missions on this map changed in a game update. To be safe, nothing was changed.',
+        'erro_voltar_invalido': 'You cannot go back that many missions on this map (the save may have changed). '
+                                'Nothing was changed.',
+        'nao_foi_possivel_voltar': 'Could not go back the missions. Nothing was changed.\n\n{texto}',
+        'confirmar_voltar': 'Go back {n} story mission(s) on {mapa}?\n\nYou will restart at: {nome}.\n\n'
+                            'A missions backup is made first.',
+        'voltar_ok': 'Done! On {mapa}, you restart at: {nome}.',
+        'il_backup_dias': 'If your last backup is more than {dias} days old, the program suggests making a new one.',
+        'il_dois_caminhos': 'Two paths: start the whole map over, or go back just a few missions.',
+        'il_exemplo_voltar': 'You were on mission 5 and went back 2: you restart at 3. Missions 3, 4 and 5 go back.',
+        'il_sec_ligada': 'Linked side mission: goes back too',
+        'il_sec_solta': 'Other side mission: no change',
+        'il_seguro_backup': 'A missions backup is always made first.',
+        'il_seguro_desfazer': 'Changed your mind? "Restore missions" puts it back.',
+        'il_seguro_xp': 'When you replay missions, the game may give XP and money again.',
+        'modos_janela': 'Reset everything or go back missions?',
+        'modos_ultimo_botao': 'Got it',
+        'modos_passo_1': 'THE DIFFERENCE',
+        'modos_passo_2': 'EXAMPLE',
+        'modos_passo_3': 'SIDE MISSIONS',
+        'modos_passo_4': 'SAFETY',
+        'modos_titulo_1': 'Start everything over or just a part',
+        'modos_texto_1': '"Reset everything" clears ALL missions on the map (story and side), like a new '
+                         'character.\n\n"Go back story missions" only goes back a few missions: the earlier ones '
+                         'stay completed and you replay from there. Great for a stuck mission or to replay part of '
+                         'the story.',
+        'modos_titulo_2': 'Choose how many missions to go back',
+        'modos_texto_2': 'Use the − and + buttons or drag the slider. The program shows the name of the mission you '
+                         'will restart at and highlights in orange, on the timeline, everything that goes back.\n\n'
+                         'The maximum is what you have already done on that map.',
+        'modos_titulo_3': 'Linked side missions go back too',
+        'modos_texto_3': 'Some side missions only exist after certain story missions. If those missions go back, '
+                         'the side missions linked to them go back too, so the game does not get confused.\n\n'
+                         'Other side missions and other maps do not change. The program shows the names first.',
+        'modos_titulo_4': 'Always with a backup',
+        'modos_texto_4': 'Before going back or resetting, a missions backup is made automatically. If you change '
+                         'your mind, use "{restaurar}" in the "{desfazer}" box.\n\nWhen you replay missions, the '
+                         'game may give XP and money again.',
+        'intro_titulo_3': 'Confirm your save',
+        'intro_texto_3': 'The program finds your save on its own (Steam or Epic) and shows the character\'s level, XP '
+                         'and money, so you can be sure it is yours. The "MOST RECENT" badge marks the save you '
+                         'played last.\n\nIf it is right, click "{e_este}". If not, use "{trocar}" or '
+                         '"{escolher_pasta}".',
+        'intro_titulo_4': 'Full save backup',
+        'intro_texto_4': 'Required before changing missions: it keeps a copy of ALL the save files. You can give it '
+                         'a nickname to recognize it later.\n\nIf the last backup is more than {dias_velho} days '
+                         'old, the program suggests making a new one (but lets you continue).',
+        'intro_titulo_5': 'Choose the map',
+        'intro_texto_5': 'Click the map in the list. The small bar shows how much of the story you have done ("Story '
+                         '5/8").\n\nTo reset several maps at once, use the boxes or "Tick all".',
+        'intro_titulo_6': 'Choose what to do',
+        'intro_texto_6': 'The map panel has two paths: "Reset everything" (clears all missions) or "Go back story '
+                         'missions" (goes back just a few, and you see the name of the mission you will restart '
+                         'at).\n\nIf in doubt, click "{qual_escolher}". Close the game before changing anything.',
     },
 
     # =====================================================================
@@ -1595,7 +1890,6 @@ TEXTOS = {
         'bt_resetar_nenhum': 'Reiniciar',
         'bt_resetar_um': 'Reiniciar 1 mapa',
         'bt_resetar_varios': 'Reiniciar {n} mapas',
-        'passo4_nenhum': 'Marca al menos un mapa en el paso 3.',
         'passo4_resumo': '{nomes}. Los demás mapas no cambian.',
         'conjuncao_e': ' y ',
         'link_restaurar_missoes': 'Restaurar misiones',
@@ -1697,7 +1991,6 @@ TEXTOS = {
         'link_verificar_de_novo': 'Comprobar de nuevo',
         'status_bloqueado': '●  Windows está bloqueando el programa: mira el aviso amarillo de arriba',
         'bt_novo_backup': '💾  Hacer una copia nueva',
-        'passo2_velho': 'Última copia hace {dias} días  ·  {tamanho}. Haz una nueva antes de modificar la partida.',
         'link_marcar_todos': 'Marcar todos',
         'link_desmarcar_todos': 'Desmarcar todos',
         'desfazer': '¿Necesitas deshacer?',
@@ -1766,27 +2059,6 @@ TEXTOS = {
                          'partida. Si todo está bien, el paso lleva un ✓ verde.\n\n'
                          'Si algo estorba, se pone amarillo: haz clic en "{detalhes}" para ver qué es y resolverlo, '
                          'y después en "{verificar}".',
-        'intro_titulo_3': 'Elige la partida',
-        'intro_texto_3': 'El programa encuentra tu partida solo (Steam o Epic) y elige la que jugaste por última vez.'
-                         '\n\n'
-                         '¿Tienes más de una? Haz clic en "{trocar}" para elegir otra. Si no encuentra nada, usa '
-                         '"{escolher_pasta}".',
-        'intro_titulo_4': 'Haz una copia de la partida completa',
-        'intro_texto_4': 'Recomendable, sobre todo la primera vez: guarda una copia de TODOS los archivos de la '
-                         'partida. Puedes ponerle un nombre para reconocerla después.\n\n'
-                         'Si la última copia tiene más de {dias} días, el paso se pone amarillo para recordarte que '
-                         'hagas otra con "{novo_backup}".',
-        'intro_titulo_5': 'Marca los mapas que quieres empezar de nuevo',
-        'intro_texto_5': 'Haz clic en la casilla (o en el nombre) de cada mapa, o usa "Marcar todos". La barrita '
-                         'muestra cuánto has avanzado en las misiones de ese mapa.\n\n'
-                         'Los mapas con "{resetado}" ya están listos: sus misiones empiezan desde cero cuando entres '
-                         'en el mapa.',
-        'intro_titulo_6': 'Reiniciar',
-        'intro_texto_6': 'Cierra el juego, haz clic en el botón verde "{resetar}" y revisa en la pantalla de '
-                         'confirmación lo que va a cambiar. Antes, el programa hace solo una copia de las misiones.'
-                         '\n\n'
-                         'Justo debajo está el cuadro "{desfazer}", con los botones para volver atrás y el enlace '
-                         '"{como_desfazer}", que lo explica paso a paso.',
         'intro_titulo_7': 'Después del reinicio',
         'intro_texto_7': 'Abre el juego normalmente. Si Steam Cloud o Epic Cloud pregunta qué versión usar, elige la '
                          'LOCAL (de este ordenador). Entra en el mapa: las misiones empiezan desde cero.\n\n'
@@ -1838,5 +2110,178 @@ TEXTOS = {
                             'original siempre está arriba y, justo debajo, las demás, de la más reciente a la más '
                             'antigua. Cada una dice por qué se hizo (ej.: "Antes de reiniciar Te Awaroa").\n\n'
                             'Para deshacer el último reinicio, elige la primera justo debajo del 🔒.',
+
+        # ---- 0.9.9
+        'p1_titulo': 'Verificación',
+        'p2_titulo': 'Tu partida',
+        'p3_titulo': 'Copia completa',
+        'p4_titulo': 'Elige el mapa',
+        'p5_titulo_um': '¿Qué hacer en este mapa?',
+        'p5_titulo_varios': '¿Qué hacer en estos mapas?',
+        'p5_travado': 'Completa los pasos 1 a 4',
+        'p5_travado_sub': 'Cada paso desbloquea el siguiente. Así no se salta nada importante.',
+        'p5_travado_texto': 'Sigue los pasos de la izquierda, de arriba abajo: revisa la verificación, confirma tu '
+                            'partida, haz (o confirma) la copia completa y elige un mapa. Después, este panel '
+                            'muestra las opciones del mapa elegido.',
+        'p5_escolha': 'Elige un mapa',
+        'p5_escolha_sub_resetar': 'Marca uno o más mapas en la lista de la izquierda.',
+        'p5_escolha_sub_voltar': 'Haz clic en un mapa de la lista de la izquierda.',
+        'voltar_escolha_mapa': 'Haz clic en un mapa de la lista de la izquierda para ver en qué misión de la '
+                               'historia estás y cuántas puedes retroceder.',
+        'bt_li_aviso': 'Leí el aviso, quiero continuar',
+        'bt_ver_o_que_fazer': 'Ver qué hacer',
+        'status_avisos_aceitos': '●  Avisos leídos: puedes continuar',
+        'selo_mais_recente': 'MÁS RECIENTE',
+        'selo_nao_recente': 'no es la más reciente',
+        'bt_e_este_save': 'Sí, es esta partida',
+        'save_confirmado': 'Partida confirmada',
+        'st_nivel': 'Nivel',
+        'st_xp': 'XP',
+        'st_dinheiro': 'Dinero',
+        'st_missoes': 'Misiones',
+        'p3_obrigatorio': 'Obligatorio antes de tocar las misiones: una copia de TODA la partida, para poder volver '
+                          'atrás si hace falta.',
+        'passo2_velho': 'Tu última copia completa tiene {dias} días  ·  {tamanho}. Recomendamos hacer una nueva.',
+        'p3_velho_aceito': 'Usando la copia de {dias} días  ·  {tamanho}',
+        'link_continuar_backup_velho': 'Seguir con la de {dias} días',
+        'link_fazer_novo': 'Hacer una copia nueva',
+        'backup_obrigatorio': 'Antes de tocar las misiones necesitas una copia de la partida completa (paso 3).\n\n'
+                              '¿Hacer la copia ahora?',
+        'passo4_nenhum': 'Marca al menos un mapa en la lista (paso 4).',
+        'hist_n': 'Historia {c}/{t}',
+        'missoes_c_de_t': '{c} de {t} misiones completadas',
+        'voce_esta_em': 'Estás en: {nome}  ·  misión {n} de {t} de la historia',
+        'historia_concluida': 'Historia completada ✓  ·  {t} misiones',
+        'historia_concluida_curto': 'Historia completada',
+        'mapa_zerado_banner': 'Misiones ya reiniciadas: el juego las recrea al entrar en el mapa.',
+        'mapas_marcados_resumo': '{n} mapas marcados  ·  {c} misiones completadas en total',
+        'modo_resetar': 'Reiniciar todo',
+        'modo_resetar_sub': 'Borra todas las misiones de este mapa (historia y secundarias).',
+        'modo_resetar_sub_varios': 'Borra todas las misiones de los mapas marcados (historia y secundarias).',
+        'modo_voltar': 'Retroceder misiones de la historia',
+        'modo_voltar_sub': 'Retrocede algunas misiones y las rehaces desde ahí.',
+        'link_qual_escolher': '¿Cuál elegir? Mira la diferencia',
+        'quantas_voltar': '¿Cuántas misiones retroceder?',
+        'de_no_maximo': 'de máximo {n}',
+        'recomecar_em': 'Vas a recomenzar en',
+        'missao_n_de': 'misión {n} de {t} de la historia',
+        'tambem_voltam': 'También retroceden {n} secundarias ligadas a esas misiones:',
+        'tambem_volta_uma': 'También retrocede 1 secundaria ligada a esas misiones:',
+        'nenhuma_secundaria': 'Ninguna secundaria retrocede con ellas.',
+        'outras_nao_mudam': 'Las demás secundarias y los demás mapas no cambian.',
+        'historia_de': 'Historia de {mapa}',
+        'n_de_t_concluidas': '{c} de {t} completadas',
+        'tag_recomeca': 'recomienza aquí',
+        'tag_volta': 'retrocede',
+        'tag_voce_esta': 'estás aquí',
+        'missao_historia_n': 'Misión {n} de la historia',
+        'missao_sem_nome': 'Misión secundaria',
+        'voltar_sem_dados': 'Este mapa aún no tiene la información necesaria para retroceder misiones. Usa '
+                            '"Reiniciar todo" si quieres empezar de nuevo.',
+        'voltar_comeco': 'Todavía estás en la primera misión de la historia de este mapa: no hay nada que retroceder.',
+        'voltar_mudou': 'Las misiones de este mapa cambiaron en una actualización del juego después de que las '
+                        'jugaste, así que retroceder no es seguro. Usa "Reiniciar todo" si quieres empezar de nuevo.',
+        'voltar_limite': 'Puedes retroceder como máximo {n}: antes hay misiones que cambiaron en una actualización '
+                         'del juego.',
+        'voltar_zerado': 'Las misiones de este mapa ya están reiniciadas: no hay nada que retroceder.',
+        'nomes_sem_jogo': 'Los nombres de las misiones vienen del juego instalado en tu PC, que no se encontró.',
+        'link_escolher_jogo': 'Elegir la carpeta del juego',
+        'titulo_escolher_jogo': 'Elige la carpeta del juego (la que tiene la carpeta archives_win64)',
+        'pasta_jogo_invalida': 'Esta carpeta no parece ser la del juego. Elige la carpeta "theHunterCotW", que '
+                               'tiene dentro la carpeta "archives_win64".',
+        'bt_voltar_nenhum': '⏪  Retroceder misiones',
+        'bt_voltar_1': '⏪  Retroceder 1 misión en {mapa}',
+        'bt_voltar_n': '⏪  Retroceder {n} misiones en {mapa}',
+        'bt_recomecar_atual': '↺  Recomenzar la misión actual en {mapa}',
+        'nao_mostrar_mais': 'No mostrar más automáticamente (sigue en el enlace de la ventana)',
+        'zero_explica': '0 = recomienza solo la misión en la que estás, desde el principio (útil si se trabó).',
+        'do_comeco': '  ·  desde el principio',
+        'confv_titulo_0': '¿Recomenzar la misión actual?',
+        'titulo_recomecar': 'Antes de recomenzar la misión actual en {mapa}',
+        'acao_voltar_aviso': 'Antes se hace una copia. Al rehacer las misiones, el juego puede dar XP y dinero otra '
+                             'vez.',
+        'acao_resetar_aviso': 'Antes se hace una copia. Los demás mapas no cambian.',
+        'mapas_marcados': 'Mapas marcados',
+        'chip_mapa': '{nome}  ·  {c}/{t} misiones',
+        'nenhum_mapa_marcado': 'Marca uno o más mapas en la lista de la izquierda (en las casillas).',
+        'oque_acontece': 'Qué pasa',
+        'oque_acontece_txt': 'Todas las misiones de esos mapas vuelven al principio, como con un personaje nuevo. '
+                             'Empiezas la historia desde cero al entrar en el mapa.',
+        'oque_nao_muda': 'Qué NO cambia',
+        'oque_nao_muda_txt': 'Los demás mapas, tu nivel, XP, dinero, armas y trofeos. Antes se hace una copia de las '
+                             'misiones, y puedes deshacer cuando quieras.',
+        'dica_voltar': '¿Solo quieres rehacer algunas misiones en vez de todo? Elige "Retroceder misiones de la '
+                       'historia".',
+        'desfazer_sempre': 'Siempre disponible  ·  la copia original 🔒 nunca se borra',
+        'confv_titulo': '¿Retroceder {n} misiones?',
+        'confv_titulo_1': '¿Retroceder 1 misión?',
+        'confv_de': 'Hoy estás en',
+        'confv_para': 'Vas a recomenzar en',
+        'confv_sec': 'También retroceden (ligadas a esas misiones): {nomes}.',
+        'confv_outros': 'Las demás misiones y los demás mapas no cambian.',
+        'confv_xp': 'Al rehacer las misiones, el juego puede dar XP y dinero otra vez.',
+        'confv_sim': 'Retroceder misiones',
+        'prontov_titulo': '¡Listo! Misiones retrocedidas',
+        'prontov_sub': 'En {mapa}, recomienzas en: {nome}.',
+        'prontov_entre': 'Entra en el mapa: la misión ya estará activa para rehacerla.',
+        'titulo_voltar': 'Antes de retroceder misiones en {mapa} ({n})',
+        'erro_voltar_mudou': 'Las misiones de este mapa cambiaron en una actualización del juego. Por seguridad, no '
+                             'se cambió nada.',
+        'erro_voltar_invalido': 'No se puede retroceder esa cantidad de misiones en este mapa (la partida puede '
+                                'haber cambiado). No se cambió nada.',
+        'nao_foi_possivel_voltar': 'No se pudieron retroceder las misiones. No se cambió nada.\n\n{texto}',
+        'confirmar_voltar': '¿Retroceder {n} misión(es) de la historia en {mapa}?\n\nVas a recomenzar en: {nome}.\n\n'
+                            'Antes se hace una copia de las misiones.',
+        'voltar_ok': '¡Listo! En {mapa}, recomienzas en: {nome}.',
+        'il_backup_dias': 'Si tu última copia tiene más de {dias} días, el programa sugiere hacer una nueva.',
+        'il_dois_caminhos': 'Dos caminos: empezar todo el mapa de nuevo, o retroceder solo algunas misiones.',
+        'il_exemplo_voltar': 'Estabas en la misión 5 y retrocediste 2: recomienzas en la 3. Las misiones 3, 4 y 5 '
+                             'retroceden.',
+        'il_sec_ligada': 'Secundaria ligada: retrocede también',
+        'il_sec_solta': 'Otra secundaria: no cambia',
+        'il_seguro_backup': 'Siempre se hace antes una copia de las misiones.',
+        'il_seguro_desfazer': '¿Cambiaste de idea? "Restaurar misiones" lo devuelve como estaba.',
+        'il_seguro_xp': 'Al rehacer las misiones, el juego puede dar XP y dinero otra vez.',
+        'modos_janela': '¿Reiniciar todo o retroceder misiones?',
+        'modos_ultimo_botao': 'Entendido',
+        'modos_passo_1': 'LA DIFERENCIA',
+        'modos_passo_2': 'EJEMPLO',
+        'modos_passo_3': 'SECUNDARIAS',
+        'modos_passo_4': 'SEGURIDAD',
+        'modos_titulo_1': 'Empezar todo de nuevo o solo una parte',
+        'modos_texto_1': '"Reiniciar todo" borra TODAS las misiones del mapa (historia y secundarias), como con un '
+                         'personaje nuevo.\n\n"Retroceder misiones de la historia" solo retrocede algunas misiones: '
+                         'las anteriores siguen completadas y las rehaces desde ahí. Ideal para una misión que se '
+                         'trabó o para repetir una parte de la historia.',
+        'modos_titulo_2': 'Elige cuántas misiones retroceder',
+        'modos_texto_2': 'Usa los botones − y + o arrastra el control. El programa muestra el nombre de la misión en '
+                         'la que vas a recomenzar y resalta en naranja, en la línea de tiempo, todo lo que '
+                         'retrocede.\n\nEl máximo es lo que ya hiciste en ese mapa.',
+        'modos_titulo_3': 'Las secundarias ligadas retroceden también',
+        'modos_texto_3': 'Algunas secundarias solo existen después de ciertas misiones de la historia. Si esas '
+                         'misiones retroceden, las secundarias ligadas a ellas también, para que el juego no se '
+                         'confunda.\n\nLas demás secundarias y los demás mapas no cambian. El programa muestra los '
+                         'nombres antes.',
+        'modos_titulo_4': 'Siempre con copia',
+        'modos_texto_4': 'Antes de retroceder o reiniciar, se hace sola una copia de las misiones. Si cambias de '
+                         'idea, usa "{restaurar}" en el cuadro "{desfazer}".\n\nAl rehacer las misiones, el juego '
+                         'puede dar XP y dinero otra vez.',
+        'intro_titulo_3': 'Confirma tu partida',
+        'intro_texto_3': 'El programa encuentra tu partida solo (Steam o Epic) y muestra el nivel, el XP y el dinero '
+                         'del personaje, para que tengas la certeza de que es la tuya. La etiqueta "MÁS RECIENTE" '
+                         'indica la última partida jugada.\n\nSi está bien, haz clic en "{e_este}". Si no, usa '
+                         '"{trocar}" o "{escolher_pasta}".',
+        'intro_titulo_4': 'Copia de la partida completa',
+        'intro_texto_4': 'Obligatoria antes de tocar las misiones: guarda una copia de TODOS los archivos de la '
+                         'partida. Puedes ponerle un apodo para reconocerla después.\n\nSi la última copia tiene '
+                         'más de {dias_velho} días, el programa sugiere hacer una nueva (pero deja continuar).',
+        'intro_titulo_5': 'Elige el mapa',
+        'intro_texto_5': 'Haz clic en el mapa en la lista. La barrita muestra cuánto de la historia ya hiciste '
+                         '("Historia 5/8").\n\nPara reiniciar varios mapas a la vez, usa las casillas o "Marcar todos".',
+        'intro_titulo_6': 'Elige qué hacer',
+        'intro_texto_6': 'En el panel del mapa hay dos caminos: "Reiniciar todo" (borra todas las misiones) o '
+                         '"Retroceder misiones de la historia" (retrocede solo algunas, y ves el nombre de la misión '
+                         'en la que vas a recomenzar).\n\nSi tienes dudas, haz clic en "{qual_escolher}". Cierra el '
+                         'juego antes de cambiar nada.',
     },
 }

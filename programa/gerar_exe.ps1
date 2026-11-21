@@ -14,12 +14,14 @@ $nome = "ResetMissionsCOTW_$versao"
 
 if (-not (Test-Path .venv)) {
     py -3 -m venv .venv
-    .venv\Scripts\python.exe -m pip install pyinstaller
+    .venv\Scripts\python.exe -m pip install pyinstaller pillow
 }
+.venv\Scripts\python.exe -c "import PIL" 2>$null
+if ($LASTEXITCODE -ne 0) { .venv\Scripts\python.exe -m pip install pillow }
 .venv\Scripts\python.exe -X utf8 testes.py
 if ($LASTEXITCODE -ne 0) { Write-Host 'Os testes falharam; o .exe NÃO foi gerado.'; exit 1 }
 
-.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --onefile --windowed --name ResetMissionsCOTW --icon icone.ico --add-data "icone.ico;." cotw_app.py
+.venv\Scripts\python.exe -m PyInstaller --noconfirm --clean --onefile --windowed --name ResetMissionsCOTW --icon icone.ico --add-data "icone.ico;." --add-data "mapas;mapas" cotw_app.py
 if ($LASTEXITCODE -ne 0) { Write-Host 'Falha ao gerar o .exe.'; exit 1 }
 
 $pasta = Join-Path $projeto $nome

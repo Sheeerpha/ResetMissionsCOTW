@@ -31,7 +31,8 @@ BACKUPS_SAVE = 'Backups_SAVE'                     # backups da pasta do save int
 PASTA_ARQUIVOS_SAVE = 'save'                      # dentro de cada backup completo: a cópia da pasta do save
 LIMITE_MISSOES = 50   # backups de missões guardados por save (o mais antigo nunca é apagado)
 LIMITE_SAVE = 5       # backups do save completo guardados por save
-DIAS_PROTECAO_SAVE = 3   # o backup completo protegido (🔒) tem no máximo 3 dias: depois passa para o próximo
+DIAS_PROTECAO_SAVE = 2   # o backup completo protegido (🔒) tem no máximo 2 dias: depois passa para o próximo
+DIAS_BACKUP_VELHO = 2    # backup completo com mais de 2 dias: o passo 3 sugere fazer outro
 
 B = 5             # o ADF começa no byte 5 do conteúdo descomprimido
 INST = B + 0x68   # instância raiz (MissionManager_1)
@@ -580,10 +581,14 @@ def _nome_de_pasta_seguro(texto, limite=70):
     return texto if len(texto) <= limite else texto[:limite - 1].rstrip(' .,') + '…'
 
 
-def titulo_do_backup(tipo, chaves=(), origem=None):
+def titulo_do_backup(tipo, chaves=(), origem=None, n=None):
     """Motivo do backup, no idioma atual."""
     if tipo == 'reset':
         return t('titulo_reset', nomes=', '.join(nome_do_mapa(k) for k in chaves))
+    if tipo == 'voltar' and chaves:
+        if n == 0:
+            return t('titulo_recomecar', mapa=nome_do_mapa(chaves[0]))
+        return t('titulo_voltar', mapa=nome_do_mapa(chaves[0]), n=n or '?')
     if tipo == 'restauracao' and origem is not None:
         return t('titulo_restauracao', quando=idiomas.data_hora(origem))
     return t('titulo_backup')
@@ -600,12 +605,13 @@ class Backup:
     origem: datetime.datetime = None  # para 'restauracao': de quando era o backup restaurado
     protegido: bool = False           # o mais antigo: nunca é apagado pela limpeza automática
     falhas_limpeza: list = field(default_factory=list)  # backups antigos que não puderam ser apagados
+    n: int = None                     # para 'voltar': quantas missões da história foram voltadas
 
     @property
     def titulo(self):
         """Motivo no idioma atual (backups antigos mostram o texto que foi gravado)."""
-        if self.tipo in ('reset', 'restauracao'):
-            return titulo_do_backup(self.tipo, self.chaves, self.origem)
+        if self.tipo in ('reset', 'restauracao', 'voltar'):
+            return titulo_do_backup(self.tipo, self.chaves, self.origem, self.n)
         return self.titulo_salvo
 
     @property
@@ -616,11 +622,11 @@ class Backup:
         return f'{idiomas.data_hora(self.quando, segundos=True)} - {self.titulo}'
 
 
-def fazer_backup(save, raiz, tipo, chaves=(), origem=None, manter=()):
+def fazer_backup(save, raiz, tipo, chaves=(), origem=None, manter=(), n=None):
     preparar_pasta_do_programa(raiz)
     destino_base = _pasta_backups_do_save(save, raiz)
     agora = datetime.datetime.now()
-    titulo = titulo_do_backup(tipo, chaves, origem)
+    titulo = titulo_do_backup(tipo, chaves, origem, n)
     nome = _nome_de_pasta_seguro(f'{agora:%Y-%m-%d %H-%M-%S} - {titulo}')
     destino = os.path.join(destino_base, nome)
     n = 2
@@ -641,12 +647,12 @@ def fazer_backup(save, raiz, tipo, chaves=(), origem=None, manter=()):
         mapas = []
     info = {'criado_em': agora.isoformat(timespec='seconds'), 'titulo': titulo, 'tipo': tipo,
             'chaves': list(chaves), 'origem': origem.isoformat(timespec='seconds') if origem else None,
-            'pasta_do_save': save.pasta, 'mapas': mapas}
+            'pasta_do_save': save.pasta, 'mapas': mapas, 'n': n}
     with open(os.path.join(destino, 'info.json'), 'w', encoding='utf-8') as f:
         json.dump(info, f, ensure_ascii=False, indent=2)
     registro.log(f'Backup de missões criado: {destino}')
     falhas = _limpar_backups(listar_backups(save, raiz), LIMITE_MISSOES, manter=manter)
-    return Backup(destino, agora, titulo, mapas, tipo, tuple(chaves), origem, falhas_limpeza=falhas)
+    return Backup(destino, agora, titulo, mapas, tipo, tuple(chaves), origem, falhas_limpeza=falhas, n=n)
 
 
 def listar_backups(save, raiz):
@@ -658,7 +664,7 @@ def listar_backups(save, raiz):
         pasta = os.path.join(base, nome)
         if not os.path.isfile(os.path.join(pasta, NOME_ARQUIVO)):
             continue
-        quando, titulo, mapas, tipo, chaves, origem = None, t('titulo_backup'), [], None, (), None
+        quando, titulo, mapas, tipo, chaves, origem, n = None, t('titulo_backup'), [], None, (), None, None
         try:
             with open(os.path.join(pasta, 'info.json'), encoding='utf-8') as f:
                 info = json.load(f)
@@ -670,13 +676,14 @@ def listar_backups(save, raiz):
             chaves = tuple(int(k) for k in info.get('chaves') or ())
             if info.get('origem'):
                 origem = datetime.datetime.fromisoformat(info['origem'])
+            n = info.get('n')
             if tipo is None:
                 tipo, chaves, origem = _entender_titulo_antigo(titulo)
         except Exception:
             pass
         if quando is None:
             quando = datetime.datetime.fromtimestamp(os.path.getmtime(pasta))
-        out.append(Backup(pasta, quando, titulo, mapas, tipo, chaves, origem))
+        out.append(Backup(pasta, quando, titulo, mapas, tipo, chaves, origem, n=n))
     out.sort(key=lambda b: b.quando, reverse=True)
     if out:
         out[-1].protegido = True
